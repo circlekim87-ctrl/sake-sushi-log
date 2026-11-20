@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="사케 노트">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <meta name="format-detection" content="telephone=no">
 <meta name="description" content="사케 노트 — 스시·사케 기록 앱 데모. 업장·기록·사진은 모두 예시 데이터입니다.">
 <meta name="robots" content="noindex,nofollow">
@@ -303,13 +306,25 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 @media (max-width:360px){
   input[type="date"],input[type="time"]{font-size:14px;padding-left:10px;padding-right:8px}
 }
+
+/* --- 앱 아이콘(헤더 배지) --- */
+.brand .mark{overflow:hidden;padding:0;
+  box-shadow:0 0 0 1px rgba(27,36,48,.10), 0 1px 3px rgba(27,36,48,.14)}
+.brand .mark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+
+/* --- 카카오 로컬 키: 저장 뒤 접힌 상태 --- */
+.kakaoState{display:flex;align-items:center;gap:7px;padding:9px 11px;border:1px solid var(--gold-line);
+  border-radius:11px;background:var(--gold-soft)}
+.kakaoState .dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#5F8A57}
+.kakaoState .lbl{flex:1;font-size:13px;font-weight:650;color:var(--navy);letter-spacing:-.01em}
+.kakaoState .btn{background:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar" id="topbar">
     <div class="brand">
-      <div class="mark">酒</div>
+      <div class="mark"><img src="icon-180.png" alt="" width="31" height="31"></div>
       <div>
         <h1>사케 노트</h1>
         <small>스시 · 사케 기록 · DEMO</small>
@@ -379,7 +394,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.2.1';
+var APP_VERSION = '0.2.2';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -1882,6 +1897,28 @@ async function shareGrid() {
 }
 
 /* ------------------------------ settings ------------------------------ */
+/* 카카오 로컬 REST API 키: 저장된 뒤에는 긴 입력칸을 접고 짧은 상태만 보여 준다.
+   키 값 자체는 화면에 다시 그리지 않는다(입력 후에는 비어 있는 칸으로 교체). */
+var _kakaoEdit = false;
+function kakaoKeyField(s) {
+  var has = !!(s.kakaoKey || '').trim();
+  var h = '<div class="field" id="kakaoField"><label>카카오 로컬 REST API 키 (선택)</label>';
+  if (has && !_kakaoEdit) {
+    h += '<div class="kakaoState"><span class="dot"></span><span class="lbl">카카오 로컬 연동됨</span>' +
+      '<button class="btn sm ghost" data-act="kakao-edit">변경</button>' +
+      '<button class="btn sm ghost" data-act="kakao-clear">해제</button></div>';
+    h += '<p class="hint">키는 이 브라우저에만 저장되어 있고, 화면에는 다시 표시하지 않아요.</p>';
+  } else {
+    h += '<input class="input" type="password" data-set="kakaoKey" value="" autocomplete="off" placeholder="' +
+      (has ? '새 키를 붙여 넣으면 바뀌어요' : '비워 두면 OpenStreetMap으로 찾아요') + '">';
+    if (has) {
+      h += '<div class="row" style="justify-content:flex-end;margin-top:6px">' +
+        '<button class="btn sm ghost" data-act="kakao-cancel">취소</button></div>';
+    }
+  }
+  h += '</div>';
+  return h;
+}
 function openSettings() {
   var s = state.settings;
   var h = sheetHead('설정');
@@ -1906,7 +1943,7 @@ function openSettings() {
       (v === 5 ? ' (기본)' : '') + '</option>';
   });
   h += '</select></div>';
-  h += '<div class="field"><label>카카오 로컬 REST API 키 (선택)</label><input class="input" type="password" data-set="kakaoKey" value="' + esc(s.kakaoKey || '') + '" placeholder="비워 두면 OpenStreetMap으로 찾아요" autocomplete="off"></div>';
+  h += kakaoKeyField(s);
   h += '<p class="hint">사진의 GPS 좌표로 설정한 반경(기본 <b>5m</b>) 안의 음식점·술집을 찾아 <b>업장 후보</b>로 보여 줍니다.<br>' +
     '실내 GPS 오차로 결과가 없으면 <b>[넓혀 찾기]</b> 버튼으로 한 단계 넓혀 조회할 수 있어요(기본 5m → 30m, 그다음 100m·200m).<br>' +
     '이미 저장한 내 업장 자동 매칭도 이 반경을 그대로 따릅니다.<br>' +
@@ -2067,7 +2104,7 @@ function onClick(e) {
 
   switch (act) {
     case 'close-sheet': closeSheet(); break;
-    case 'settings': openSettings(); break;
+    case 'settings': _kakaoEdit = false; openSettings(); break;
     case 'go-record': setTab('record'); break;
     case 'confirm-ok':
       if (_confirmCb) { var cb = _confirmCb; _confirmCb = null; cb(); }
@@ -2109,6 +2146,15 @@ function onClick(e) {
       render();
       break;
     }
+    case 'kakao-edit': _kakaoEdit = true; openSettings(); break;
+    case 'kakao-cancel': _kakaoEdit = false; openSettings(); break;
+    case 'kakao-clear':
+      state.settings.kakaoKey = '';
+      _kakaoEdit = false;
+      saveState();
+      openSettings();
+      toast('카카오 로컬 키를 지웠어요. 이제 OpenStreetMap으로 찾습니다.');
+      break;
     case 'nearby-pick': nearbyPick(i); break;
     case 'nearby-retry': retryNearby(); break;
     case 'nearby-widen': nearbyWiden(); break;
@@ -2190,6 +2236,18 @@ function onChange(e) {
     state.settings[ds] = t.value;
     saveState();
     if (ds === 'nearbyRadius' && typeof nearbyOnRadiusChange === 'function') nearbyOnRadiusChange();
+    if (ds === 'kakaoKey') {
+      // blur 처리 중에 시트를 통째로 다시 그리면 노드 제거 오류가 나므로
+      // 키 칸(필드)만 다음 틱에 접어 준다.
+      if ((t.value || '').trim()) {
+        _kakaoEdit = false;
+        toast('카카오 로컬 키를 저장했어요.');
+      }
+      setTimeout(function () {
+        var f = document.getElementById('kakaoField');
+        if (f) f.outerHTML = kakaoKeyField(state.settings);
+      }, 0);
+    }
     return;
   }
   var field = t.getAttribute('data-input');
