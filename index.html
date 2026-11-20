@@ -289,6 +289,20 @@ h4.dt{margin-top:16px}
   animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* --- iOS Safari 날짜·시간 입력칸이 카드 밖으로 넘치지 않게 --- */
+.grid2 > *{min-width:0}
+.grid2 .field{min-width:0}
+input[type="date"],input[type="time"]{
+  min-width:0;width:100%;max-width:100%;box-sizing:border-box;display:block;text-align:left;
+}
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit{min-width:0;max-width:100%;overflow:hidden}
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
+@media (max-width:360px){
+  input[type="date"],input[type="time"]{font-size:14px;padding-left:10px;padding-right:8px}
+}
 </style>
 </head>
 <body>
@@ -365,7 +379,7 @@ h4.dt{margin-top:16px}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.2.0';
+var APP_VERSION = '0.2.1';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -1133,7 +1147,7 @@ function viewRecord() {
     '<div class="field"><label>시간 (선택)</label><input class="input" type="time" data-input="rec-time" value="' + esc(rec.time) + '"></div></div>';
   if (rec.lat != null && rec.lng != null) {
     var near = nearestVenue(rec.lat, rec.lng, 800);
-    h += '<div class="hint">위치 <b>' + rec.lat.toFixed(5) + ', ' + rec.lng.toFixed(5) + '</b>' +
+    h += '<div class="hint">위치 <b>' + rec.lat.toFixed(5) + ', ' + rec.lng.toFixed(5) + '</b>' + nearbyAreaTag(rec) +
       (near ? ' · 가장 가까운 업장 <b>' + esc(near.venue.name) + '</b> ' + distLabel(near.dist) : '') + '</div>';
   } else {
     h += '<div class="hint">사진에서 위치 정보를 찾지 못했어요. 날짜로만 묶고 업장은 직접 골라 주세요.</div>';
@@ -1301,12 +1315,14 @@ function refreshRecSuggestions() {
   if (gps.length) {
     rec.lat = Math.round(median(gps.map(function (g) { return g.lat; })) * 1e5) / 1e5;
     rec.lng = Math.round(median(gps.map(function (g) { return g.lng; })) * 1e5) / 1e5;
+    if (typeof nearbyReinferOnMove === 'function') nearbyReinferOnMove(rec);
     if (!rec.venueName) {
       var near = nearestVenue(rec.lat, rec.lng, nearbyRadiusM());
       if (near) {
         rec.venueName = near.venue.name;
         rec.venueId = near.venue.id;
         rec.area = near.venue.area || '';
+        rec.autoVenue = true;   // 자동으로 채운 값(사진을 더하면 다시 판단)
       } else {
         startNearbyLookup(rec);
       }
@@ -2067,6 +2083,8 @@ function onClick(e) {
       syncRecordForm();
       ui.rec.photos = ui.rec.photos.filter(function (p) { return p.id !== id; });
       ui.rec.sakes = ui.rec.sakes.filter(function (d) { return d.photoId !== id; });
+      if (typeof nearbyResetOnNoPhotos === 'function') nearbyResetOnNoPhotos(ui.rec);
+      if (typeof refreshRecSuggestions === 'function') refreshRecSuggestions();
       render();
       break;
     case 'rec-label': toggleLabel(id); break;
@@ -2086,6 +2104,8 @@ function onClick(e) {
     case 'nearby-pick': nearbyPick(i); break;
     case 'nearby-retry': retryNearby(); break;
     case 'nearby-widen': nearbyWiden(); break;
+    case 'nearby-open': nearbyOpenToggle(true); break;
+    case 'nearby-close': nearbyOpenToggle(false); break;
     case 'rec-sake-add':
       syncRecordForm();
       ui.rec.sakes.push(newDraft(null));
@@ -2199,6 +2219,7 @@ function onInput(e) {
     rec.venueName = t.value;
     var m = state.venues.filter(function (v) { return v.name === t.value.trim(); })[0];
     rec.venueId = m ? m.id : '';
+    rec.autoVenue = false;
   } else if (field === 'rec-area') rec.area = t.value;
   else if (field === 'rec-address') rec.address = t.value;
   else if (field === 'rec-note') rec.note = t.value;
@@ -2275,6 +2296,12 @@ var __TEST__ = {
        안전망 8초(watchdog). 응답이 끝내 오지 않아도 로딩 상태를 강제로 닫는다.
    · 결과가 없는 좌표를 '찾는 중'으로 계속 그리지 않는다. 자동 조회가 예정되지
      않은 상태면 바로 누를 수 있는 안내([주변 업장 찾기])를 보여 준다.
+   · 사진을 더하거나 빼서 GPS 중앙값이 바뀌면, 앞서 잡아 둔 업장의 좌표가 설정
+     반경 밖일 때 그 연결을 푼다(해제 판정은 GPS 오차를 감안해 하한 50m).
+     자동으로 채운 이름·지역·주소는 함께 비우고, 직접 입력·선택한 이름은 남긴다.
+   · 업장이 이미 정해진 기록에서도 ③ 업장 카드 아래 [이 위치 주변 업장 다시 찾기]
+     버튼으로 추천 영역을 언제든 다시 연다.
+   · 역지오코딩한 동네명은 ② 촬영 정보의 위치 줄에도 함께 보여 준다(좌표별 캐시).
    ===================================================================== */
 var NEARBY_RADIUS_DEFAULT = 5;
 var NEARBY_RADIUS_OPTIONS = [5, 20, 50, 100];
@@ -2289,6 +2316,11 @@ var NEARBY_REQUEST_MS = 4000;      // 개별 요청(Overpass·Nominatim·카카�
 var NEARBY_TOTAL_MS = 6500;        // 한 번의 조회 전체 상한(역지오코딩 포함)
 var NEARBY_WATCHDOG_MS = 8000;     // 프라미스가 끝내 안 끝날 때 로딩을 강제로 닫는 안전망
 var NEARBY_NOMINATIM_GAP_MS = 1100; // Nominatim 공공 API 정책: 초당 1회 이하
+/* 이미 잡아 둔 업장 연결을 풀 때의 하한(m).
+   매칭은 설정 반경(기본 5m) 그대로지만, 해제까지 5m로 하면 실내 GPS 오차로
+   사진 한 장만 더 넣어도 방금 잡힌 업장이 풀린다. 다른 동네(수백 m~수 km)로
+   옮겨 간 경우만 풀리도록 하한을 둔다. 설정 반경이 더 넓으면 그 값을 따른다. */
+var NEARBY_CLEAR_MIN_M = 50;
 
 var _nearbySeq = 0;        // 조회 세대 — 늦게 도착한 응답이 새 상태를 덮지 않게 한다
 var _nearbyLastNom = 0;    // Nominatim 마지막 요청 시각(간격 유지)
@@ -2711,6 +2743,119 @@ function translateArea(s) {
   return String(s || '').replace(/\s+/g, ' ').trim();
 }
 
+/* ---------------------- ② 위치 옆 동네명 · 업장 재추론 ---------------------- */
+/* 좌표별 역지오코딩 결과 캐시 — ② 촬영 정보와 ③ 업장 추천 상자가 같은 값을 함께 쓴다 */
+var _areaCache = {};               // nearbyKey → { area, address, loading, at }
+var AREA_CACHE_TTL_MS = 5 * 60 * 1000;   // 실패한 좌표를 5분마다 다시 시도하지 않는다
+
+function nearbyAreaCached(lat, lng) {
+  if (lat == null || lng == null) return '';
+  var k = nearbyKey(lat, lng);
+  if (_nearby.key === k && _nearby.area) return _nearby.area;
+  var c = _areaCache[k];
+  return (c && c.area) ? c.area : '';
+}
+function updateAreaHint(rec) {
+  var el = (typeof document !== 'undefined' && document.getElementById)
+    ? document.getElementById('recAreaName') : null;
+  if (!el || !rec || ui.rec !== rec) return;
+  if (rec.lat == null || rec.lng == null) return;
+  var a = nearbyAreaCached(rec.lat, rec.lng);
+  el.textContent = a ? ' · ' + a : '';
+}
+/* 아직 동네명이 없으면 한 번만 역지오코딩한다(결과는 캐시에 남는다) */
+function ensureNearbyArea(rec) {
+  if (!rec || rec.lat == null || rec.lng == null) return;
+  if (nearbyAreaCached(rec.lat, rec.lng)) return;
+  var k = nearbyKey(rec.lat, rec.lng);
+  var c = _areaCache[k];
+  if (c && c.loading) return;
+  if (c && (Date.now() - c.at) < AREA_CACHE_TTL_MS) return;
+  if (!nearbyHasNetwork()) return;
+  _areaCache[k] = { area: '', address: '', loading: true, at: Date.now() };
+  fetchReverse(rec.lat, rec.lng, NEARBY_REQUEST_MS).then(function (rev) {
+    _areaCache[k] = {
+      area: (rev && rev.area) ? translateArea(rev.area) : '',
+      address: (rev && rev.address) ? translateArea(rev.address) : '',
+      loading: false, at: Date.now()
+    };
+    updateAreaHint(rec);
+  }).catch(function () {
+    _areaCache[k] = { area: '', address: '', loading: false, at: Date.now() };
+    updateAreaHint(rec);
+  });
+}
+/* ② 촬영 정보의 위치 줄에 붙는 동네명 — 조회가 끝나면 그 자리에서 채운다 */
+function nearbyAreaTag(rec) {
+  if (!rec || rec.lat == null || rec.lng == null) return '';
+  ensureNearbyArea(rec);
+  var a = nearbyAreaCached(rec.lat, rec.lng);
+  return '<span id="recAreaName">' + (a ? ' · ' + esc(a) : '') + '</span>';
+}
+
+/* 사진을 더하거나 빼서 GPS 중앙값이 바뀌었을 때 이전 업장 연결을 다시 판단한다.
+   - 잡혀 있던 업장의 좌표가 설정 반경 밖이면 venueId를 푼다
+     (자동으로 채워 둔 값이면 이름·지역·주소·업장 좌표까지 비우고 이어 붙이기도 해제)
+   - 직접 입력·선택한 이름은 남기고, 새 위치의 후보를 바로 찾기 시작한다 */
+function nearbyReinferOnMove(rec) {
+  if (!rec || rec.lat == null || rec.lng == null) return false;
+  if (!rec.venueId) return false;
+  var r = Math.max(nearbyRadiusM(), NEARBY_CLEAR_MIN_M);
+  var v = (typeof venueById === 'function') ? venueById(rec.venueId) : null;
+  if (!v || typeof v.lat !== 'number' || typeof v.lng !== 'number') return false;
+  var d = haversine({ lat: rec.lat, lng: rec.lng }, { lat: v.lat, lng: v.lng });
+  if (d == null || d <= r) return false;
+  var wasAuto = !!rec.autoVenue;
+  rec.venueId = '';
+  rec.autoVenue = false;
+  if (wasAuto) {
+    rec.venueName = '';
+    rec.area = '';
+    rec.address = '';
+    rec.venueLat = null;
+    rec.venueLng = null;
+    rec.attachVisitId = '';   // 이전 업장의 방문에 사진이 붙지 않게
+  }
+  rec.nearbyOpen = true;      // 새 위치의 후보를 바로 보여 준다
+  nearbyResetState();
+  startNearbyLookup(rec, { force: true });
+  return true;
+}
+
+/* 사진을 모두 지우면 사진에서 나온 위치·자동 업장도 함께 비운다(직접 쓴 이름은 둔다) */
+function nearbyResetOnNoPhotos(rec) {
+  if (!rec || !rec.photos || rec.photos.length) return false;
+  var had = rec.lat != null || rec.venueId || rec.autoVenue;
+  if (!had) return false;
+  rec.lat = null;
+  rec.lng = null;
+  rec.venueLat = null;
+  rec.venueLng = null;
+  if (rec.autoVenue) {
+    rec.venueName = '';
+    rec.area = '';
+    rec.address = '';
+    rec.venueId = '';
+    rec.attachVisitId = '';
+  }
+  rec.autoVenue = false;
+  nearbyResetState();
+  return true;
+}
+
+/* ③ 업장 카드의 [이 위치 주변 업장 다시 찾기] / [접기] */
+function nearbyOpenToggle(open) {
+  var rec = ui.rec;
+  if (!rec) return;
+  if (typeof syncRecordForm === 'function') syncRecordForm();
+  rec.nearbyOpen = !!open;
+  if (open) nearbyResetState();
+  render();
+  if (!open) return;
+  if (rec.lat == null || rec.lng == null) return;
+  startNearbyLookup(rec, { force: true });
+}
+
 /* 조회를 시작한다. 로딩은 다음 셋 중 먼저 오는 것으로 반드시 끝난다.
    ① 결과 도착 ② 전체 상한(NEARBY_TOTAL_MS) ③ 안전망(NEARBY_WATCHDOG_MS) */
 function startNearbyLookup(rec, opts) {
@@ -2766,6 +2911,10 @@ function startNearbyLookup(rec, opts) {
     _nearby.error = _nearby.places.length ? '' : ((res && res.error) || 'empty');
     _nearby.area = (res && res.area) || '';
     _nearby.address = (res && res.address) || '';
+    if (_nearby.area || _nearby.address) {
+      _areaCache[key] = { area: _nearby.area, address: _nearby.address, loading: false, at: Date.now() };
+    }
+    updateAreaHint(rec);
     refreshNearbyUI();
   }).catch(function () {
     if (!apply()) return;
@@ -2778,7 +2927,7 @@ function startNearbyLookup(rec, opts) {
    이미 내 업장과 매칭된 기록은 후보가 필요 없으므로 쏘지 않는다. */
 function scheduleNearbyLookup(rec) {
   if (!rec || rec.lat == null || rec.lng == null) return;
-  if (rec.venueId) return;
+  if (rec.venueId && !rec.nearbyOpen) return;   // 접어 둔 기록은 사용자가 열 때만 찾는다
   if (typeof setTimeout !== 'function') return;   // 브라우저 밖(정적 검사 환경)
   if (!nearbyHasNetwork()) return;
   var key = nearbyKey(rec.lat, rec.lng);
@@ -2821,8 +2970,15 @@ function nearbyOnRadiusChange() {
 /* ------------------------------ view ------------------------------ */
 function nearbyBlock(rec) {
   if (!rec || rec.lat == null || rec.lng == null) return '';
-  // 이미 내 업장과 매칭된 기록은 후보가 필요 없다(추천 영역을 띄우지 않는다)
-  if (rec.venueId) return '';
+  // 이미 내 업장과 매칭된 기록: 추천 영역은 접어 두되 작은 버튼으로 언제든 다시 연다
+  if (rec.venueId && !rec.nearbyOpen) {
+    var known = (typeof venueById === 'function') ? venueById(rec.venueId) : null;
+    return '<div id="nearbyToggle" style="margin:2px 0 10px">' +
+      '<button class="btn sm ghost" data-act="nearby-open" style="padding:5px 9px;font-size:11.5px">' +
+      '이 위치 주변 업장 다시 찾기</button>' +
+      '<span class="tiny" style="margin-left:6px;opacity:.6">' +
+      (known ? esc(known.name) + ' 선택됨' : '업장 선택됨') + '</span></div>';
+  }
   // 상태가 없는 좌표면 자동 조회를 예약한다(렌더 도중에 쏘지 않도록 setTimeout 0)
   scheduleNearbyLookup(rec);
   return '<div id="nearbyBox" style="margin:2px 0 10px">' + nearbyBoxInner(rec) + '</div>';
@@ -2833,7 +2989,10 @@ function nearbyBoxInner(rec) {
   var h = '<div class="row" style="margin-bottom:4px;gap:6px;align-items:baseline">' +
     '<span class="tiny" style="color:var(--ink2);font-weight:700;letter-spacing:.02em">이 위치 근처 추천 업장</span>' +
     '<span class="spacer"></span>' +
-    (n && n.src ? '<span class="tiny" style="opacity:.6">' + esc(n.src) + '</span>' : '') + '</div>';
+    (n && n.src ? '<span class="tiny" style="opacity:.6">' + esc(n.src) + '</span>' : '') +
+    (rec && rec.venueId && rec.nearbyOpen
+      ? '<button class="btn sm ghost" data-act="nearby-close" style="padding:2px 7px;font-size:10.5px;margin-left:4px">접기</button>'
+      : '') + '</div>';
   h += '<div class="tiny" style="opacity:.65;margin-bottom:5px">' +
     (n && n.area ? esc(n.area) + ' · ' : '') + '반경 ' + radius + 'm' +
     (n && n.widened ? ' · 넓혀 찾음' : '') + '</div>';
@@ -2908,6 +3067,8 @@ function nearbyPick(i) {
   rec.address = p.address || n.address || '';
   var known = state.venues.filter(function (v) { return v.name === p.name; })[0] || null;
   rec.venueId = known ? known.id : '';
+  rec.autoVenue = false;            // 직접 고른 이름은 사진을 더해도 자동으로 비우지 않는다
+  rec.nearbyOpen = false;           // 업장이 정해지면 추천 영역은 접는다
   if (known) {
     if (!rec.area) rec.area = known.area || '';
     if (!rec.address) rec.address = known.address || '';
@@ -2948,6 +3109,13 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.nominatimAddress = nominatimAddress;
   __TEST__.nearbyState = function () { return _nearby; };
   __TEST__.scheduleNearbyLookup = scheduleNearbyLookup;
+  __TEST__.nearbyReinferOnMove = nearbyReinferOnMove;
+  __TEST__.nearbyResetOnNoPhotos = nearbyResetOnNoPhotos;
+  __TEST__.nearbyOpenToggle = nearbyOpenToggle;
+  __TEST__.nearbyAreaTag = nearbyAreaTag;
+  __TEST__.nearbyAreaCached = nearbyAreaCached;
+  __TEST__.ensureNearbyArea = ensureNearbyArea;
+  __TEST__.nearbyAreas = function () { return _areaCache; };
   __TEST__.fetchWithTimeout = function (url, opt, ms) { return fetchWithTimeout(url, opt, ms); };
   __TEST__.nearbyReset = function () {
     nearbyResetState();
