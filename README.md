@@ -21,7 +21,8 @@
 처음 가는 곳이면 반경 150m의 업장 후보를 `+ 기록` 화면에 칩으로 보여 줍니다(누르면 업장명·지역·주소 자동 채움).
 
 - 설정에 카카오 로컬 REST API 키를 넣으면 카카오 로컬(음식점 `FD6`)로 먼저 조회합니다.
-- 키가 없거나 실패하면 OpenStreetMap Overpass API + Nominatim 역지오코딩(`accept-language=ko`)으로 조회합니다.
+- 키가 없거나 실패하면 OpenStreetMap Overpass API 로 조회하고, 막힌 네트워크에서는 같은 OSM 데이터를
+  Nominatim 역지오코딩·카테고리 검색(`q=[amenity=restaurant]`, 반경 150m)으로 받아 옵니다.
 - 외부로 나가는 값은 사진의 좌표뿐입니다. 조회가 실패하면 안내만 표시하고 수동 입력은 그대로 쓸 수 있습니다.
 - 지도 데이터 © OpenStreetMap contributors
 
