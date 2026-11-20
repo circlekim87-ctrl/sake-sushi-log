@@ -2342,7 +2342,8 @@ function nearbyResetState() {
    브라우저가 금지하는 헤더(User-Agent·Referer 등)는 넣지 않는다.
    응답 본문 파싱이 멈춰도 타이머가 프라미스를 반드시 정리한다. */
 function fetchWithTimeout(url, opt, ms) {
-  var limit = Math.max(300, Number(ms) > 0 ? Number(ms) : NEARBY_REQUEST_MS);
+  // 개별 요청은 인자와 상관없이 NEARBY_REQUEST_MS(4초)를 넘지 않는다
+  var limit = Math.max(300, Math.min(Number(ms) > 0 ? Number(ms) : NEARBY_REQUEST_MS, NEARBY_REQUEST_MS));
   var src = opt || {};
   var req = { method: src.method || 'GET' };
   if (src.headers) req.headers = src.headers;
@@ -2382,6 +2383,25 @@ function fetchWithTimeout(url, opt, ms) {
       finish(resolve, data);
     }).catch(function (err) {
       finish(reject, err || new Error('network'));
+    });
+  });
+}
+/* 여러 조회 중 하나라도 결과가 나오면 기다리지 않고 바로 반환한다.
+   모두 끝나면 합쳐서 반환(0건 포함). 막힌 미러가 느릴 때 대기 시간을 줄인다. */
+function nearbyFirst(promises) {
+  return new Promise(function (resolve) {
+    var n = promises.length, done = 0, out = [], settled = false;
+    function finish() { if (settled) return; settled = true; resolve(out); }
+    if (!n) { resolve(out); return; }
+    promises.forEach(function (p) {
+      p.then(function (list) {
+        done++;
+        if (list && list.length) { out = out.concat(list); finish(); return; }
+        if (done === n) finish();
+      }, function () {
+        done++;
+        if (done === n) finish();
+      });
     });
   });
 }
@@ -2491,13 +2511,13 @@ async function fetchOsm(lat, lng, radius, budget) {
   var list = await overpassTry(OVERPASS_ENDPOINTS[0], body, lat, lng, left(), r).catch(keep);
   if (list.length) return { list: list, answered: true };
 
-  // 2) 보조 미러 + Nominatim 검색을 동시에 (검색은 초당 1회 게이트를 지난다)
-  var pair = await Promise.all([
+  // 2) 보조 미러 + Nominatim 검색을 동시에 — 둘 중 하나라도 결과가 나오면 바로 넘어간다
+  var pair = await nearbyFirst([
     left() < 500 ? Promise.resolve([])
       : overpassTry(OVERPASS_ENDPOINTS[1], body, lat, lng, left(), r).catch(keep),
     search('restaurant')
   ]);
-  list = pair[0].concat(pair[1]);
+  list = pair;
   if (list.length) return { list: list, answered: true };
 
   // 3) 그래도 없으면 술집까지 한 번 더 (남은 예산이 있을 때만)
