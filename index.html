@@ -1156,7 +1156,7 @@ function viewRecord() {
 
   /* step 3 */
   h += '<section class="card"><h3><span class="stepnum">3</span>업장</h3>';
-  h += '<div class="field"><label>업장 이름</label><input class="input" id="rec-venue" data-input="rec-venue" list="venueList" placeholder="예) 스시 샘플점" value="' + esc(rec.venueName) + '"></div>';
+  h += '<div class="field"><label>업장 이름</label><input class="input" id="rec-venue" data-input="rec-venue" list="venueList" placeholder="예) 스시 ○○" value="' + esc(rec.venueName) + '"></div>';
   h += '<datalist id="venueList">' + state.venues.map(function (v) { return '<option value="' + esc(v.name) + '"></option>'; }).join('') + '</datalist>';
   h += '<div class="field"><label>지역 (선택)</label><input class="input" data-input="rec-area" placeholder="예) 서초" value="' + esc(rec.area) + '"></div>';
   h += '<div class="field"><label>주소 (선택)</label><input class="input" data-input="rec-address" placeholder="예) 서울 서초구 서초대로 123" value="' + esc(rec.address) + '"></div>';
