@@ -338,6 +338,43 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 .edph img{width:100%;height:100%;object-fit:cover;display:block}
 .edph.on{box-shadow:0 0 0 2px var(--gold) inset}
 @media (max-width:360px){.edPhotoGrid{grid-template-columns:repeat(5,1fr)}}
+
+/* --- 0.5.0: N번째 방문 · 브랜드별 사케 히스토리 --- */
+.vname{flex-wrap:wrap;row-gap:4px}
+.badge.vord{background:var(--navy);color:#F8F5EC}
+.badge.vord.lg{font-size:10px;padding:3px 7px}
+.vordrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.vtot{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:2px 0;margin:0 0 12px;box-shadow:var(--shadow);overflow:hidden}
+.vtrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;width:100%;padding:9px 13px;text-align:left}
+.vtrow + .vtrow{border-top:1px solid var(--line2)}
+.vtrow.on{background:var(--gold-soft)}
+.vtrow .vtname{font-size:13.5px;font-weight:660;letter-spacing:-.02em}
+.vtrow .vtmeta{font-size:10.5px;color:var(--muted);background:#F5F3EC;border-radius:6px;padding:2px 6px;
+  white-space:nowrap}
+.vtrow .vtchev{margin-left:auto;color:#C8C3B6;display:flex;flex:0 0 15px}
+.nseg{margin:0 0 11px}
+.bsec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1px 0 6px;
+  margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.bhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;padding:11px 12px;text-align:left}
+.bhead .bname{font-size:15px;font-weight:700;letter-spacing:-.025em}
+.bhead .bmeta{font-size:10.5px;color:var(--muted);background:#F5F3EC;border-radius:6px;padding:2px 6px;
+  white-space:nowrap}
+.bhead .bchev{margin-left:auto;color:#C8C3B6;display:flex;transform:rotate(90deg);transition:transform .16s}
+.bsec.closed .bhead .bchev{transform:none}
+.brows{padding:0 8px}
+.brow{background:#FBFAF5;border-color:var(--line2);margin-bottom:7px;padding:9px}
+.brow:last-child{margin-bottom:0}
+.brow .nthumb{width:46px;height:46px;flex:0 0 46px}
+.brow .bwhen{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;
+  font-size:10.5px;color:#5A6470}
+.brow .bwhen .bvenue{display:inline-flex;align-items:center;gap:3px;min-width:0}
+.brow .bwhen .bvenue svg{width:10px;height:10px;flex:0 0 10px}
+.brow .bwhen .bdate{font-variant-numeric:tabular-nums}
+.brow .bmemo{font-size:11.5px;color:var(--ink2);margin-top:3px;display:-webkit-box;-webkit-line-clamp:1;
+  -webkit-box-orient:vertical;overflow:hidden}
+.sakelinks{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px}
+.sakelinks .linkchip{margin-top:0}
 </style>
 </head>
 <body>
@@ -1518,6 +1555,34 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
   "업로드 사진 {a}장({b})은 이 브라우저의 IndexedDB에 따로 저장됩니다.": {
     "en": "{a} uploaded photos ({b}) are stored separately in this browser's IndexedDB.",
     "ja": "アップロードした写真{a}枚（{b}）はこのブラウザのIndexedDBに別に保存されます。"
+  },
+  "{n}번째 방문": {
+    "en": "Visit #{n}",
+    "ja": "{n}回目の訪問"
+  },
+  "총 {n}회 방문": {
+    "en": "{n} visit(s)",
+    "ja": "訪問{n}回"
+  },
+  "최근 방문 {a}": {
+    "en": "Last visit {a}",
+    "ja": "最新の訪問 {a}"
+  },
+  "총 {a}병({b}회)": {
+    "en": "{a} bottle(s) · {b} visit(s)",
+    "ja": "{a}本（{b}回）"
+  },
+  "최근 마신 날 {a}": {
+    "en": "Last tasted {a}",
+    "ja": "最後に飲んだ日 {a}"
+  },
+  "브랜드별": {
+    "en": "By brand",
+    "ja": "ブランド別"
+  },
+  "최신순 전체": {
+    "en": "All, newest first",
+    "ja": "最新順ですべて"
   }
 }</script>
 <script>
@@ -1529,7 +1594,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.4.1';
+var APP_VERSION = '0.5.0';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -1670,6 +1735,14 @@ function seedState() {
     ],
     visits: [
       {
+        id: 't0', venueId: 'v1', date: '2026-10-18', time: '18:30',
+        lat: gpsA.lat, lng: gpsA.lng,
+        note: '한 달 만에 다시 찾은 자리. 가을 네타로 바뀐 짧은 코스.',
+        photos: [
+          ph('yp0', 'ph07', '2026-10-18T18:52:00', gpsA)
+        ]
+      },
+      {
         id: 't1', venueId: 'v1', date: '2026-11-14', time: '19:00',
         lat: gpsA.lat, lng: gpsA.lng,
         note: '카운터 코스. 츠마미에서 적초 샤리 스시로 넘어가는 후반까지 사케가 잘 붙었다.',
@@ -1713,7 +1786,7 @@ function seedState() {
       { id: 's6', visitId: 't1', name: '지콘 핫탄니시키 히이레', brewery: '', grade: '준마이', polish: null, rice: '핫탄니시키', hiire: 'hiire', abv: null, rating: 4, memo: '스시 후반부에서 산미가 살아났다.', photo: '', sample: true },
       { id: 's7', visitId: 't1', name: '고쿠류 2025', brewery: '고쿠류 슈조', grade: '', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '깔끔한 마무리. 마지막 네타까지 부담이 없었다.', photo: 'seed:ph06', sample: true },
       { id: 's8', visitId: 't1', name: '바라 마송 레 마르간', brewery: '바라 마송 · 샹파뉴', grade: '샴페인', polish: null, rice: '샤르도네 100%', hiire: '', abv: 12, rating: 4.5, memo: '블랑 드 블랑 브뤼 나뛰르, 도자주 0g/L.', photo: '', sample: true },
-      { id: 's9', visitId: 't2', name: '고쿠류 야마다니시키 50', brewery: '고쿠류 슈조', grade: '준마이다이긴죠', polish: 50, rice: '야마다니시키', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 코스 중반에 술술 넘어갔다.', photo: '', sample: true },
+      { id: 's9', visitId: 't0', name: '고쿠류 야마다니시키 50', brewery: '고쿠류 슈조', grade: '준마이다이긴죠', polish: 50, rice: '야마다니시키', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 코스 중반에 술술 넘어갔다.', photo: '', sample: true },
       { id: 's10', visitId: 't2', name: '아카부 몬스터', brewery: '아카부 슈조', grade: '준마이', polish: null, rice: '', hiire: '', abv: null, rating: 4.5, memo: '(샘플) 기름진 안주에 붙는 산미.', photo: '', sample: true },
       { id: 's11', visitId: 't3', name: '고쿠류 이치고', brewery: '고쿠류 슈조', grade: '혼조조', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 쯔마미 곁에 데워서.', photo: '', sample: true }
     ]
@@ -1986,6 +2059,8 @@ var ui = {
   noteQuery: '',
   gradeFilter: 'all',
   noteSort: 'recent',
+  noteView: 'brand',
+  brandClosed: {},
   rec: null,
   grid: { layout: 4, size: 1440, gap: 12, sel: [], uploads: [] }
 };
@@ -2058,7 +2133,7 @@ function visitCard(v) {
   var h = '<div class="vcard" role="button" tabindex="0" data-act="open-visit" data-id="' + v.id + '">';
   h += '<div class="vrow"><div class="dbadge"><b>' + dayNum(v.date) + '</b><span>' + weekdayOf(v.date) + '</span></div>' +
     '<div class="vmeta"><div class="vname">' + esc(venue.name) +
-    (venue.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>' +
+    (venue.sample ? '<span class="badge gold">샘플</span>' : '') + visitOrdinalBadge(v) + '</div>' +
     '<div class="vsub">' + [fmtDot(v.date), v.time, venue.area].filter(Boolean).map(esc).join('<span class="dot"></span>') + '</div></div>' +
     '<span style="color:#C8C3B6;margin-top:4px;flex:0 0 15px">' + ICON.chev + '</span></div>';
   if (photos.length) {
@@ -2086,6 +2161,7 @@ function viewVenues() {
   h += '<div class="vh"><div><h2>업장별 기록</h2><p>사진과 사케로 남긴 다이닝 타임라인</p></div>' +
     '<button class="btn sm ghost" data-act="go-record">+ 기록</button></div>';
   h += statsBlock(visits);
+  h += venueTotalsBlock();
   if (visits.length && state.venues.every(function (x) { return x.sample; })) {
     h += '<div class="tiny" style="margin:-4px 2px 10px;line-height:1.5">샘플 기록으로 시작했어요 · 설정에서 지우고 내 기록을 쌓을 수 있어요.</div>';
   }
@@ -2169,6 +2245,7 @@ function sakeCard(s) {
 function noteListHtml() {
   var arr = filteredSakes();
   if (!arr.length) return emptyBlock('해당하는 사케가 없어요', '검색어나 등급 필터를 바꿔 보세요.');
+  if (ui.noteView !== 'all') return brandListHtml(arr);
   return arr.map(sakeCard).join('');
 }
 function viewNotes() {
@@ -2177,9 +2254,10 @@ function viewNotes() {
     '<button class="btn sm ghost" data-act="add-sake">+ 사케</button></div>';
   h += '<div class="search">' + ICON.search +
     '<input id="noteSearch" type="search" placeholder="이름 · 양조장 · 메모 검색" value="' + esc(ui.noteQuery) + '" data-input="note-search"></div>';
+  h += '<div class="seg nseg" role="group">' + noteViewChips() + '</div>';
   h += '<div class="chips">' + gradeChips() + '</div>';
   h += '<div class="row" style="margin:0 2px 10px"><span class="tiny" id="noteCount">' + filteredSakes().length + '병</span>' +
-    '<span class="spacer"></span>' + sortChips() + '</div>';
+    '<span class="spacer"></span>' + (ui.noteView === 'all' ? sortChips() : '') + '</div>';
   h += '<div id="noteList">' + noteListHtml() + '</div>';
   h += '</div>';
   return h;
@@ -2767,6 +2845,7 @@ function openVisit(id) {
   }
   var metaBits = [venue.area, venue.address].filter(Boolean);
   if (metaBits.length) h += '<div class="tiny" style="margin-top:10px;line-height:1.5">' + metaBits.map(esc).join(' · ') + '</div>';
+  h += visitOrdinalRow(v);
   h += '<h4 class="dt">마신 사케 ' + sakes.length + '병</h4>';
   if (sakes.length) {
     sakes.forEach(function (s) {
@@ -2819,8 +2898,11 @@ function openSake(id) {
   }
   if (s.memo) h += '<h4 style="margin:16px 2px 8px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:700">시음 메모</h4><div class="noteBox">' + esc(s.memo) + '</div>';
   if (venue) {
-    h += '<button class="linkchip" style="margin-top:14px;font-size:11.5px;padding:7px 10px" data-act="open-visit" data-id="' + visit.id + '">' +
+    h += '<div class="sakelinks">';
+    h += '<button class="linkchip" style="font-size:11.5px;padding:7px 10px" data-act="open-visit" data-id="' + visit.id + '">' +
       ICON.pin + ' 마신 곳 · ' + esc(venue.name) + ' ' + fmtDot(visit.date) + '</button>';
+    h += visitOrdinalBadge(visit, 'lg');
+    h += '</div>';
   }
   h += '<div class="row" style="margin-top:18px;gap:8px">' +
     '<button class="btn" style="flex:1" data-act="edit-sake" data-id="' + s.id + '">수정</button>' +
@@ -3560,6 +3642,12 @@ function onClick(e) {
     case 'venue-filter': ui.venueFilter = id; render(); break;
     case 'grade-filter': ui.gradeFilter = v; render(); break;
     case 'note-sort': ui.noteSort = v; render(); break;
+    case 'note-view': ui.noteView = (v === 'all') ? 'all' : 'brand'; render(); break;
+    case 'brand-toggle':
+      ui.brandClosed = ui.brandClosed || {};
+      ui.brandClosed[id] = !ui.brandClosed[id];
+      render();
+      break;
 
     case 'open-visit': openVisit(id); break;
     case 'open-sake': openSake(id); break;
@@ -4938,6 +5026,310 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.photoMigrateInline = photoMigrateInline;
   __TEST__.photoMem = function () { return PHOTO_MEM; };
   __TEST__.photoBlank = function () { return PHOTO_BLANK; };
+}
+
+
+/* =====================================================================
+   N번째 방문 · 브랜드별 사케 히스토리 (0.5.0)
+   ---------------------------------------------------------------------
+   · 방문 순번: 같은 업장(이름이 같은 업장 기록은 하나로 묶는다)의 방문을
+     날짜+시간 오름차순으로 세어 1번째 · 2번째 … 를 매긴다. 그릴 때마다
+     다시 계산하므로 방문을 추가·수정·삭제하거나 날짜를 바꿔도 순번이
+     저절로 맞는다.
+   · 브랜드: 사케 이름 앞머리와 양조장(brewery)을 맞춰 브랜드/양조장 단위로
+     묶는다. 띄어쓰기·대소문자·'슈조/주조' 같은 꼬리말 차이는 하나로 본다.
+   원본 소스(sake-journal-src)는 건드리지 않고 build.py 가 이 파일을 덧붙인다.
+   ===================================================================== */
+
+/* ------------------------------ 방문 순번 ------------------------------ */
+function _cleanName(s) {
+  return String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+}
+function _venueNameOf(v) {
+  var ven = (v && v.venueId) ? venueById(v.venueId) : null;
+  return ven && ven.name ? _cleanName(ven.name) : '';
+}
+/* 업장 키: 이름이 같으면 같은 업장(띄어쓰기·대소문자 무시), 이름이 없으면 venueId */
+function _venueKey(v) {
+  if (!v) return '';
+  var name = _venueNameOf(v);
+  if (name) return 'n:' + name.toLowerCase().replace(/\s+/g, '');
+  if (v.venueId) return 'i:' + v.venueId;
+  return '';
+}
+var _ordCache = null, _ordSig = '';
+function _ordSignature() {
+  var a = state.visits.map(function (v) {
+    return v.id + ',' + (v.venueId || '') + ',' + (v.date || '') + ',' + (v.time || '');
+  });
+  var b = state.venues.map(function (v) { return v.id + ',' + (v.name || ''); });
+  return a.join('|') + '#' + b.join('|');
+}
+/* visitId → n (그 업장에서 몇 번째 방문인지). 업장이 없으면 0 */
+function ordinalMap() {
+  var sig = _ordSignature();
+  if (_ordCache && _ordSig === sig) return _ordCache;
+  var groups = {}, idx = {};
+  state.visits.forEach(function (v, i) { idx[v.id] = i; });
+  state.visits.forEach(function (v) {
+    var k = _venueKey(v);
+    if (!k) return;
+    (groups[k] = groups[k] || []).push(v);
+  });
+  var out = {};
+  Object.keys(groups).forEach(function (k) {
+    groups[k].slice().sort(function (a, b) {
+      var ka = (a.date || '') + ' ' + (a.time || '');
+      var kb = (b.date || '') + ' ' + (b.time || '');
+      if (ka !== kb) return ka < kb ? -1 : 1;
+      return (idx[a.id] || 0) - (idx[b.id] || 0);
+    }).forEach(function (v, i) { out[v.id] = i + 1; });
+  });
+  _ordCache = out;
+  _ordSig = sig;
+  return out;
+}
+function visitOrdinal(visitId) {
+  if (!visitId) return 0;
+  return ordinalMap()[visitId] || 0;
+}
+function visitOrdinalBadge(v, cls) {
+  var n = v ? visitOrdinal(v.id) : 0;
+  if (!n) return '';
+  return '<span class="badge vord' + (cls ? ' ' + cls : '') + '">' + n + '번째 방문</span>';
+}
+
+/* 업장별 총 방문 횟수 (같은 이름 업장은 합산) */
+function venueTotals() {
+  var map = {}, order = [];
+  state.visits.forEach(function (v) {
+    var k = _venueKey(v);
+    if (!k) return;
+    var g = map[k];
+    if (!g) {
+      g = map[k] = { key: k, name: _venueNameOf(v) || '업장 미지정', count: 0, last: '', ids: [] };
+      order.push(k);
+    }
+    g.count++;
+    if ((v.date || '') > g.last) g.last = v.date || '';
+    if (v.venueId && g.ids.indexOf(v.venueId) < 0) g.ids.push(v.venueId);
+  });
+  return order.map(function (k) { return map[k]; }).sort(function (a, b) {
+    return (b.last || '').localeCompare(a.last || '') || (b.count - a.count);
+  });
+}
+function venueTotalOf(v) {
+  var k = _venueKey(v);
+  if (!k) return null;
+  var list = venueTotals();
+  for (var i = 0; i < list.length; i++) if (list[i].key === k) return list[i];
+  return null;
+}
+function venueTotalsBlock() {
+  var list = venueTotals();
+  if (!list.length) return '';
+  var h = '<div class="vtot">';
+  list.forEach(function (g) {
+    var on = g.ids.length === 1 && ui.venueFilter === g.ids[0];
+    var inner = '<span class="vtname">' + esc(g.name) + '</span>' +
+      '<span class="vtmeta">총 ' + g.count + '회 방문</span>' +
+      (g.last ? '<span class="vtmeta">최근 방문 ' + esc(fmtDot(g.last)) + '</span>' : '');
+    if (g.ids.length === 1) {
+      h += '<button class="vtrow' + (on ? ' on' : '') + '" data-act="venue-filter" data-id="' + esc(g.ids[0]) + '">' +
+        inner + '<span class="vtchev">' + ICON.chev + '</span></button>';
+    } else {
+      h += '<div class="vtrow">' + inner + '</div>';
+    }
+  });
+  h += '</div>';
+  return h;
+}
+/* 방문 상세 시트: 'N번째 방문' + 이 업장 총 방문 횟수 */
+function visitOrdinalRow(v) {
+  var n = v ? visitOrdinal(v.id) : 0;
+  if (!n) return '';
+  var g = venueTotalOf(v);
+  var h = '<div class="vordrow"><span class="badge vord lg">' + n + '번째 방문</span>';
+  if (g && g.count > 1) h += '<span class="badge">총 ' + g.count + '회 방문</span>';
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 브랜드 ------------------------------ */
+/* 이름과 양조장을 비교할 때 무시하는 꼬리말 */
+var BRAND_NOISE = ['슈조', '주조', '주조소', '주류', '양조', '양조장', '양조원', '본점', '본가',
+  '제조', '유한회사', '주식회사', '콜라보', '외', '사', 'brewing', 'brewery', 'shuzo', 'jozo',
+  'sake', 'co', 'ltd', 'inc', 'and', 'the'];
+/* 사케 이름 앞에 와도 브랜드가 아닌 등급·표기 낱말 */
+var BRAND_SPEC = ['준마이다이긴죠', '준마이긴죠', '특별준마이', '준마이', '다이긴죠', '긴죠',
+  '혼조조', '혼죠조', '토쿠베츠', '특별', '샴페인', '스파클링', '무로카', '나마', '생주',
+  '純米', '純米大吟醸', '大吟醸', '吟醸', '本醸造', '特別純米', 'junmai', 'daiginjo', 'ginjo',
+  'honjozo', 'tokubetsu', 'champagne', 'sparkling'];
+/* 같은 브랜드의 표기 차이 (정규화 키 → 대표 키) */
+var BRAND_ALIAS = { '텐주': '덴슈', '텐슈': '덴슈', '텐쥬': '덴슈' };
+
+function _brandKey(s) {
+  return String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '')
+    .replace(/[()\[\]{}·・,.'"’%]/g, '');
+}
+function _brandWords(s) {
+  return String(s == null ? '' : s).replace(/[·・]/g, ' ').replace(/[()\[\]{}]/g, ' ')
+    .replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+}
+function _brandToken(w) {
+  var k = _brandKey(w);
+  return BRAND_ALIAS[k] || k;
+}
+function _isListed(w, list) {
+  var k = _brandKey(w);
+  for (var i = 0; i < list.length; i++) if (_brandKey(list[i]) === k) return true;
+  return false;
+}
+function _isSpecWord(w) { return _isListed(w, BRAND_SPEC); }
+function _isNoiseWord(w) { return _isListed(w, BRAND_NOISE); }
+function _isNumeric(w) { return /^[0-9.%]+$/.test(String(w || '')); }
+
+/* 사케 하나의 브랜드(양조장) 이름 */
+function brandOfSake(s) {
+  var name = _cleanName(s && s.name);
+  if (!name) return '기타';
+  var nw = _brandWords(name);
+  var bw = _brandWords(s && s.brewery);
+  /* 1) 이름과 양조장의 공통 앞부분 — '바라 마송 레 마르간' ↔ '바라 마송 · 샴페인' */
+  var best = 0;
+  for (var k = 1; k <= nw.length && k <= bw.length; k++) {
+    if (_brandToken(nw[k - 1]) !== _brandToken(bw[k - 1])) break;
+    best = k;
+  }
+  if (best) {
+    var head = nw.slice(0, best).filter(function (w) {
+      return !_isSpecWord(w) && !_isNoiseWord(w) && !_isNumeric(w);
+    }).join(' ');
+    if (head) return head;
+  }
+  /* 2) 이름 앞머리의 첫 브랜드 낱말 — 등급·숫자·버전 표기는 건너뛴다 */
+  for (var i = 0; i < nw.length && i < 4; i++) {
+    var w = nw[i];
+    if (_isNumeric(w) || _isSpecWord(w) || _isNoiseWord(w)) continue;
+    return w;
+  }
+  /* 3) 양조장 이름 앞머리 */
+  for (var b = 0; b < bw.length; b++) {
+    if (_isNumeric(bw[b]) || _isNoiseWord(bw[b])) continue;
+    return bw[b];
+  }
+  return name;
+}
+
+function _sakeWhen(s) {
+  var v = s && s.visitId ? visitById(s.visitId) : null;
+  return v ? ((v.date || '') + ' ' + (v.time || '')) : '';
+}
+function brandGroups(sakes) {
+  var map = {}, order = [];
+  (sakes || []).forEach(function (s) {
+    var name = brandOfSake(s);
+    var key = _brandToken(name) || 'etc';
+    var g = map[key];
+    if (!g) {
+      g = map[key] = { key: key, name: name, sakes: [], count: 0, times: 0, last: '' };
+      order.push(key);
+    }
+    g.sakes.push(s);
+  });
+  var out = order.map(function (k) {
+    var g = map[k];
+    var occ = {}, dates = [];
+    g.sakes.forEach(function (s) {
+      var v = s.visitId ? visitById(s.visitId) : null;
+      occ[v ? ('v:' + v.id) : ('s:' + s.id)] = 1;
+      if (v && v.date) dates.push(v.date);
+    });
+    dates.sort();
+    g.count = g.sakes.length;
+    g.times = Object.keys(occ).length;
+    g.last = dates.length ? dates[dates.length - 1] : '';
+    g.sakes.sort(function (a, b) {
+      var ka = _sakeWhen(a), kb = _sakeWhen(b);
+      if (ka !== kb) return ka < kb ? 1 : -1;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+    });
+    return g;
+  });
+  return out.sort(function (a, b) {
+    var la = a.last || '', lb = b.last || '';
+    if (la !== lb) return la < lb ? 1 : -1;
+    if (a.count !== b.count) return b.count - a.count;
+    return String(a.name).localeCompare(String(b.name), 'ko');
+  });
+}
+
+function noteViewChips() {
+  var opts = [['brand', '브랜드별'], ['all', '최신순 전체']];
+  return opts.map(function (o) {
+    var on = (o[0] === 'all') ? (ui.noteView === 'all') : (ui.noteView !== 'all');
+    return '<button class="segbtn' + (on ? ' on' : '') + '" data-act="note-view" data-v="' + o[0] + '">' + o[1] + '</button>';
+  }).join('');
+}
+
+/* 브랜드 섹션 안의 사케 한 줄: 풀네임 · 등급/정미보합 · 마신 업장(몇 번째 방문) · 날짜 · 사진/메모 */
+function brandRow(s) {
+  var visit = s && s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var n = visit ? visitOrdinal(visit.id) : 0;
+  var h = '<div class="ncard brow" role="button" tabindex="0" data-act="open-sake" data-id="' + esc(s.id) + '">';
+  h += '<div class="nthumb">' + (src ? '<img src="' + src + '" alt="" loading="lazy">' : esc(String(s.name || '酒').slice(0, 1))) + '</div>';
+  h += '<div class="nbody"><div class="nname">' + esc(s.name || '이름 없는 사케') +
+    (s.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>';
+  var meta = [s.grade, s.polish ? '정미보합 ' + s.polish + '%' : ''].filter(Boolean).join(' · ');
+  if (meta) h += '<div class="nsub">' + esc(meta) + '</div>';
+  h += '<div class="bwhen">';
+  if (venue) {
+    h += '<span class="bvenue">' + ICON.pin + esc(venue.name) + '</span>';
+    if (n) h += '<span class="badge vord">' + n + '번째 방문</span>';
+    if (visit.date) h += '<span class="bdate">' + esc(fmtDot(visit.date)) + '</span>';
+  } else {
+    h += '<span class="bdate">업장 미연결</span>';
+  }
+  h += '</div>';
+  if (s.memo) h += '<div class="bmemo">' + esc(s.memo) + '</div>';
+  h += '</div></div>';
+  return h;
+}
+
+/* 브랜드 섹션 목록: 브랜드명 · 총 N병(N회) · 최근 마신 날 */
+function brandListHtml(sakes) {
+  var groups = brandGroups(sakes);
+  var closed = ui.brandClosed || {};
+  return groups.map(function (g) {
+    var shut = !!closed[g.key];
+    var h = '<div class="bsec' + (shut ? ' closed' : '') + '">';
+    h += '<button class="bhead" data-act="brand-toggle" data-id="' + esc(g.key) + '" aria-expanded="' + (shut ? 'false' : 'true') + '">';
+    h += '<span class="bname">' + esc(g.name) + '</span>';
+    h += '<span class="bmeta">총 ' + g.count + '병(' + g.times + '회)</span>';
+    if (g.last) h += '<span class="bmeta">최근 마신 날 ' + esc(fmtDot(g.last)) + '</span>';
+    h += '<span class="bchev">' + ICON.chev + '</span>';
+    h += '</button>';
+    if (!shut) h += '<div class="brows">' + g.sakes.map(brandRow).join('') + '</div>';
+    h += '</div>';
+    return h;
+  }).join('');
+}
+
+/* 테스트용 노출 (앱 동작과 무관) */
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.visitOrdinal = visitOrdinal;
+  __TEST__.ordinalMap = ordinalMap;
+  __TEST__.visitOrdinalBadge = visitOrdinalBadge;
+  __TEST__.venueTotals = venueTotals;
+  __TEST__.venueTotalsBlock = venueTotalsBlock;
+  __TEST__.visitOrdinalRow = visitOrdinalRow;
+  __TEST__.brandOfSake = brandOfSake;
+  __TEST__.brandGroups = brandGroups;
+  __TEST__.brandRow = brandRow;
+  __TEST__.brandListHtml = brandListHtml;
+  __TEST__.noteViewChips = noteViewChips;
 }
 
 

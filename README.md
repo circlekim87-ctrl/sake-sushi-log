@@ -3,7 +3,7 @@
 `work/sake-journal-src/` 원본 소스로 만든 **단일 파일 데모**. GitHub Pages 같은 공개 웹에 올려도
 개인정보·실제 사진이 전혀 남지 않도록 비식별 처리한 버전이다.
 
-- 산출물: `index.html` (약 279KB) + 앱 아이콘 `icon-512.png` · `icon-180.png` · `icon-32.png`
+- 산출물: `index.html` (약 321KB) + 앱 아이콘 `icon-512.png` · `icon-180.png` · `icon-32.png`
 - 빌드: `python3 build.py`  (원본 소스는 읽기만 하며 수정하지 않는다)
 - 아이콘: `python3 make_icons.py`  (원본 아이콘의 베지 배경을 채워 불투명 정사각형으로 만들고 512/180/32px 생성)
 - 검증: `python3 test_public.py` (HTML 구조·개인정보 감사·QuickJS 단위 테스트 — Gemini 요청/응답·키 접힘 포함)
@@ -13,6 +13,8 @@
 - 사진 다중 업로드·방문 AI 검증: `python3 verify_multi.py` (사진 36장 한 번에 등록 → 저장 → 새로고침 유지 → 40장까지,
   방문 상세 사케 추가 시트의 라벨 사진 AI 입력·방문 사진 썸네일 선택·JSON 백업 왕복)
 - 언어 검증: `python3 verify_i18n.py` (한국어/English/日本語 전환 · 헤더·탭 · 설정 · 날짜 표기 · 새로고침 유지)
+- 방문 순번·브랜드 검증: `python3 verify_stats_brands.py` (N번째 방문 배지·업장별 총 방문 횟수,
+  브랜드별 ↔ 최신순 전체 전환·섹션 헤더·접기/펼치기·검색, 날짜 변경 시 순번 재계산, 320px 폭, 한/영/일)
 - 사전 점검(개발용): `python3 i18n_coverage.py` (화면에 그린 한국어 문구가 모두 번역되는지, 자리표시자 불일치가 없는지)
 - 배포: `https://circlekim87-ctrl.github.io/sake-sushi-log/`
 
@@ -183,6 +185,31 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
 - 이 컨테이너의 네트워크는 Gemini 엔드포인트를 막아 두어(모든 모델에 403) 실제 호출로는 확인할 수 없었다.
   그래서 공식 문서의 모델 ID·무료 티어 표기를 근거로 삼았고, 404 폴백·안내는 `verify_gemini.py` 가 모의 응답으로 검증한다.
 
+## N번째 방문 · 브랜드별 사케 히스토리 (0.5.0)
+
+### 같은 업장 N번째 방문 카운팅
+· 방문을 **업장별로 날짜+시간 오름차순**으로 세어 `1번째 방문`, `2번째 방문` … 배지를 붙인다.
+  업장은 `venueId` 기준이고, **이름이 같은 업장 기록은 하나로 묶는다**(띄어쓰기·대소문자 무시).
+· 업장별 화면 맨 위에 **업장 요약**을 두었다 — 업장마다 `총 N회 방문` 과 `최근 방문 날짜`,
+  누르면 그 업장만 필터된다(곷쪽의 업장 칩과 같은 동작).
+· 방문 카드의 업장명 옆, 그리고 **방문 상세 시트**(주소 줄 아래)에 `N번째 방문` + `총 N회 방문` 이 보인다.
+  사케 상세의 '마신 곳' 옆에도 그 방문이 몇 번째인지 붙는다.
+· 순번은 저장하지 않고 **그릴 때마다 다시 계산**한다(방문 목록·업장명·날짜가 바뀌면 캐시 서명이 달라져 재계산).
+  그래서 방문을 추가·삭제하거나 날짜를 바꿔도 순번이 저절로 맞는다. 업장이 없는 방문에는 배지가 없다.
+
+### 브랜드별 사케 히스토리 (사케 목록 탭)
+· 사케 목록 위에 **`브랜드별` ↔ `최신순 전체`** 세그먼트를 두었고, 기본은 `브랜드별` 이다.
+· 브랜드 추출 순서: ① 이름과 양조장의 공통 앞부분(`바라 마송 레 마르간` ↔ `바라 마송 · 샹파뉴` → `바라 마송`)
+  → ② 이름 앞머리의 첫 낱말(등급·숫자·`슈조/주조` 같은 고리말은 건너뜀; `덴슈 욘와리코부…` → `덴슈`)
+  → ③ 양조장 앞머리. 띄어쓰기·대소문자·문장부호·`텐주/덴슈` 같은 표기 차이는 하나로 묶는다.
+· 섹션 헤더: **브랜드명 · 총 N병(N회) · 최근 마신 날**. '회'는 그 브랜드를 마신 방문 수다.
+· 섹션 안에는 마신 날짜 최신순으로 **사케 풀네임 · 등급/정미보합 · 마신 업장(+몇 번째 방문) · 날짜 · 사진/메모**가
+  한 줄씩 쌓이고, 누르면 사케 상세가 열린다. 사진은 라벨 사진이 있으면 썸네일로 보여 준다.
+· 헤더를 누르면 **접기/펼치기**(`aria-expanded`), 검색어·등급 칩은 두 보기 모두에 그대로 적용된다.
+· 새 문구(`{n}번째 방문` · `총 {n}회 방문` · `총 {a}병({b}회)` · `최근 마신 날 {a}` · `브랜드별` · `최신순 전체`)는
+  `i18n.json` 에 영어·일본어까지 넣어 `i18n_coverage.py` 미번역 0개를 유지한다(브랜드 이름 자체는 데이터라 원문 유지).
+· 데모 데이터에 같은 업장의 지난 방문(`t0`, 2026-10-18)을 하나 더 넣어 `2번째 방문` 과 `고쿠류 3병(3회)` 이
+  실제 화면에서 보이게 했다.
 ## 배포 방법 (GitHub Pages)
 
 1. 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 브랜치 루트에 `index.html` 을 올린다.
@@ -218,6 +245,7 @@ LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verif
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_settings_key.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_gemini.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_i18n.py
+LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_stats_brands.py
 ```
 
 결과 스크린샷은 `screenshots/` 에 쌓인다(`01-venues.png` … `16-settings-nearby.png`).
