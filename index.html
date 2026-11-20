@@ -1491,10 +1491,6 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
     "en": "Could not save the record (browser storage is full). Export a JSON backup in Settings, then clear older records.",
     "ja": "記録を保存できませんでした（ブラウザの保存容量不足）。設定›JSON書き出しでバックアップしてから、古い記録を整理してください。"
   },
-  "사진 {a}장({b})은 이 브라우저의 IndexedDB에 따로 저장됩니다.": {
-    "en": "{a} photos ({b}) are stored separately in this browser's IndexedDB.",
-    "ja": "写真{a}枚（{b}）はこのブラウザのIndexedDBに別に保存されます。"
-  },
   "브라우저 기록을 지우면 기록과 사진이 함께 사라지니 JSON 백업을 받아 두세요.": {
     "en": "Clearing browser data removes both records and photos, so keep a JSON backup.",
     "ja": "ブラウザの記録を消すと記録も写真も消えるので、JSONバックアップを取っておいてください。"
@@ -1502,6 +1498,10 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
   "Gemini 모델 주소를 찾지 못했어요. 설정 › 모델 칸에 최신 모델 ID(gemini-3.8-flash)를 넣어 보세요. [{a}]": {
     "en": "Could not find the Gemini model. Put the latest model ID (gemini-3.8-flash) in Settings › Model. [{a}]",
     "ja": "Geminiモデルのアドレスが見つかりませんでした。設定›モデル欄に最新モデルID（gemini-3.8-flash）を入れてください。[{a}]"
+  },
+  "업로드 사진 {a}장({b})은 이 브라우저의 IndexedDB에 따로 저장됩니다.": {
+    "en": "{a} uploaded photos ({b}) are stored separately in this browser's IndexedDB.",
+    "ja": "アップロードした写真{a}枚（{b}）はこのブラウザのIndexedDBに別に保存されます。"
   }
 }</script>
 <script>
@@ -3340,7 +3340,7 @@ function openSettings() {
     '<button class="btn danger" data-act="wipe-all">전체 삭제</button></div>';
   var _ps = photoStats();
   h += '<p class="hint">저장 용량 ' + storageKB() + 'KB · 방문 ' + state.visits.length + '건 · 사케 ' + state.sakes.length + '병<br>' +
-    '사진 ' + _ps.n + '장(' + photoSizeLabel(_ps) + ')은 이 브라우저의 IndexedDB에 따로 저장됩니다.<br>' +
+    '업로드 사진 ' + _ps.n + '장(' + photoSizeLabel(_ps) + ')은 이 브라우저의 IndexedDB에 따로 저장됩니다.<br>' +
     '브라우저 기록을 지우면 기록과 사진이 함께 사라지니 JSON 백업을 받아 두세요.</p>';
   h += '</div>';
 
