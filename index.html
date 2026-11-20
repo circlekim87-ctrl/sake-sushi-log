@@ -1219,6 +1219,14 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
     "en": "AI reading failed: {a}",
     "ja": "AI認識に失敗しました：{a}"
   },
+  "AI 인식 실패: {a} · 잠시 후 다시 시도해 주세요.": {
+    "en": "AI reading failed: {a} · Please try again in a moment.",
+    "ja": "AI認識に失敗しました：{a}・しばらくしてからもう一度お試しください。"
+  },
+  "구글 AI 서버가 일시적으로 혼잡해요. 잠시 후 다시 눌러 보세요.": {
+    "en": "Google AI servers are busy right now. Please try again in a moment.",
+    "ja": "GoogleのAIサーバーが一時的に混み合っています。しばらくしてからもう一度お試しください。"
+  },
   "설정 › AI 사케 라벨 인식에서 {a} API 키를 넣으면 라벨을 자동으로 읽어요. 지금은 데모 채우기를 써보세요.": {
     "en": "Add a {a} API key in Settings › AI sake label reading to read labels automatically. For now, try Fill demo values.",
     "ja": "設定›AI酒ラベル認識で{a}のAPIキーを入れると、ラベルを自動で読み取ります。今は「デモで入力」をお試しください。"
@@ -1513,7 +1521,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.4.0';
+var APP_VERSION = '0.4.1';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -2670,7 +2678,7 @@ async function aiRead(ctx, i) {
     if (ctx === 'ed') renderEditor(); else render();
     toast('라벨에서 채웠어요. 값을 확인해 주세요.');
   } catch (e) {
-    toast('AI 인식 실패: ' + (e.message || '알 수 없는 오류') + ' · 데모 채우기로 체험할 수 있어요.');
+    toast(aiFailMessage(e));
   }
 }
 async function callVision(mediaType, b64) {
@@ -3145,12 +3153,18 @@ var AI_PROVIDERS = [
   { id: 'anthropic', name: 'Anthropic', label: 'Anthropic (Claude)', model: 'claude-3-5-haiku-latest',
     keyPh: 'sk-ant-...', keyPage: 'console.anthropic.com/settings/keys' }
 ];
-/* Gemini 모델 — 2026-11-20 공식 모델 목록(ai.google.dev/gemini-api/docs/models)에서
-   실제로 열려 있는 ID를 확인했다. gemini-3.8-flash / gemini-3.5-flash-lite 는 무료 티어
-   (Free of charge)이 열려 있고, gemini-3.1-flash-lite 는 2027-05-07 까지 서비스된다.
-   gemini-2.5-flash 는 기존 사용자만 쓸 수 있고 2026-12-01 부터 3.5-flash-lite 로 자동 라우팅되므로
-   새 기본값으로 쓰지 않는다. 앞 모델이 404·400·429 면 다음 모델로 넘어간다. */
-var GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+/* Gemini 모델 — 2026-11-20 공식 모델 목록(ai.google.dev/gemini-api/docs/models)과
+   가격표(무료 티어 'Free of charge')에서 실제로 열려 있는 무료 모델만 확인해 순서대로 둔다.
+     gemini-3.8-flash        Flash 계열 최신 · 품질 우선이라 기본값
+     gemini-3.5-flash-lite   · gemini-3.1-flash-lite  빠른 lite 계열 · 큰 모델이 503 이어도 빈자리를 메운다
+     gemini-3.6-flash        이전 세대 Flash
+     gemini-4-hydrogen       4 세대의 무료 모델 · 3 계열이 통째로 혼잡할 때의 마지막 카드
+   gemini-2.5-flash 는 기존 사용자만 쓸 수 있고 2026-12-01 부터 3.5-flash-lite 로 자동 라우팅되며,
+   gemini-2.0-flash 는 목록에서 사라져서 넣지 않는다.
+   앞 모델이 없어졌거나(404) 요청 거부(400) · 한도(429) · 서버 과부하·오류(500~504)면
+   기다리지 않고 곧바로 다음 모델로 넘어간다. */
+var GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite',
+  'gemini-3.6-flash', 'gemini-4-hydrogen'];
 function aiProvider(id) {
   for (var i = 0; i < AI_PROVIDERS.length; i++) if (AI_PROVIDERS[i].id === id) return AI_PROVIDERS[i];
   return AI_PROVIDERS[0];
@@ -3232,8 +3246,14 @@ async function geminiGenerate(model, mediaType, b64, prompt, key) {
   }
   return res.json();
 }
-/* 모델이 없어졌거나(404) 한도(429)·요청 거부(400)면 다음 모델로 넘어간다.
+/* 다시 시도할 만한 실패인가 — 모델이 없어졌거나(404) 요청 형식(400),
+   한도(429), 구글 쪽 일시 과부하·오류(500·502·503·504)면 다음 모델로 넘어간다.
    키 오류(401·403)는 모델을 바꿔도 같으므로 바로 알린다. */
+function aiRetryable(st) {
+  return st === 400 || st === 404 || st === 429 || (st >= 500 && st <= 504);
+}
+/* 모델을 다 바꿔도 429·5xx 면 '서버가 혼잡하다'로 안내한다. */
+function aiBusyStatus(st) { return st === 429 || (st >= 500 && st <= 504); }
 async function callGemini(mediaType, b64, prompt, s) {
   var models = aiModelChain(s);
   var last = null, tried = [];
@@ -3246,16 +3266,30 @@ async function callGemini(mediaType, b64, prompt, s) {
     } catch (e) {
       last = e;
       var st = e && e.status;
-      if (!(st === 404 || st === 400 || st === 429)) break;
+      if (!aiRetryable(st)) break;
     }
   }
   var msg = (last && last.message) || '알 수 없는 오류';
   if (last && last.status === 404) {
     msg = 'Gemini 모델 주소를 찾지 못했어요. 설정 › 모델 칸에 최신 모델 ID(gemini-3.8-flash)를 넣어 보세요. [' + msg + ']';
   }
-  var out = new Error(msg + (tried.length > 1 ? ' (시도: ' + tried.join(' → ') + ')' : ''));
+  /* 429·5xx 는 모델마다 다 실패한 것이라 영문 원문 대신 사람이 읽을 안내로 끝낸다 */
+  var busy = !!(last && aiBusyStatus(last.status));
+  if (busy) msg = '구글 AI 서버가 일시적으로 혼잡해요. 잠시 후 다시 눌러 보세요.';
+  var out = new Error(msg + (!busy && tried.length > 1 ? ' (시도: ' + tried.join(' → ') + ')' : ''));
   out.status = last && last.status;
+  out.busy = busy;
   throw out;
+}
+/* AI 인식 실패 안내 — 키가 이미 연동된 상태이므로 '데모 채우기' 안내를 붙이지 않는다
+   (붙이면 키가 없는 데모 상태로 오해한다). 일시 혼잡은 기다렸다 다시 누르라고만 한다. */
+function aiFailMessage(e) {
+  var st = e && e.status;
+  var isGemini = aiProvider(state.settings.provider).id === 'gemini';
+  if (isGemini && ((e && e.busy) || aiBusyStatus(st))) {
+    return '구글 AI 서버가 일시적으로 혼잡해요. 잠시 후 다시 눌러 보세요.';
+  }
+  return 'AI 인식 실패: ' + ((e && e.message) || '알 수 없는 오류') + ' · 잠시 후 다시 시도해 주세요.';
 }
 var _aiKeyEdit = false;
 function refreshAiKeyField() {
