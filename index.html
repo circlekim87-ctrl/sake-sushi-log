@@ -1884,7 +1884,7 @@ function openSettings() {
   h += '</select></div>';
   h += '<div class="field"><label>카카오 로컬 REST API 키 (선택)</label><input class="input" type="password" data-set="kakaoKey" value="' + esc(s.kakaoKey || '') + '" placeholder="비워 두면 OpenStreetMap으로 찾아요" autocomplete="off"></div>';
   h += '<p class="hint">사진의 GPS 좌표로 설정한 반경(기본 <b>5m</b>) 안의 음식점·술집을 찾아 <b>업장 후보</b>로 보여 줍니다.<br>' +
-    '실내 GPS 오차로 결과가 없으면 <b>[30m로 넓혀 찾기]</b> 버튼으로 한 번에 넓혀 조회할 수 있어요.<br>' +
+    '실내 GPS 오차로 결과가 없으면 <b>[넓혀 찾기]</b> 버튼으로 한 단계 넓혀 조회할 수 있어요(기본 5m → 30m, 그다음 100m·200m).<br>' +
     '이미 저장한 내 업장 자동 매칭도 이 반경을 그대로 따릅니다.<br>' +
     '키가 있으면 카카오 로컬로 먼저 찾고, 없거나 실패하면 OpenStreetMap(Overpass·Nominatim)으로 조회해요.<br>' +
     '외부로 나가는 값은 좌표뿐이고 사진·기록은 보내지 않습니다. 지도 데이터 © OpenStreetMap contributors</p>';
