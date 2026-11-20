@@ -1336,6 +1336,14 @@ function refreshRecSuggestions() {
 async function addRecordFiles(files) {
   if (!files || !files.length) return;
   var rec = ui.rec || (ui.rec = newRecord());
+  // 데모: '샘플로 체험'한 기록에 내 사진을 고르면 샘플 사진·사케 초안은 먼저 비운다
+  // (샘플 좌표가 남아 GPS 중앙값이 샘플 업장에 머무는 일을 막는다)
+  if (rec.photos.length && rec.photos.every(function (p) {
+        return String(p.src || '').indexOf('seed:') === 0; })) {
+    rec.photos = [];
+    rec.sakes = rec.sakes.filter(function (d) {
+      return !d.photoId; });
+  }
   var ok = 0, noExif = 0, failed = 0;
   for (var i = 0; i < files.length; i++) {
     var f = files[i];
