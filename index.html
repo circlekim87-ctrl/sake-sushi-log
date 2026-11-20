@@ -578,6 +578,8 @@ function normalizeState(s) {
   if (typeof s.settings.apiKey !== 'string') s.settings.apiKey = '';
   if (typeof s.settings.model !== 'string') s.settings.model = '';
   if (typeof s.settings.kakaoKey !== 'string') s.settings.kakaoKey = '';
+  var _nbR = Number(s.settings.nearbyRadius);
+  s.settings.nearbyRadius = (!isNaN(_nbR) && _nbR > 0) ? _nbR : 5;
   s.visits.forEach(function (v) { v.photos = v.photos || []; });
   return s;
 }
@@ -1300,7 +1302,7 @@ function refreshRecSuggestions() {
     rec.lat = Math.round(median(gps.map(function (g) { return g.lat; })) * 1e5) / 1e5;
     rec.lng = Math.round(median(gps.map(function (g) { return g.lng; })) * 1e5) / 1e5;
     if (!rec.venueName) {
-      var near = nearestVenue(rec.lat, rec.lng, 200);
+      var near = nearestVenue(rec.lat, rec.lng, nearbyRadiusM());
       if (near) {
         rec.venueName = near.venue.name;
         rec.venueId = near.venue.id;
@@ -1873,8 +1875,17 @@ function openSettings() {
 
   h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">위치 · 업장 추론</div>';
   h += '<div class="card" style="margin-bottom:14px">';
+  var nbRad = Number(s.nearbyRadius) || 5;
+  h += '<div class="field"><label>기본 조회 반경</label><select class="input" data-set="nearbyRadius">';
+  [5, 20, 50, 100].forEach(function (v) {
+    h += '<option value="' + v + '"' + (v === nbRad ? ' selected' : '') + '>' + v + 'm' +
+      (v === 5 ? ' (기본)' : '') + '</option>';
+  });
+  h += '</select></div>';
   h += '<div class="field"><label>카카오 로컬 REST API 키 (선택)</label><input class="input" type="password" data-set="kakaoKey" value="' + esc(s.kakaoKey || '') + '" placeholder="비워 두면 OpenStreetMap으로 찾아요" autocomplete="off"></div>';
-  h += '<p class="hint">사진의 GPS 좌표로 반경 150m 안의 음식점·술집을 찾아 <b>업장 후보</b>로 보여 줍니다.<br>' +
+  h += '<p class="hint">사진의 GPS 좌표로 설정한 반경(기본 <b>5m</b>) 안의 음식점·술집을 찾아 <b>업장 후보</b>로 보여 줍니다.<br>' +
+    '실내 GPS 오차로 결과가 없으면 <b>[30m로 넓혀 찾기]</b> 버튼으로 한 번에 넓혀 조회할 수 있어요.<br>' +
+    '이미 저장한 내 업장 자동 매칭도 이 반경을 그대로 따릅니다.<br>' +
     '키가 있으면 카카오 로컬로 먼저 찾고, 없거나 실패하면 OpenStreetMap(Overpass·Nominatim)으로 조회해요.<br>' +
     '외부로 나가는 값은 좌표뿐이고 사진·기록은 보내지 않습니다. 지도 데이터 © OpenStreetMap contributors</p>';
   h += '</div>';
@@ -2074,6 +2085,7 @@ function onClick(e) {
     }
     case 'nearby-pick': nearbyPick(i); break;
     case 'nearby-retry': retryNearby(); break;
+    case 'nearby-widen': nearbyWiden(); break;
     case 'rec-sake-add':
       syncRecordForm();
       ui.rec.sakes.push(newDraft(null));
@@ -2146,7 +2158,12 @@ function onChange(e) {
     return;
   }
   var ds = t.getAttribute('data-set');
-  if (ds) { state.settings[ds] = t.value; saveState(); return; }
+  if (ds) {
+    state.settings[ds] = t.value;
+    saveState();
+    if (ds === 'nearbyRadius' && typeof nearbyOnRadiusChange === 'function') nearbyOnRadiusChange();
+    return;
+  }
   var field = t.getAttribute('data-input');
   if (field === 'rec-date') {
     if (ui.rec) ui.rec.date = t.value;
@@ -2243,16 +2260,19 @@ var __TEST__ = {
 /* =====================================================================
    위치 기반 업장 추론 — 사진 EXIF 좌표로 '처음 가는 업장' 후보 찾기
    ---------------------------------------------------------------------
-   · 이미 방문한 업장은 기존 기능(200m 이내 자동 선택)이 먼저 처리한다.
+   · 이미 방문한 업장은 기존 기능이 먼저 처리한다(설정한 조회 반경과 같은 기준).
    · 그 밖의 위치는 아래 순서로 주변 업장 후보를 조회한다.
-       1) 설정에 카카오 로컬 REST 키가 있으면 카카오 로컬(음식점 FD6, 150m)
+       1) 설정에 카카오 로컬 REST 키가 있으면 카카오 로컬(음식점 FD6, 설정 반경)
        2) 키가 없거나 카카오가 실패하면 OpenStreetMap
-          - Overpass API : 반경 150m 음식점·바·이자카야 등 POI
+          - Overpass API : 설정 반경의 음식점·바·이자카야 등 POI
           - Nominatim    : 역지오코딩(accept-language=ko)으로 동네명
-   · 조회는 전부 비동기이며 실패·타임아웃·오프라인이어도 수동 입력을 막지 않는다.
+   · 기본 조회 반경은 5m (설정 › 위치 · 업장 추론에서 5 / 20 / 50 / 100m).
+     실내 GPS 오차로 0건이면 한 번에 30m로 넓혀 찾는 버튼을 보여 준다.
+   · 모든 조회는 비동기이며 실패·타임아웃·오프라인이어도 수동 입력을 막지 않는다.
    · 외부로 나가는 값은 사진의 좌표뿐이다(사진·기록·개인정보는 보내지 않음).
    ===================================================================== */
-var NEARBY_RADIUS = 150;
+var NEARBY_RADIUS_DEFAULT = 5;
+var NEARBY_RADIUS_OPTIONS = [5, 20, 50, 100];
 var OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter'
@@ -2261,11 +2281,27 @@ var NOMINATIM_REVERSE = 'https://nominatim.openstreetmap.org/reverse';
 var KAKAO_CATEGORY = 'https://dapi.kakao.com/v2/local/search/category.json';
 
 var _nearby = {
-  key: '', loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0
+  key: '', radius: 0, widened: false,
+  loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0
 };
 
 function nearbyKey(lat, lng) {
   return Number(lat).toFixed(4) + ',' + Number(lng).toFixed(4);
+}
+/* 설정한 조회 반경(m). 저장값이 없거나 잘못되었으면 기본 5m. */
+function nearbyRadiusM() {
+  var raw = (state && state.settings) ? state.settings.nearbyRadius : null;
+  var v = Number(raw);
+  if (!isFinite(v) || v <= 0) return NEARBY_RADIUS_DEFAULT;
+  return v;
+}
+/* 0건일 때 한 번에 넓힐 다음 반경 — 기본 5m면 30m (요청 사양) */
+function nearbyWidenTarget(r) {
+  r = Number(r);
+  if (!isFinite(r) || r <= 0) r = NEARBY_RADIUS_DEFAULT;
+  if (r < 30) return 30;
+  if (r < 100) return 100;
+  return 200;
 }
 function nearbyHasNetwork() {
   return typeof fetch === 'function';
@@ -2274,6 +2310,12 @@ function nearbyState() {
   var rec = ui.rec;
   if (!rec || rec.lat == null || rec.lng == null) return null;
   return _nearby.key === nearbyKey(rec.lat, rec.lng) ? _nearby : null;
+}
+function nearbyResetState() {
+  _nearby = {
+    key: '', radius: 0, widened: false,
+    loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0
+  };
 }
 
 /* ------------------------------ fetch util ------------------------------ */
@@ -2310,14 +2352,16 @@ function fetchWithTimeout(url, opt, ms) {
 }
 
 /* ------------------------------ 카카오 로컬 ------------------------------ */
-function fetchKakao(lat, lng, key) {
+function fetchKakao(lat, lng, key, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var url = KAKAO_CATEGORY + '?category_group_code=FD6' +
     '&x=' + encodeURIComponent(lng) + '&y=' + encodeURIComponent(lat) +
-    '&radius=' + NEARBY_RADIUS + '&sort=distance&size=15';
+    '&radius=' + Math.round(r) + '&sort=distance&size=15';
   return fetchWithTimeout(url, { headers: { Authorization: 'KakaoAK ' + String(key).trim() } }, 5000)
-    .then(function (json) { return kakaoPlaces(json, lat, lng); });
+    .then(function (json) { return kakaoPlaces(json, lat, lng, r); });
 }
-function kakaoPlaces(json, lat, lng) {
+function kakaoPlaces(json, lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var docs = (json && json.documents) || [];
   var out = [];
   docs.forEach(function (d) {
@@ -2326,7 +2370,7 @@ function kakaoPlaces(json, lat, lng) {
     var plat = parseFloat(d.y), plng = parseFloat(d.x);
     if (isNaN(plat) || isNaN(plng)) return;
     var dist = haversine({ lat: lat, lng: lng }, { lat: plat, lng: plng });
-    if (dist != null && dist > NEARBY_RADIUS + 30) return;
+    if (dist != null && dist > r) return;
     var road = String(d.road_address_name || '').trim();
     var addr = road || String(d.address_name || '').trim();
     out.push({
@@ -2353,66 +2397,88 @@ function kakaoArea(addr) {
 }
 
 /* ------------------------------ OpenStreetMap ------------------------------ */
-function overpassQuery(lat, lng) {
-  var around = '(around:' + NEARBY_RADIUS + ',' + lat + ',' + lng + ')';
+function overpassQuery(lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
+  var around = '(around:' + r + ',' + lat + ',' + lng + ')';
   return '[out:json][timeout:8];(' +
     'nwr["amenity"~"^(restaurant|bar|pub|izakaya|sushi|biergarten|food_court)$"]' + around + ';' +
     'nwr["cuisine"~"sushi|japanese|sake|washoku|izakaya",i]' + around + ';' +
     ');out center 40;';
 }
-async function fetchOsm(lat, lng) {
-  var body = 'data=' + encodeURIComponent(overpassQuery(lat, lng));
+async function fetchOsm(lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
+  var body = 'data=' + encodeURIComponent(overpassQuery(lat, lng, r));
   var errs = [];
-  function keep(e) { errs.push(e); return []; }
+  var answered = false;   // 요청이 '답'을 했는가(비어 있음 포함) — 실패(네트워크)와 구분한다
+  function keep(e) {
+    errs.push(e);
+    if (e && e.empty) answered = true;
+    return [];
+  }
+  function search(phrase) {
+    return fetchNominatimPlaces(lat, lng, phrase, r).then(function (l) {
+      answered = true;
+      return l;
+    }).catch(keep);
+  }
 
   // 1) 주 Overpass 엔드포인트
-  var list = await overpassTry(OVERPASS_ENDPOINTS[0], body, lat, lng, 6000).catch(keep);
+  var list = await overpassTry(OVERPASS_ENDPOINTS[0], body, lat, lng, 6000, r).catch(keep);
   if (list.length) return list;
 
   // 2) 보조 미러 + Nominatim 검색을 동시에 (Nominatim 은 앞선 역지오코딩이 끝난 뒤라 1초 간격 유지)
   var pair = await Promise.all([
-    overpassTry(OVERPASS_ENDPOINTS[1], body, lat, lng, 5000).catch(keep),
-    fetchNominatimPlaces(lat, lng, 'restaurant').catch(keep)
+    overpassTry(OVERPASS_ENDPOINTS[1], body, lat, lng, 5000, r).catch(keep),
+    search('restaurant')
   ]);
   list = pair[0].concat(pair[1]);
   if (list.length) return list;
 
   // 3) 그래도 없으면 술집까지 한 번 더 (Nominatim 정책: 초당 1회 이내)
   await wait(1100);
-  try { list = await fetchNominatimPlaces(lat, lng, 'bar'); } catch (e) { errs.push(e); }
+  list = await search('bar');
   if (list.length) return list;
+  // 반경 안에 아무것도 없다는 '답'을 받았으면 빈 결과, 모두 실패했으면 오류
+  if (answered) return [];
   throw errs.length ? errs[errs.length - 1] : new Error('osm failed');
 }
 function wait(ms) {
   return new Promise(function (resolve) { setTimeout(resolve, ms); });
 }
-function overpassTry(endpoint, body, lat, lng, ms) {
+function overpassTry(endpoint, body, lat, lng, ms, radius) {
   return fetchWithTimeout(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body
   }, ms).then(function (json) {
-    var list = osmPlaces(json, lat, lng);
-    if (!list.length) throw new Error('empty');
+    var list = osmPlaces(json, lat, lng, radius);
+    if (!list.length) {
+      var e = new Error('empty');
+      e.empty = true;   // 응답은 받았고 반경 안에 없음
+      throw e;
+    }
     return list;
   });
 }
 /* Overpass 미러가 막힌 네트워크용: 같은 OSM 데이터를 Nominatim 검색으로 받아 온다.
    q=[amenity=restaurant] 같은 특수 구문은 이름 매칭이 아니라 카테고리 검색이다. */
 function nominatimViewbox(lat, lng, radiusM) {
-  var dLat = radiusM / 111320;
-  var dLng = radiusM / (111320 * Math.max(0.2, Math.cos(lat * Math.PI / 180)));
+  var r = Number(radiusM) || NEARBY_RADIUS_DEFAULT;
+  var dLat = r / 111320;
+  var dLng = r / (111320 * Math.max(0.2, Math.cos(lat * Math.PI / 180)));
   return (lng - dLng) + ',' + (lat + dLat) + ',' + (lng + dLng) + ',' + (lat - dLat);
 }
-function fetchNominatimPlaces(lat, lng, phrase) {
+function fetchNominatimPlaces(lat, lng, phrase, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1' +
     '&limit=15&bounded=1&accept-language=ko' +
     '&q=' + encodeURIComponent('[' + 'amenity=' + phrase + ']') +
-    '&viewbox=' + nominatimViewbox(lat, lng, NEARBY_RADIUS);
+    '&viewbox=' + nominatimViewbox(lat, lng, r);
   return fetchWithTimeout(url, { headers: { Accept: 'application/json' } }, 6000)
-    .then(function (json) { return nominatimSearchPlaces(json, lat, lng); });
+    .then(function (json) { return nominatimSearchPlaces(json, lat, lng, r); });
 }
-function nominatimSearchPlaces(json, lat, lng) {
+function nominatimSearchPlaces(json, lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var rows = Array.isArray(json) ? json : [];
   var out = [];
   rows.forEach(function (x) {
@@ -2421,7 +2487,7 @@ function nominatimSearchPlaces(json, lat, lng) {
     var plat = parseFloat(x.lat), plng = parseFloat(x.lon);
     if (isNaN(plat) || isNaN(plng)) return;
     var dist = haversine({ lat: lat, lng: lng }, { lat: plat, lng: plng });
-    if (dist == null || dist > NEARBY_RADIUS + 30) return;
+    if (dist == null || dist > r) return;
     var a = x.address || {};
     var road = String(a.road || '').trim(), no = String(a.house_number || '').trim();
     out.push({
@@ -2434,7 +2500,8 @@ function nominatimSearchPlaces(json, lat, lng) {
   });
   return out;
 }
-function osmPlaces(json, lat, lng) {
+function osmPlaces(json, lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var els = (json && json.elements) || [];
   var out = [];
   els.forEach(function (el) {
@@ -2445,7 +2512,7 @@ function osmPlaces(json, lat, lng) {
     var plng = (typeof el.lon === 'number') ? el.lon : (el.center && el.center.lon);
     if (typeof plat !== 'number' || typeof plng !== 'number') return;
     var dist = haversine({ lat: lat, lng: lng }, { lat: plat, lng: plng });
-    if (dist == null || dist > NEARBY_RADIUS + 30) return;
+    if (dist == null || dist > r) return;
     out.push({ name: name, kind: osmKind(t), address: '', area: '', lat: plat, lng: plng, dist: dist });
   });
   return out;
@@ -2512,19 +2579,20 @@ function nearbyMerge(places) {
   });
   return out.slice(0, 8);
 }
-async function lookupNearby(lat, lng) {
+async function lookupNearby(lat, lng, radius) {
+  var r = Number(radius) || NEARBY_RADIUS_DEFAULT;
   var revP = fetchReverse(lat, lng).catch(function () { return null; });
   var places = [], src = '', err = null;
   var kakaoKey = String((state.settings && state.settings.kakaoKey) || '').trim();
   if (kakaoKey) {
     try {
-      var k = await fetchKakao(lat, lng, kakaoKey);
+      var k = await fetchKakao(lat, lng, kakaoKey, r);
       if (k && k.length) { places = k; src = '카카오'; }
     } catch (e) { err = e; }
   }
   if (!src) {
     try {
-      var o = await fetchOsm(lat, lng);
+      var o = await fetchOsm(lat, lng, r);
       places = o;
       src = 'OpenStreetMap';
       err = null;
@@ -2544,16 +2612,22 @@ function translateArea(s) {
   return String(s || '').replace(/\s+/g, ' ').trim();
 }
 
-function startNearbyLookup(rec) {
+function startNearbyLookup(rec, opts) {
   if (!rec || rec.lat == null || rec.lng == null) return;
   if (!nearbyHasNetwork()) { _nearby.error = 'offline'; return; }
+  opts = opts || {};
+  var radius = Number(opts.radius) > 0 ? Number(opts.radius) : nearbyRadiusM();
   var key = nearbyKey(rec.lat, rec.lng);
-  if (_nearby.key === key && (_nearby.loading || (_nearby.done && _nearby.places.length))) return;
+  if (!opts.force && _nearby.key === key && _nearby.radius === radius &&
+      (_nearby.loading || (_nearby.done && _nearby.places.length))) return;
   var lat = rec.lat, lng = rec.lng;
-  _nearby = { key: key, loading: true, done: false, places: [], area: '', address: '', src: '', error: '', at: Date.now() };
+  _nearby = {
+    key: key, radius: radius, widened: !!opts.widen,
+    loading: true, done: false, places: [], area: '', address: '', src: '', error: '', at: Date.now()
+  };
   refreshNearbyUI();
-  lookupNearby(lat, lng).then(function (res) {
-    if (_nearby.key !== key) return;
+  lookupNearby(lat, lng, radius).then(function (res) {
+    if (_nearby.key !== key || _nearby.radius !== radius) return;
     _nearby.loading = false;
     _nearby.done = true;
     _nearby.at = Date.now();
@@ -2564,7 +2638,7 @@ function startNearbyLookup(rec) {
     _nearby.address = res.address || '';
     refreshNearbyUI();
   }).catch(function () {
-    if (_nearby.key !== key) return;
+    if (_nearby.key !== key || _nearby.radius !== radius) return;
     _nearby.loading = false;
     _nearby.done = true;
     _nearby.error = 'network';
@@ -2574,8 +2648,26 @@ function startNearbyLookup(rec) {
 function retryNearby() {
   var rec = ui.rec;
   if (!rec || rec.lat == null) return;
-  _nearby.key = '';
-  startNearbyLookup(rec);
+  startNearbyLookup(rec, { force: true });
+}
+/* 0건일 때: 설정 반경에서 한 단계 넓혀(기본 5m → 30m) 바로 다시 찾는다 */
+function nearbyWiden() {
+  var rec = ui.rec;
+  if (!rec || rec.lat == null || rec.lng == null) return;
+  var cur = (_nearby.key === nearbyKey(rec.lat, rec.lng) && _nearby.radius)
+    ? _nearby.radius : nearbyRadiusM();
+  var target = nearbyWidenTarget(cur);
+  startNearbyLookup(rec, { radius: target, widen: true, force: true });
+  toast('반경 ' + target + 'm로 넓혀 찾는 중…');
+}
+/* 설정에서 기본 조회 반경을 바꿨을 때: 캐시를 비우고 열린 기록이 있으면 새 반경으로 다시 조회 */
+function nearbyOnRadiusChange() {
+  var rec = ui.rec;
+  nearbyResetState();
+  var r = nearbyRadiusM();
+  if (rec && rec.lat != null && rec.lng != null) startNearbyLookup(rec, { force: true });
+  else refreshNearbyUI();
+  toast('업장 조회 반경을 ' + r + 'm로 바꿨어요');
 }
 
 /* ------------------------------ view ------------------------------ */
@@ -2586,23 +2678,31 @@ function nearbyBlock(rec) {
 function nearbyBoxInner(rec) {
   var n = nearbyState();
   var loading = !n || n.loading;
+  var radius = (n && n.radius) ? n.radius : nearbyRadiusM();
   var h = '<div class="row" style="margin-bottom:4px;gap:6px;align-items:baseline">' +
     '<span class="tiny" style="color:var(--ink2);font-weight:700;letter-spacing:.02em">이 위치 근처 추천 업장</span>' +
     '<span class="spacer"></span>' +
     (n && n.src ? '<span class="tiny" style="opacity:.6">' + esc(n.src) + '</span>' : '') + '</div>';
   h += '<div class="tiny" style="opacity:.65;margin-bottom:5px">' +
-    (n && n.area ? esc(n.area) + ' · ' : '') + '반경 ' + NEARBY_RADIUS + 'm</div>';
+    (n && n.area ? esc(n.area) + ' · ' : '') + '반경 ' + radius + 'm' +
+    (n && n.widened ? ' · 넓혀 찾음' : '') + '</div>';
   if (loading) {
     h += '<div class="tiny" style="opacity:.75">주변 업장을 찾는 중…</div>';
     return h;
   }
   if (!n.places.length) {
-    h += '<div class="tiny" style="opacity:.75">' +
-      (n.error === 'network'
-        ? '주변 업장을 조회하지 못했어요. 이름을 직접 입력해 주세요.'
-        : '반경 ' + NEARBY_RADIUS + 'm 안에서 등록된 업장을 찾지 못했어요. 이름을 직접 입력해 주세요.') +
-      ' <button class="btn sm ghost" data-act="nearby-retry" style="margin-left:4px;padding:4px 8px;font-size:11px">다시 찾기</button>' +
-      '</div>';
+    if (n.error === 'network') {
+      h += '<div class="tiny" style="opacity:.75">주변 업장을 조회하지 못했어요. 이름을 직접 입력해 주세요.' +
+        ' <button class="btn sm ghost" data-act="nearby-retry" style="margin-left:4px;padding:4px 8px;font-size:11px">다시 찾기</button>' +
+        '</div>';
+      return h;
+    }
+    var next = nearbyWidenTarget(radius);
+    h += '<div class="tiny" style="opacity:.78;line-height:1.7">반경 ' + radius + 'm 내에 등록된 업장이 없어요.' +
+      ' <button class="btn sm ghost" data-act="nearby-widen" style="padding:4px 8px;font-size:11px">' +
+      next + 'm로 넓혀 찾기</button>' +
+      ' <button class="btn sm ghost" data-act="nearby-retry" style="padding:4px 8px;font-size:11px">다시 찾기</button>' +
+      '<br>이름은 직접 입력해도 돼요.</div>';
     return h;
   }
   h += '<div class="chips" style="padding-bottom:0">';
@@ -2656,15 +2756,21 @@ function nearbyPick(i) {
 /* 테스트용 노출 (앱 동작과 무관) */
 if (typeof __TEST__ !== 'undefined') {
   __TEST__.nearbyKey = nearbyKey;
+  __TEST__.nearbyRadiusM = nearbyRadiusM;
+  __TEST__.nearbyWidenTarget = nearbyWidenTarget;
   __TEST__.nearbyBlock = nearbyBlock;
   __TEST__.nearbyBoxInner = nearbyBoxInner;
   __TEST__.nearbyPick = nearbyPick;
   __TEST__.nearbyMerge = nearbyMerge;
   __TEST__.startNearbyLookup = startNearbyLookup;
   __TEST__.retryNearby = retryNearby;
+  __TEST__.nearbyWiden = nearbyWiden;
+  __TEST__.nearbyOnRadiusChange = nearbyOnRadiusChange;
+  __TEST__.nearbyResetState = nearbyResetState;
   __TEST__.osmPlaces = osmPlaces;
   __TEST__.osmKind = osmKind;
   __TEST__.kindFromTags = kindFromTags;
+  __TEST__.overpassQuery = overpassQuery;
   __TEST__.nominatimSearchPlaces = nominatimSearchPlaces;
   __TEST__.nominatimViewbox = nominatimViewbox;
   __TEST__.kakaoPlaces = kakaoPlaces;
@@ -2673,7 +2779,10 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.nominatimAddress = nominatimAddress;
   __TEST__.nearbyState = function () { return _nearby; };
   __TEST__.nearbyReset = function () {
-    _nearby = { key: '', loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0 };
+    _nearby = {
+      key: '', radius: 0, widened: false,
+      loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0
+    };
   };
 }
 </script>
