@@ -1,0 +1,2224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#F4F2EC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="사케 저널">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="스시·사케 기록 앱 데모 — 업장·기록·사진은 모두 예시 데이터입니다.">
+<meta name="robots" content="noindex,nofollow">
+<title>사케 저널 · 스시·사케 기록 (데모)</title>
+<style>
+:root{
+  --bg:#F4F2EC; --bg2:#EAE7DE; --card:#FFFFFF; --ink:#1A1D22; --ink2:#4B5057;
+  --muted:#8E9298; --line:#E7E3DA; --line2:#F0EDE6;
+  --navy:#1B2430; --navy2:#2C3846; --gold:#A5854F; --gold-soft:#F5EFE2; --gold-line:#E9DCC3;
+  --danger:#B0473E; --r:18px;
+  --shadow:0 1px 2px rgba(26,29,34,.04), 0 10px 26px -18px rgba(26,29,34,.35);
+  --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",system-ui,sans-serif;
+  --serif:"AppleMyungjo","Nanum Myeongjo","Iowan Old Style",Georgia,serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%;overflow-x:hidden;font-family:var(--sans);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.01em;overscroll-behavior-y:none}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(130% 55% at 50% -5%,rgba(255,255,255,.95),rgba(255,255,255,0) 62%)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;text-align:left}
+input,select,textarea{font-size:16px}
+img{display:block}
+.app{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;min-height:100dvh}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
+  padding:calc(var(--safe-t) + 11px) 16px 10px;background:rgba(244,242,236,.82);
+  backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-bottom:1px solid transparent;transition:border-color .25s}
+.topbar.scrolled{border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.brand .mark{width:31px;height:31px;flex:0 0 31px;border-radius:9px;background:var(--navy);color:#F7F2E6;
+  display:grid;place-items:center;font-family:var(--serif);font-size:18px;line-height:1;padding-bottom:1px}
+.brand h1{margin:0;font-size:15.5px;font-weight:680;letter-spacing:-.02em;line-height:1.2}
+.brand small{display:block;font-size:9.5px;letter-spacing:.16em;color:var(--muted);font-weight:650;text-transform:uppercase;margin-top:1px}
+.iconbtn{width:36px;height:36px;flex:0 0 36px;border-radius:12px;display:grid;place-items:center;color:var(--ink2);
+  border:1px solid var(--line);background:rgba(255,255,255,.66);transition:.15s}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:19px;height:19px}
+
+main{padding:4px 16px calc(100px + var(--safe-b));outline:0}
+body[data-tab="grid"] main{padding-bottom:calc(168px + var(--safe-b))}
+body[data-tab="grid"] .actionbar{display:block}
+.view{animation:fade .24s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ---------- headings ---------- */
+.vh{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:12px 2px 13px}
+.vh h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.035em}
+.vh p{margin:3px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:-.01em}
+.vh .side{font-size:11.5px;color:var(--muted);padding-bottom:3px;white-space:nowrap}
+.mlabel{display:flex;align-items:center;gap:9px;margin:20px 2px 9px;font-size:11px;letter-spacing:.13em;
+  color:var(--muted);font-weight:700;text-transform:uppercase}
+.mlabel::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:12px 0;margin-bottom:14px;box-shadow:var(--shadow)}
+.stats div{text-align:center;position:relative}
+.stats div+div::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:1px;background:var(--line2)}
+.stats b{display:block;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.stats span{font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+
+/* ---------- chips ---------- */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:1px 2px 11px;margin:0 -2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.72);color:var(--ink2);
+  font-size:12.5px;padding:7px 12px;border-radius:999px;font-weight:560;transition:.16s;letter-spacing:-.01em}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#F8F5EC}
+.chip.mini{font-size:11.5px;padding:6px 10px}
+
+/* ---------- visit card ---------- */
+.vcard{display:block;width:100%;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px;box-shadow:var(--shadow);margin-bottom:11px;transition:transform .13s}
+.vcard:active{transform:scale(.993)}
+.vrow{display:flex;align-items:flex-start;gap:10px}
+.dbadge{width:46px;flex:0 0 46px;text-align:center;border-right:1px solid var(--line2);padding-right:7px}
+.dbadge b{display:block;font-size:19px;line-height:1.15;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:-.04em}
+.dbadge span{font-size:10px;color:var(--muted);letter-spacing:.08em}
+.vmeta{flex:1;min-width:0;padding-top:1px}
+.vname{font-size:15.5px;font-weight:660;letter-spacing:-.025em;display:flex;gap:6px;align-items:center}
+.vsub{font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.dot{width:2.5px;height:2.5px;border-radius:50%;background:#C9C4B8;display:inline-block}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
+.strip .th{position:relative;aspect-ratio:1;max-height:132px;border-radius:9px;overflow:hidden;background:var(--bg2)}
+.strip img{width:100%;height:100%;object-fit:cover}
+.strip .more{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(18,20,24,.5);color:#fff;display:grid;place-items:center;
+  font-size:12.5px;font-weight:650;letter-spacing:-.02em}
+.sakeline{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.stag{font-size:11px;color:#6E5A36;background:var(--gold-soft);border:1px solid var(--gold-line);
+  padding:3px 8px;border-radius:7px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
+.snote{margin-top:8px;font-size:12.5px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:1;
+  -webkit-box-orient:vertical;overflow:hidden}
+.badge{font-size:9.5px;font-weight:700;letter-spacing:.02em;padding:2px 5px;border-radius:5px;
+  background:#EEF0F2;color:#5C646E;vertical-align:1px;white-space:nowrap}
+.badge.gold{background:var(--gold-soft);color:#7A6238}
+
+/* ---------- sake card ---------- */
+.ncard{display:flex;gap:11px;width:100%;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:11px;margin-bottom:9px;box-shadow:var(--shadow);transition:transform .13s}
+.ncard:active{transform:scale(.993)}
+.nthumb{width:56px;height:56px;flex:0 0 56px;border-radius:11px;overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(150deg,#EFECE3,#DFD9CB);font-family:var(--serif);font-size:22px;color:#9C8F76}
+.nthumb img{width:100%;height:100%;object-fit:cover}
+.nbody{flex:1;min-width:0}
+.nname{font-size:14.5px;font-weight:660;letter-spacing:-.025em;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nsub{font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stars{position:relative;display:inline-block;color:#DDD7C9;font-size:11px;letter-spacing:1.4px;line-height:1;height:12px;margin-top:3px}
+.stars i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--gold);font-style:normal}
+.nmemo{font-size:12px;color:var(--ink2);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.linkchip{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:10.5px;color:#5A6470;
+  background:#F1F3F5;border-radius:6px;padding:3px 7px;letter-spacing:-.01em}
+.linkchip svg{width:11px;height:11px}
+
+/* ---------- search ---------- */
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:9px 12px;margin-bottom:10px;box-shadow:var(--shadow)}
+.search svg{width:16px;height:16px;color:var(--muted);flex:0 0 16px}
+.search input{border:0;outline:0;background:none;flex:1;min-width:0;font-size:15px;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:#B3B6BA}
+
+/* ---------- cards / forms ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;
+  margin-bottom:12px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 11px;font-size:13px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.card h3 .side{margin-left:auto;font-size:11px;color:var(--muted);font-weight:550}
+.stepnum{width:19px;height:19px;flex:0 0 19px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;
+  display:grid;place-items:center;font-weight:700;padding-bottom:1px}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px;border:1.5px dashed #D9D3C5;
+  border-radius:14px;color:var(--muted);font-size:12.5px;background:#FBFAF5;text-align:center;width:100%}
+.drop svg{width:26px;height:26px;color:#B4AC9A;margin-bottom:2px}
+.drop b{color:var(--ink);font-size:14px;font-weight:640;letter-spacing:-.02em}
+.drop input{display:none}
+.phlist{margin-top:4px}
+.phrow{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line2)}
+.phrow:last-child{border-bottom:0}
+.pth{width:50px;height:50px;flex:0 0 50px;border-radius:9px;object-fit:cover;background:var(--bg2)}
+.phinfo{flex:1;min-width:0;font-size:11.5px;color:var(--muted)}
+.phinfo b{display:block;font-size:13px;color:var(--ink);font-weight:600;letter-spacing:-.02em;margin-bottom:1px}
+.toggle{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2);border:1px solid var(--line);
+  border-radius:999px;padding:5px 9px;background:#fff;white-space:nowrap;font-weight:560}
+.toggle.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.field{margin-bottom:10px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.03em;font-weight:600}
+.input{width:100%;min-height:44px;border:1px solid var(--line);background:#FCFBF7;border-radius:10px;padding:10px 12px;
+  outline:0;transition:.16s}
+.input:focus{border-color:#C3BCA9;background:#fff;box-shadow:0 0 0 3px rgba(165,133,79,.1)}
+textarea.input{resize:vertical;min-height:70px;line-height:1.45}
+select.input{appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E9298' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:15px;padding-right:32px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:11px;padding:11px 14px;
+  font-size:13.5px;font-weight:620;border:1px solid var(--line);background:#fff;color:var(--ink);
+  letter-spacing:-.01em;transition:.15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--navy);color:#F9F6EE;border-color:var(--navy)}
+.btn.ghost{background:#FBFAF5}
+.btn.danger{color:var(--danger);border-color:#EBD9D6;background:#FDF7F6}
+.btn.block{width:100%}
+.btn.sm{padding:7px 10px;font-size:12px;border-radius:9px}
+.btn:disabled{opacity:.4}
+.btn svg{width:15px;height:15px}
+.hint{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.hint b{color:var(--ink2);font-weight:600}
+
+/* ---------- grid tab ---------- */
+.pool{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pool .cell{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--bg2);width:100%}
+.cell img{width:100%;height:100%;object-fit:cover}
+.cell .pick{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.92);background:rgba(18,20,24,.26);display:grid;place-items:center;
+  color:#fff;font-size:10.5px;font-weight:700;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.cell.sel .pick{background:var(--gold);border-color:#fff}
+.cell.sel::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;border:2px solid var(--gold);border-radius:9px;pointer-events:none}
+.cell .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 5px 4px;font-size:9px;color:#fff;
+  background:linear-gradient(to top,rgba(12,14,18,.75),rgba(12,14,18,0));white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.actionbar{position:fixed;left:0;right:0;bottom:calc(62px + var(--safe-b));padding:9px 16px 10px;z-index:25;
+  background:linear-gradient(to top,rgba(244,242,236,.99),rgba(244,242,236,.82) 65%,rgba(244,242,236,0));
+  pointer-events:none}
+.actionbar .inner{max-width:460px;margin:0 auto;pointer-events:auto}
+.previewBox{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.previewBox img{width:100%;height:auto}
+
+/* ---------- tab bar ---------- */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(250,248,243,.93);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);
+  border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
+.tabbar .inner{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:6px 6px 7px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;color:#9A9EA4;
+  font-size:10px;font-weight:650;letter-spacing:.01em;transition:color .16s}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--ink)}
+.tab .recicon{width:33px;height:33px;border-radius:50%;background:var(--navy);color:#F8F5ED;display:grid;
+  place-items:center;margin-top:-8px;box-shadow:0 7px 16px -7px rgba(27,36,48,.75);transition:.16s}
+.tab .recicon svg{width:19px;height:19px}
+.tab.rec.on .recicon{background:var(--gold)}
+.tab.rec span.lbl{margin-top:1px}
+
+/* ---------- sheets ---------- */
+.sheetwrap{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(16,18,22,.44);animation:fade .2s ease both}
+.sheet{position:relative;width:100%;max-width:460px;max-height:92vh;max-height:92dvh;background:var(--bg);
+  border-radius:22px 22px 0 0;box-shadow:0 -24px 44px -24px rgba(0,0,0,.45);display:flex;flex-direction:column;
+  animation:up .28s cubic-bezier(.2,.9,.25,1) both}
+@keyframes up{from{transform:translateY(26px);opacity:.5}to{transform:none;opacity:1}}
+.handle{width:38px;height:4px;border-radius:99px;background:#D7D1C4;margin:9px auto 3px;flex:0 0 auto}
+.sheethead{display:flex;align-items:center;gap:8px;padding:6px 16px 10px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.sheethead h3{margin:0;font-size:15px;font-weight:700;flex:1;letter-spacing:-.025em;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheetbody{overflow:auto;padding:14px 16px calc(26px + var(--safe-b));-webkit-overflow-scrolling:touch}
+.sheetbody.tight{padding:0 0 calc(26px + var(--safe-b))}
+
+/* ---------- detail ---------- */
+.hero{position:relative;aspect-ratio:5/4;background:var(--bg2);overflow:hidden;margin:0}
+.hero img{width:100%;height:100%;object-fit:cover}
+.hero .cap{position:absolute;left:0;right:0;bottom:0;inset:auto 0 0 0;padding:52px 16px 14px;color:#fff;
+  background:linear-gradient(to top,rgba(10,12,16,.86),rgba(10,12,16,0))}
+.hero .cap b{font-size:19px;font-weight:680;letter-spacing:-.03em;display:block}
+.hero .cap span{display:block;font-size:11.5px;opacity:.85;margin-top:3px}
+.dt{margin-top:14px}
+.dt h4{margin:16px 2px 8px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:700;text-transform:uppercase}
+.photoGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.photoGrid .ph{aspect-ratio:1;overflow:hidden;border-radius:8px;background:var(--bg2)}
+.photoGrid .ph img{width:100%;height:100%;object-fit:cover}
+.srow{display:flex;gap:9px;align-items:center;padding:9px 11px;background:#fff;border:1px solid var(--line);
+  border-radius:11px;margin-bottom:6px;width:100%}
+.srow .sn{flex:1;min-width:0}
+.srow .sn b{display:block;font-size:13.5px;font-weight:620;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .sn span{font-size:11px;color:var(--muted)}
+.srow .st{color:var(--gold);font-size:11px;letter-spacing:1.2px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:12px;overflow:hidden}
+.kv>div{background:#fff;padding:9px 11px}
+.kv dt{font-size:10.5px;color:var(--muted);margin:0 0 2px;letter-spacing:.02em}
+.kv dd{margin:0;font-size:13.5px;font-weight:560;letter-spacing:-.02em}
+.noteBox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:13px;
+  color:var(--ink2);white-space:pre-wrap;line-height:1.55}
+.rateRow{display:flex;gap:4px;align-items:center}
+.rateRow button{font-size:26px;line-height:1;color:#DED8CA;transition:.12s}
+.rateRow button.on{color:var(--gold)}
+
+/* ---------- lightbox ---------- */
+.lightbox{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:90;background:#0C0E11;display:flex;flex-direction:column;
+  animation:fade .16s ease both}
+.lightbox .lbTop{display:flex;justify-content:space-between;align-items:center;padding:calc(var(--safe-t) + 10px) 14px 8px;color:#D8D4CA;font-size:12px}
+.lightbox .lbStage{flex:1;display:grid;place-items:center;padding:0 6px;min-height:0}
+.lightbox .lbStage img{max-width:100%;max-height:100%;object-fit:contain}
+.lightbox .lbBottom{display:flex;justify-content:space-between;gap:10px;padding:10px 16px calc(18px + var(--safe-b))}
+.lightbox .lbBottom button{color:#EDE9DF;font-size:22px;padding:4px 14px}
+
+h4{margin:16px 2px 8px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:700;text-transform:uppercase}
+h4.dt{margin-top:16px}
+
+/* ---------- misc ---------- */
+.empty{text-align:center;padding:38px 18px;color:var(--muted);font-size:12.5px;line-height:1.6}
+.empty .big{font-family:var(--serif);font-size:28px;color:#CFC7B6;margin-bottom:9px;letter-spacing:.1em}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translate(-50%,14px);
+  background:rgba(24,27,32,.95);color:#F6F3EC;font-size:12.5px;padding:10px 15px;border-radius:11px;z-index:100;
+  opacity:0;transition:.24s;pointer-events:none;max-width:86vw;text-align:center;line-height:1.45;
+  box-shadow:0 12px 26px -14px rgba(0,0,0,.6)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.sep{height:1px;background:var(--line);margin:12px -14px}
+.mono{font-variant-numeric:tabular-nums}
+.tiny{font-size:10.5px;color:var(--muted);letter-spacing:.02em}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.spacer{flex:1}
+.pill{font-size:10.5px;font-weight:650;color:#6E5A36;background:var(--gold-soft);border:1px solid var(--gold-line);
+  padding:2px 7px;border-radius:6px}
+.pill.dark{background:#EDEFF1;border-color:#E2E5E8;color:#5C646E}
+.loader{width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar" id="topbar">
+    <div class="brand">
+      <div class="mark">酒</div>
+      <div>
+        <h1>사케 저널</h1>
+        <small>스시 · 사케 기록 · DEMO</small>
+      </div>
+    </div>
+    <button class="iconbtn" data-act="settings" aria-label="설정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M4 7h9M17 7h3M4 17h3M11 17h9"/>
+        <circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>
+      </svg>
+    </button>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="view">
+      <div class="vh"><div><h2>사케 저널</h2><p>스시 · 사케 기록</p></div></div>
+      <div class="empty"><div class="big">酒</div><b>화면을 준비하고 있어요</b><br>
+        이 문구가 그대로 보이면 자바스크립트가 꺼진 미리보기예요.<br>Safari나 Chrome에서 열어 주세요.</div>
+    </div>
+  </main>
+
+  <nav class="tabbar">
+    <div class="inner">
+      <button class="tab" data-tab="venues">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+        </svg>
+        <span>업장별</span>
+      </button>
+      <button class="tab" data-tab="notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 3h4v3.4l1.7 2.3c.2.3.3.7.3 1.1V19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-9.2c0-.4.1-.8.3-1.1L10 6.4V3Z"/>
+          <path d="M9 13.5h6"/>
+        </svg>
+        <span>사케 노트</span>
+      </button>
+      <button class="tab rec" data-tab="record">
+        <span class="recicon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </span>
+        <span class="lbl">기록</span>
+      </button>
+      <button class="tab" data-tab="grid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/>
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>
+        </svg>
+        <span>격자</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<div id="layer"></div>
+<div class="toast" id="toast" role="status"></div>
+
+
+<script id="seed-photos" type="application/json">{"ph01": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjQwIiByPSIxNTYiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzNTYiIHJ4PSIxMjgiIHJ5PSIyMCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTE0OCAyODIgcTkyIC0zMiAxODQgMCBxLTEwIDU2IC05MiA1NiBxLTgyIDAgLTkyIC01NnoiIGZpbGw9IiNGQkY3RUMiIHN0cm9rZT0iI0UzREFDNCIgc3Ryb2tlLXdpZHRoPSIxLjYiLz48ZyBmaWxsPSIjRENEM0JFIiBvcGFjaXR5PSIwLjQ1Ij48ZWxsaXBzZSBjeD0iMTgyIiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMTgyIDMxMCkiLz48ZWxsaXBzZSBjeD0iMjAxIiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjAxIDMyMCkiLz48ZWxsaXBzZSBjeD0iMjIxIiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjIxIDMxMCkiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjQwIDMyMCkiLz48ZWxsaXBzZSBjeD0iMjU5IiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjU5IDMxMCkiLz48ZWxsaXBzZSBjeD0iMjc5IiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjc5IDMyMCkiLz48ZWxsaXBzZSBjeD0iMjk4IiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjk4IDMxMCkiLz48L2c+PHBhdGggZD0iTTEyNCAyNjQgcTEyIC0zOCA1NiAtNDIgcTYwIC02IDEyMCAwIHE0NCA0IDU2IDQyIHEtMTIgMjQgLTYyIDI2IHEtNTQgNiAtMTA4IDAgcS01MCAtMiAtNjIgLTI2eiIgZmlsbD0idXJsKCN0dW5hKSIgc3Ryb2tlPSIjMDAwMDAwMTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTE1MiAyNDAgcTg4IC0yMCAxNzYgLTIiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjQiIHN0cm9rZS13aWR0aD0iNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTE1NiAyNzAgcTg0IC0xNiAxNjggMCIgc3Ryb2tlPSIjMzUxMTBGIiBzdHJva2Utb3BhY2l0eT0iMC4xOCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMjI2IDIxNiBxMTUgLTQgMzAgMCB2OTIgcTAgMTggLTE1IDE4IHEtMTUgMCAtMTUgLTE4eiIgZmlsbD0iIzIzMkUyNyIvPjxwYXRoIGQ9Ik0yMzIgMjI0IHY4NCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC4xIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNMjI2IDIxNiBxMTUgLTQgMzAgMCIgc3Ryb2tlPSIjMEYxNjEzIiBzdHJva2Utb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNNzQgMzE4IHEzNiAtMzIgNjggLTggcS04IDM2IC00OCAzNiBxLTE4IDAgLTIwIC0yOHoiIGZpbGw9IiM2RThCNUUiIG9wYWNpdHk9IjAuOSIvPjxwYXRoIGQ9Ik04NCAzMTQgcTMwIC0yMCA1NCAtNCIgc3Ryb2tlPSIjNEY2QjQ0IiBzdHJva2Utb3BhY2l0eT0iMC41IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIzNTYiIGN5PSIzMTYiIHI9IjEzIiBmaWxsPSIjQUZCRDg2Ii8+PGNpcmNsZSBjeD0iMzUxIiBjeT0iMzEwIiByPSI0LjUiIGZpbGw9IiNDNkQzQTAiIG9wYWNpdHk9IjAuODUiLz48L3N2Zz4=", "ph02": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjQwIiByPSIxNTYiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzNTYiIHJ4PSIxMjgiIHJ5PSIyMCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTE0OCAyODIgcTkyIC0zMiAxODQgMCBxLTEwIDU2IC05MiA1NiBxLTgyIDAgLTkyIC01NnoiIGZpbGw9IiNGQkY3RUMiIHN0cm9rZT0iI0UzREFDNCIgc3Ryb2tlLXdpZHRoPSIxLjYiLz48ZyBmaWxsPSIjRENEM0JFIiBvcGFjaXR5PSIwLjQ1Ij48ZWxsaXBzZSBjeD0iMTgyIiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMTgyIDMxMCkiLz48ZWxsaXBzZSBjeD0iMjAxIiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjAxIDMyMCkiLz48ZWxsaXBzZSBjeD0iMjIxIiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjIxIDMxMCkiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjQwIDMyMCkiLz48ZWxsaXBzZSBjeD0iMjU5IiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjU5IDMxMCkiLz48ZWxsaXBzZSBjeD0iMjc5IiBjeT0iMzIwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjc5IDMyMCkiLz48ZWxsaXBzZSBjeD0iMjk4IiBjeT0iMzEwIiByeD0iMy42IiByeT0iMi4yIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTYgMjk4IDMxMCkiLz48L2c+PHBhdGggZD0iTTEyNCAyNjQgcTEyIC0zOCA1NiAtNDIgcTYwIC02IDEyMCAwIHE0NCA0IDU2IDQyIHEtMTIgMjQgLTYyIDI2IHEtNTQgNiAtMTA4IDAgcS01MCAtMiAtNjIgLTI2eiIgZmlsbD0idXJsKCN3aGl0ZUZpc2gpIiBzdHJva2U9IiMwMDAwMDAxNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48cGF0aCBkPSJNMTUyIDI0MCBxODggLTIwIDE3NiAtMiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC4yNCIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMTU2IDI3MCBxODQgLTE2IDE2OCAwIiBzdHJva2U9IiMzNTExMEYiIHN0cm9rZS1vcGFjaXR5PSIwLjE4IiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0xNTggMjM4IHE4MiAtMTAgMTY0IDAiIHN0cm9rZT0iI0M5Qjc5QSIgc3Ryb2tlLW9wYWNpdHk9IjAuNzUiIHN0cm9rZS13aWR0aD0iMi41IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE1OCAyNTIgcTgyIC0xMCAxNjQgMCIgc3Ryb2tlPSIjQzlCNzlBIiBzdHJva2Utb3BhY2l0eT0iMC43NSIgc3Ryb2tlLXdpZHRoPSIyLjUiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTMwIDI4MCBxMTEwIDE2IDIyMCAwIiBzdHJva2U9IiNERUIwQTIiIHN0cm9rZS1vcGFjaXR5PSIwLjgiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0xMDggMzMwIHEzNCAtMzAgNjQgLTggcS04IDM0IC00NiAzNCBxLTE2IDAgLTE4IC0yNnoiIGZpbGw9IiM2RThCNUUiIG9wYWNpdHk9IjAuOSIvPjxjaXJjbGUgY3g9IjM1MiIgY3k9IjMwMCIgcj0iMTIiIGZpbGw9IiNCOEM2OEUiLz48cGF0aCBkPSJNMzM4IDI4NiBxMTAgLTggMTggMCIgc3Ryb2tlPSIjOEZBMzZBIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==", "ph03": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PHJlY3QgeD0iMjYiIHk9IjI2IiB3aWR0aD0iNDI4IiBoZWlnaHQ9IjQyOCIgcng9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNBNTg1NEYiIHN0cm9rZS1vcGFjaXR5PSIwLjQ1IiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzAwIiByeD0iMTkwIiByeT0iMTUwIiBmaWxsPSJ1cmwoI2dsb3cpIiBvcGFjaXR5PSIwLjI4Ii8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjM5MiIgcng9IjEyMCIgcnk9IjIwIiBmaWxsPSIjMEUxNDFBIiBvcGFjaXR5PSIwLjU1Ii8+PHBhdGggZD0iTTIxNiAxMjggaDQ4IHYzOCBsMTUgMjMgcTExIDE3IDExIDM4IHYxMDYgcTAgMjIgLTIyIDIyIGgtNTYgcS0yMiAwIC0yMiAtMjIgdi0xMDYgcTAgLTIxIDExIC0zOCBsMTUgLTIzeiIgZmlsbD0idXJsKCNnbGFzcykiLz48cmVjdCB4PSIyMTQiIHk9IjExOCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjE2IiByeD0iNiIgZmlsbD0iIzFDMjYyMCIvPjxyZWN0IHg9IjIwOCIgeT0iMjMyIiB3aWR0aD0iNjQiIGhlaWdodD0iODAiIHJ4PSI0IiBmaWxsPSIjRjZFRURGIi8+PHBhdGggZD0iTTIxOCAyNTAgaDQ0TTIxOCAyNjAgaDI4IiBzdHJva2U9IiNBNTg1NEYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjg2IiByPSIxNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNMjIyIDEzMiB2MzQiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjIiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTk2IDMzMCBxMCA0NiAzNCA0NiBxMzQgMCAzNCAtNDZ6IiBmaWxsPSIjRjRFQ0RDIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS1vcGFjaXR5PSIwLjI1IiBzdHJva2Utd2lkdGg9IjEuNSIvPjxlbGxpcHNlIGN4PSIxMzAiIGN5PSIzMzAiIHJ4PSIzNCIgcnk9IjEwIiBmaWxsPSIjRTJDNzk1Ii8+PGVsbGlwc2UgY3g9IjEzMCIgY3k9IjMyOSIgcng9IjI1IiByeT0iNi41IiBmaWxsPSIjRjBEREI2Ii8+PHBhdGggZD0iTTk2IDMzMCBxMCA0NiAzNCA0NiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMzIwIDM0NiBxMCAzOCAyOSAzOCBxMjkgMCAyOSAtMzh6IiBmaWxsPSIjRjRFQ0RDIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS1vcGFjaXR5PSIwLjI1IiBzdHJva2Utd2lkdGg9IjEuNSIvPjxlbGxpcHNlIGN4PSIzNDkiIGN5PSIzNDYiIHJ4PSIyOSIgcnk9IjguNSIgZmlsbD0iI0UyQzc5NSIvPjxlbGxpcHNlIGN4PSIzNDkiIGN5PSIzNDUiIHJ4PSIyMSIgcnk9IjUuNSIgZmlsbD0iI0YwRERCNiIvPjxjaXJjbGUgY3g9IjEzMCIgY3k9IjMyNCIgcj0iMi42IiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjY1Ii8+PC9zdmc+", "ph04": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjM4IiByPSIxNTYiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzNjIiIHJ4PSIxMTIiIHJ5PSIyMCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTE1MiAyNjggaDE3NiB2MTQgcTAgNDggLTg4IDQ4IHEtODggMCAtODggLTQ4eiIgZmlsbD0iIzIzMkUyNyIvPjxwYXRoIGQ9Ik0xNzAgMjk2IHE3MCAyMiAxNDAgMCIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4yNSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjI2OCIgcng9Ijg4IiByeT0iMzQiIGZpbGw9IiNGQ0Y5RjAiLz48cGF0aCBkPSJNMTYwIDI2NiBxMjIgLTU2IDgwIC01NiBxNTggMCA4MCA1NiBxLTgwIDIyIC0xNjAgMHoiIGZpbGw9InVybCgjdW5pKSIvPjxnIGZpbGw9IiNGNkNEODYiIG9wYWNpdHk9IjAuODUiPjxlbGxpcHNlIGN4PSIyMDQiIGN5PSIyNDYiIHJ4PSIxMyIgcnk9IjgiIHRyYW5zZm9ybT0icm90YXRlKC0xNCAyMDQgMjQ2KSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIyMzIiIHJ4PSIxNCIgcnk9IjkiLz48ZWxsaXBzZSBjeD0iMjc2IiBjeT0iMjQ4IiByeD0iMTIiIHJ5PSI4IiB0cmFuc2Zvcm09InJvdGF0ZSgxMiAyNzYgMjQ4KSIvPjxlbGxpcHNlIGN4PSIxODQiIGN5PSIyNjQiIHJ4PSIxMCIgcnk9IjYiIHRyYW5zZm9ybT0icm90YXRlKC0yMCAxODQgMjY0KSIvPjxlbGxpcHNlIGN4PSIyOTgiIGN5PSIyNjQiIHJ4PSIxMCIgcnk9IjYiIHRyYW5zZm9ybT0icm90YXRlKDIwIDI5OCAyNjQpIi8+PC9nPjxnIGZpbGw9IiNBNTg1NEYiIG9wYWNpdHk9IjAuNzUiPjxyZWN0IHg9IjIyNiIgeT0iMjQwIiB3aWR0aD0iNyIgaGVpZ2h0PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgxOCAyMjYgMjQwKSIvPjxyZWN0IHg9IjI2MiIgeT0iMjU4IiB3aWR0aD0iOCIgaGVpZ2h0PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTIgMjYyIDI1OCkiLz48cmVjdCB4PSIxOTgiIHk9IjI1OCIgd2lkdGg9IjciIGhlaWdodD0iNCIgdHJhbnNmb3JtPSJyb3RhdGUoMjQgMTk4IDI1OCkiLz48L2c+PHBhdGggZD0iTTE2MCAyNjggcTAgLTU2IDgwIC01NiBxODAgMCA4MCA1NiIgc3Ryb2tlPSIjMjMyRTI3IiBzdHJva2Utb3BhY2l0eT0iMC4zNSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PC9zdmc+", "ph05": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjM2IiByPSIxNTQiIGZpbGw9IiNGMUU3RDQiIG9wYWNpdHk9IjAuNiIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzOTQiIHJ4PSIxMzIiIHJ5PSIxOCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTE5NCAxMzggcTAgMTIwIDQ2IDE1MiBxNDYgLTMyIDQ2IC0xNTJ6IiBmaWxsPSIjRkJGQkY2IiBvcGFjaXR5PSIwLjkyIi8+PHBhdGggZD0iTTE5OSAxNjYgcTUgMTAwIDQxIDEyOCBxMzYgLTI4IDQxIC0xMjh6IiBmaWxsPSIjRUJENzlFIiBvcGFjaXR5PSIwLjkyIi8+PHBhdGggZD0iTTE5OSAxNjYgcTUgMTAwIDQxIDEyOCBxMzYgLTI4IDQxIC0xMjh6IiBmaWxsPSJub25lIiBzdHJva2U9IiNEOUJGN0IiIHN0cm9rZS13aWR0aD0iMiIvPjxnIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNTUiPjxjaXJjbGUgY3g9IjIyMiIgY3k9IjIxNCIgcj0iNCIvPjxjaXJjbGUgY3g9IjI0MCIgY3k9IjI0MiIgcj0iMy40Ii8+PGNpcmNsZSBjeD0iMjU4IiBjeT0iMjA2IiByPSIzLjgiLz48Y2lyY2xlIGN4PSIyMzIiIGN5PSIyNjgiIHI9IjIuOCIvPjxjaXJjbGUgY3g9IjI1MiIgY3k9IjI1OCIgcj0iMyIvPjwvZz48cGF0aCBkPSJNMTkyIDEzOCBxNDggMTIgOTYgMCIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjIzNCIgeT0iMjg2IiB3aWR0aD0iMTIiIGhlaWdodD0iODgiIHJ4PSI1IiBmaWxsPSIjRjBFRkU3Ii8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjM3OCIgcng9IjQ2IiByeT0iMTAiIGZpbGw9IiNFRkVFRTUiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzc2IiByeD0iNDYiIHJ5PSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDlENkM5IiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNMTk4IDE1MCBxNiA5MCAzNiAxMjAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuNiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+", "ph06": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjQwIiByPSIxNTIiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNTUiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iNDA0IiByeD0iOTYiIHJ5PSIxNiIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTIxMiAxMDggaDU2IHY0NCBsMTYgMjUgcTEwIDE2IDEwIDM1IHYxMTggcTAgMjIgLTIyIDIyIGgtNjQgcS0yMiAwIC0yMiAtMjIgdi0xMTggcTAgLTE5IDEwIC0zNSBsMTYgLTI1eiIgZmlsbD0idXJsKCNnbGFzcykiLz48cmVjdCB4PSIyMTAiIHk9Ijk2IiB3aWR0aD0iNjAiIGhlaWdodD0iMTgiIHJ4PSI3IiBmaWxsPSIjMUMyNjIwIi8+PHJlY3QgeD0iMTg4IiB5PSIyMTQiIHdpZHRoPSIxMDQiIGhlaWdodD0iMTI0IiByeD0iNiIgZmlsbD0iI0ZCRjVFNyIvPjxyZWN0IHg9IjE5NiIgeT0iMjIyIiB3aWR0aD0iODgiIGhlaWdodD0iMTA4IiBmaWxsPSJub25lIiBzdHJva2U9IiNBNTg1NEYiIHN0cm9rZS13aWR0aD0iMS42Ii8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjU2IiByPSIyMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjIuNCIvPjxwYXRoIGQ9Ik0yNDAgMjQyIGw3IDE0IC0xNCAweiIgZmlsbD0iI0E1ODU0RiIvPjxwYXRoIGQ9Ik0yMTIgMjk2IGg1Nk0yMjQgMzA2IGgzMk0yMzIgMzE2IGgxNiIgc3Ryb2tlPSIjMUIyNDMwIiBzdHJva2Utb3BhY2l0eT0iMC41NSIgc3Ryb2tlLXdpZHRoPSIzLjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0yMTQgMTI0IHYzNiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC4yMiIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=", "ph07": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjMwIiByPSIxNTgiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNDUiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzgyIiByeD0iMTc2IiByeT0iMjIiIGZpbGw9InVybCgjc2hhZG93KSIvPjxyZWN0IHg9IjU2IiB5PSIyNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iOTIiIHJ4PSIxNCIgZmlsbD0iIzJFMkIyNSIvPjxyZWN0IHg9IjU2IiB5PSIyNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMTIiIHJ4PSI2IiBmaWxsPSIjM0MzODJGIi8+PGcgc3Ryb2tlPSIjMUYxRDE5IiBzdHJva2Utb3BhY2l0eT0iMC41IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik03NiAzMDYgaDMyOCIvPjxwYXRoIGQ9Ik03NiAzMzQgaDMyOCIvPjwvZz48Zz48cmVjdCB4PSI5MiIgeT0iMjQ4IiB3aWR0aD0iNjYiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iI0ZERkJGNCIvPjxyZWN0IHg9Ijg2IiB5PSIyMzIiIHdpZHRoPSI3OCIgaGVpZ2h0PSIyNCIgcng9IjEyIiBmaWxsPSJ1cmwoI3R1bmEpIi8+PHJlY3QgeD0iMTAwIiB5PSIyNjIiIHdpZHRoPSI1MCIgaGVpZ2h0PSIxMiIgZmlsbD0iIzI4MzMyQyIgb3BhY2l0eT0iMC45Ii8+PHJlY3QgeD0iMTgyIiB5PSIyNDgiIHdpZHRoPSI2NiIgaGVpZ2h0PSIyNiIgcng9IjEzIiBmaWxsPSIjRkRGQkY0Ii8+PHJlY3QgeD0iMTc2IiB5PSIyMzIiIHdpZHRoPSI3OCIgaGVpZ2h0PSIyNCIgcng9IjEyIiBmaWxsPSJ1cmwoI3doaXRlRmlzaCkiLz48cmVjdCB4PSIyMTAiIHk9IjI2MiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEyIiBmaWxsPSIjRDhBNzlDIiBvcGFjaXR5PSIwLjciLz48cmVjdCB4PSIyNzIiIHk9IjI0OCIgd2lkdGg9IjY2IiBoZWlnaHQ9IjI2IiByeD0iMTMiIGZpbGw9IiNGREZCRjQiLz48cmVjdCB4PSIyNjYiIHk9IjIzMiIgd2lkdGg9Ijc4IiBoZWlnaHQ9IjI0IiByeD0iMTIiIGZpbGw9InVybCgjc2FsbW9uKSIvPjxyZWN0IHg9IjI4MiIgeT0iMjYyIiB3aWR0aD0iNTAiIGhlaWdodD0iMTIiIGZpbGw9IiMyODMzMkMiIG9wYWNpdHk9IjAuOSIvPjxyZWN0IHg9IjM2MiIgeT0iMjQ4IiB3aWR0aD0iNjYiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iI0ZERkJGNCIvPjxyZWN0IHg9IjM1NiIgeT0iMjMyIiB3aWR0aD0iNzgiIGhlaWdodD0iMjQiIHJ4PSIxMiIgZmlsbD0idXJsKCN1bmkpIi8+PC9nPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjIxMiIgcj0iMTAiIGZpbGw9IiNFQkQ5QjQiLz48cmVjdCB4PSIzMzAiIHk9IjMwMCIgd2lkdGg9IjU0IiBoZWlnaHQ9IjMwIiByeD0iNCIgZmlsbD0iI0Y2RUVERiIgb3BhY2l0eT0iMC45Ii8+PC9zdmc+", "ph08": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjM0IiByPSIxNTYiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzNjgiIHJ4PSIxNTAiIHJ5PSIyNiIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjMxNiIgcng9IjE2NCIgcnk9Ijk2IiBmaWxsPSIjRkZGREY4Ii8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjMxMiIgcng9IjE0NiIgcnk9IjgyIiBmaWxsPSIjRkFGNUVBIi8+PHBhdGggZD0iTTk2IDMwNiBxMzQgLTMwIDY0IC02IHEtOCAzMiAtNDYgMzIgcS0xNiAwIC0xOCAtMjZ6IiBmaWxsPSIjNkU4QjVFIiBvcGFjaXR5PSIwLjg1Ii8+PGcgdHJhbnNmb3JtPSJyb3RhdGUoLTkgMjQwIDI2OCkiPjxyZWN0IHg9IjE1MCIgeT0iMjQ2IiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjM2IiByeD0iMTgiIGZpbGw9InVybCgjc2FsbW9uKSIvPjxwYXRoIGQ9Ik0xNjIgMjU4IHE4MCAtOCAxNTYgMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC4zNSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9nPjxnIHRyYW5zZm9ybT0icm90YXRlKDMgMjQwIDMwMCkiPjxyZWN0IHg9IjE1NiIgeT0iMjg0IiB3aWR0aD0iMTY4IiBoZWlnaHQ9IjM0IiByeD0iMTciIGZpbGw9InVybCgjdHVuYSkiLz48cGF0aCBkPSJNMTY4IDI5NiBxNzggLTggMTQ0IDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjIiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIvPjwvZz48ZyB0cmFuc2Zvcm09InJvdGF0ZSgtMyAyNDAgMzM2KSI+PHJlY3QgeD0iMTY0IiB5PSIzMjIiIHdpZHRoPSIxNTIiIGhlaWdodD0iMzAiIHJ4PSIxNSIgZmlsbD0idXJsKCN3aGl0ZUZpc2gpIi8+PHBhdGggZD0iTTE3NiAzMzIgaDEyOCIgc3Ryb2tlPSIjRDhBNzlDIiBzdHJva2Utb3BhY2l0eT0iMC42IiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz48L2c+PGNpcmNsZSBjeD0iMzUyIiBjeT0iMjg2IiByPSIxMiIgZmlsbD0iI0FGQkQ4NiIvPjxjaXJjbGUgY3g9IjM0NiIgY3k9IjI4MCIgcj0iNCIgZmlsbD0iI0M2RDNBMCIvPjxwYXRoIGQ9Ik0zMzAgMzQwIGExOCAxOCAwIDAgMCAzNiAweiIgZmlsbD0iI0VCRDlCNCIvPjxwYXRoIGQ9Ik0zMzAgMzQwIGgzNiIgc3Ryb2tlPSIjRDNCRThFIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=", "ph09": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjM0IiByPSIxNTQiIGZpbGw9IiNFRkU2RDUiIG9wYWNpdHk9IjAuNSIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzNjAiIHJ4PSIxNDAiIHJ5PSIyNCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHBhdGggZD0iTTExMiAyNjggcTAgOTYgMTI4IDk2IHExMjggMCAxMjggLTk2eiIgZmlsbD0iIzMxM0QzNiIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIyNjgiIHJ4PSIxMjgiIHJ5PSI0NCIgZmlsbD0iIzNFNEM0MyIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIyNjYiIHJ4PSIxMDgiIHJ5PSIzNCIgZmlsbD0iIzFFMjgyMyIvPjxnIGZpbGw9IiM3QzlCNjIiPjxlbGxpcHNlIGN4PSIxOTYiIGN5PSIyNTgiIHJ4PSIxNyIgcnk9IjExIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTggMTk2IDI1OCkiLz48ZWxsaXBzZSBjeD0iMjMyIiBjeT0iMjQ4IiByeD0iMTgiIHJ5PSIxMSIgdHJhbnNmb3JtPSJyb3RhdGUoOCAyMzIgMjQ4KSIvPjxlbGxpcHNlIGN4PSIyNzIiIGN5PSIyNTIiIHJ4PSIxNyIgcnk9IjExIiB0cmFuc2Zvcm09InJvdGF0ZSgtOCAyNzIgMjUyKSIvPjxlbGxpcHNlIGN4PSIzMDAiIGN5PSIyNjgiIHJ4PSIxNiIgcnk9IjEwIiB0cmFuc2Zvcm09InJvdGF0ZSgxNCAzMDAgMjY4KSIvPjxlbGxpcHNlIGN4PSIyMTIiIGN5PSIyNzYiIHJ4PSIxNiIgcnk9IjEwIiB0cmFuc2Zvcm09InJvdGF0ZSgyMCAyMTIgMjc2KSIvPjxlbGxpcHNlIGN4PSIyNTYiIGN5PSIyNzYiIHJ4PSIxNyIgcnk9IjEwIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTQgMjU2IDI3NikiLz48L2c+PGcgZmlsbD0iI0FGQzU4OSIgb3BhY2l0eT0iMC44Ij48ZWxsaXBzZSBjeD0iMTk2IiBjeT0iMjUzIiByeD0iNyIgcnk9IjQiIHRyYW5zZm9ybT0icm90YXRlKC0xOCAxOTYgMjUzKSIvPjxlbGxpcHNlIGN4PSIyMzIiIGN5PSIyNDMiIHJ4PSI3IiByeT0iNCIgdHJhbnNmb3JtPSJyb3RhdGUoOCAyMzIgMjQzKSIvPjxlbGxpcHNlIGN4PSIyNzIiIGN5PSIyNDciIHJ4PSI3IiByeT0iNCIgdHJhbnNmb3JtPSJyb3RhdGUoLTggMjcyIDI0NykiLz48L2c+PGcgZmlsbD0iI0YyRURFMCIgb3BhY2l0eT0iMC43NSI+PGNpcmNsZSBjeD0iMjIwIiBjeT0iMjYyIiByPSIyIi8+PGNpcmNsZSBjeD0iMjQ0IiBjeT0iMjcwIiByPSIyIi8+PGNpcmNsZSBjeD0iMjg2IiBjeT0iMjYwIiByPSIyIi8+PGNpcmNsZSBjeD0iMjY2IiBjeT0iMjQwIiByPSIyIi8+PC9nPjxwYXRoIGQ9Ik0xMTIgMjY4IHEwIC00MCAxMjggLTQwIHExMjggMCAxMjggNDAiIHN0cm9rZT0iIzRDNUM1MSIgc3Ryb2tlLW9wYWNpdHk9IjAuNiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PC9zdmc+", "ph10": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMjUwIiByPSIxNjAiIGZpbGw9IiNGMkU3RDIiIG9wYWNpdHk9IjAuNyIvPjxlbGxpcHNlIGN4PSIyNDAiIGN5PSIzODIiIHJ4PSIxMTgiIHJ5PSIyMCIgZmlsbD0idXJsKCNzaGFkb3cpIi8+PHJlY3QgeD0iMjI4IiB5PSIxNTAiIHdpZHRoPSIyNCIgaGVpZ2h0PSI1MiIgcng9IjkiIGZpbGw9InVybCgjY2VyYW1pYykiLz48cGF0aCBkPSJNMTk4IDIwMCBxNDIgLTE0IDg0IDAgcTE2IDQ0IDUgODYgcS03IDI3IC00NyAyNyBxLTQwIDAgLTQ3IC0yNyBxLTExIC00MiA1IC04NnoiIGZpbGw9InVybCgjY2VyYW1pYykiLz48cGF0aCBkPSJNMjA2IDIxNiBxMzQgLTEwIDY4IDAiIHN0cm9rZT0iI0M5QkVBNiIgc3Ryb2tlLXdpZHRoPSIyLjQiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMjEyIDI1MCBxMjggOCA1NiAwIiBzdHJva2U9IiNDOUJFQTYiIHN0cm9rZS13aWR0aD0iMi40IiBmaWxsPSJub25lIi8+PGVsbGlwc2UgY3g9IjI0MCIgY3k9IjE1MiIgcng9IjEzIiByeT0iNSIgZmlsbD0iI0Q5Q0JCMiIvPjxwYXRoIGQ9Ik0yMDQgMTg2IHEtMTIgLTIyIDMgLTM4IHExMyAtMTQgMyAtMzAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuODUiIHN0cm9rZS13aWR0aD0iNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTI0MCAxNzggcS0xMCAtMjAgMyAtMzQgcTEyIC0xMyAzIC0yNyIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC43IiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0yNzQgMTg4IHEtMTAgLTE4IDMgLTMwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS1vcGFjaXR5PSIwLjUiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGVsbGlwc2UgY3g9IjIxNCIgY3k9IjI1MCIgcng9IjciIHJ5PSIyMiIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC41NSIvPjwvc3ZnPg==", "ph11": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PHJlY3QgeD0iMjYiIHk9IjI2IiB3aWR0aD0iNDI4IiBoZWlnaHQ9IjQyOCIgcng9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNBNTg1NEYiIHN0cm9rZS1vcGFjaXR5PSIwLjM1IiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMjUwIiBjeT0iMzAwIiByeD0iMjAwIiByeT0iMTcwIiBmaWxsPSJ1cmwoI2dsb3cpIiBvcGFjaXR5PSIwLjE4Ii8+PHJlY3QgeD0iMzM4IiB5PSI3MCIgd2lkdGg9Ijg2IiBoZWlnaHQ9IjMzMCIgcng9IjE2IiBmaWxsPSJ1cmwoI2dsYXNzKSIgb3BhY2l0eT0iMC45MiIvPjxyZWN0IHg9IjMzOCIgeT0iNzAiIHdpZHRoPSI4NiIgaGVpZ2h0PSIzMzAiIHJ4PSIxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC4xMiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iMzUyIiB5PSIxOTYiIHdpZHRoPSI1OCIgaGVpZ2h0PSI4NiIgcng9IjQiIGZpbGw9IiNGNkVFREYiIG9wYWNpdHk9IjAuOTIiLz48cGF0aCBkPSJNMzYyIDIxNiBoMzhNMzYyIDIyOCBoMjYiIHN0cm9rZT0iI0E1ODU0RiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMzkyIiByeD0iMTUwIiByeT0iMTgiIGZpbGw9IiMwRTE0MUEiIG9wYWNpdHk9IjAuNSIvPjxwYXRoIGQ9Ik05NiAyOTIgcTAgNTQgNDYgNTQgcTQ2IDAgNDYgLTU0eiIgZmlsbD0iI0ZCRjZFQSIvPjxlbGxpcHNlIGN4PSIxNDIiIGN5PSIyOTIiIHJ4PSI0NiIgcnk9IjEyIiBmaWxsPSIjRTlENkFFIi8+PGVsbGlwc2UgY3g9IjE0MiIgY3k9IjI5MCIgcng9IjM0IiByeT0iOCIgZmlsbD0iI0YwREZCQiIvPjxwYXRoIGQ9Ik05NiAyOTIgcTAgNTQgNDYgNTQiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLW9wYWNpdHk9IjAuNTUiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0yMTIgMzA2IHEwIDQ2IDQwIDQ2IHE0MCAwIDQwIC00NnoiIGZpbGw9IiNGQkY2RUEiLz48ZWxsaXBzZSBjeD0iMjUyIiBjeT0iMzA2IiByeD0iNDAiIHJ5PSIxMCIgZmlsbD0iI0U5RDZBRSIvPjxlbGxpcHNlIGN4PSIyNTIiIGN5PSIzMDUiIHJ4PSIyOSIgcnk9IjciIGZpbGw9IiNGMERGQkIiLz48cGF0aCBkPSJNMjEyIDMwNiBxMCA0NiA0MCA0NiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utb3BhY2l0eT0iMC41NSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+", "ph12": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PHJlY3Qgd2lkdGg9IjQ4MCIgaGVpZ2h0PSI0ODAiIGZpbGw9InVybCgjd2FybSkiLz48ZWxsaXBzZSBjeD0iMjQwIiBjeT0iMjUwIiByeD0iMjEwIiByeT0iMjAwIiBmaWxsPSJ1cmwoI2dsb3cpIi8+PHBhdGggZD0iTTI0MCAyNCB2NzYiIHN0cm9rZT0iIzNBMzQyQiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHJlY3QgeD0iMjAyIiB5PSI5NiIgd2lkdGg9Ijc2IiBoZWlnaHQ9IjE4IiByeD0iNiIgZmlsbD0iIzJCMjYyMCIvPjxyZWN0IHg9IjE2NCIgeT0iMTE0IiB3aWR0aD0iMTUyIiBoZWlnaHQ9IjE5NiIgcng9IjU2IiBmaWxsPSJ1cmwoI2xhbnRlcm4pIi8+PGcgc3Ryb2tlPSIjOEUzMzI3IiBzdHJva2Utb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Ik0xNjggMTU2IHE3MiAxNCAxNDQgMCIvPjxwYXRoIGQ9Ik0xNjQgMjAwIHE3NiAxNiAxNTIgMCIvPjxwYXRoIGQ9Ik0xNjQgMjQ0IHE3NiAxNiAxNTIgMCIvPjxwYXRoIGQ9Ik0xNjggMjg0IHE3MiAxMiAxNDQgMCIvPjwvZz48ZWxsaXBzZSBjeD0iMjAwIiBjeT0iMjAwIiByeD0iMTYiIHJ5PSI2MiIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC4yIi8+PHJlY3QgeD0iMTk2IiB5PSIzMTAiIHdpZHRoPSI4OCIgaGVpZ2h0PSIxOCIgcng9IjYiIGZpbGw9IiMyQjI2MjAiLz48cGF0aCBkPSJNMjQwIDMyOCB2MjYiIHN0cm9rZT0iIzJCMjYyMCIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHJlY3QgeD0iMjI4IiB5PSIzNTQiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMCIgcng9IjQiIGZpbGw9IiNDOUEyNEMiLz48cmVjdCB4PSI2NCIgeT0iNDI0IiB3aWR0aD0iMzUyIiBoZWlnaHQ9IjE0IiByeD0iNyIgZmlsbD0iIzNBMzQyQiIgb3BhY2l0eT0iMC43NSIvPjxwYXRoIGQ9Ik05NiAxNTAgcTM0IDI0IDY4IDAiIHN0cm9rZT0iIzNBMzQyQiIgc3Ryb2tlLW9wYWNpdHk9IjAuMjUiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==", "ph13": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PHJlY3Qgd2lkdGg9IjQ4MCIgaGVpZ2h0PSI0ODAiIGZpbGw9InVybCgjbmlnaHQpIi8+PGVsbGlwc2UgY3g9IjEyMCIgY3k9IjE1MCIgcng9IjE1MCIgcnk9IjE1MCIgZmlsbD0idXJsKCNnbG93KSIgb3BhY2l0eT0iMC4yMiIvPjxlbGxpcHNlIGN4PSIzNzIiIGN5PSIxMzAiIHJ4PSIxMzAiIHJ5PSIxMzAiIGZpbGw9InVybCgjZ2xvdykiIG9wYWNpdHk9IjAuMTgiLz48cmVjdCB4PSI0MCIgeT0iMTk2IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjgiIHJ4PSI0IiBmaWxsPSIjNkI1QTQ1Ii8+PGcgZmlsbD0iIzNFNEE0NCI+PHJlY3QgeD0iNjQiIHk9IjE1MCIgd2lkdGg9IjI2IiBoZWlnaHQ9IjQ2IiByeD0iNiIvPjxyZWN0IHg9IjEwNCIgeT0iMTM4IiB3aWR0aD0iMzAiIGhlaWdodD0iNTgiIHJ4PSI4Ii8+PHJlY3QgeD0iMTQ4IiB5PSIxNTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSI0MCIgcng9IjYiLz48cmVjdCB4PSIzMTYiIHk9IjE0NiIgd2lkdGg9IjI4IiBoZWlnaHQ9IjUwIiByeD0iNyIvPjxyZWN0IHg9IjM1NiIgeT0iMTU4IiB3aWR0aD0iMjQiIGhlaWdodD0iMzgiIHJ4PSI2Ii8+PHJlY3QgeD0iMzk0IiB5PSIxNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSI1NiIgcng9IjgiLz48L2c+PGcgZmlsbD0iI0M3QTE1QSIgb3BhY2l0eT0iMC41NSI+PHJlY3QgeD0iNzIiIHk9IjE2NiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE4IiByeD0iMiIvPjxyZWN0IHg9IjExMiIgeT0iMTU2IiB3aWR0aD0iMTYiIGhlaWdodD0iMjIiIHJ4PSIyIi8+PHJlY3QgeD0iMzIyIiB5PSIxNjIiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyMCIgcng9IjIiLz48cmVjdCB4PSI0MDAiIHk9IjE1OCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjIyIiByeD0iMiIvPjwvZz48cGF0aCBkPSJNMTUwIDAgdjg2TTMzMCAwIHY3MCIgc3Ryb2tlPSIjNkI1QTQ1IiBzdHJva2Utd2lkdGg9IjMiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSIxMDAiIHI9IjMwIiBmaWxsPSJ1cmwoI2dsb3cpIi8+PGNpcmNsZSBjeD0iMzMwIiBjeT0iODQiIHI9IjI2IiBmaWxsPSJ1cmwoI2dsb3cpIi8+PHBhdGggZD0iTTEyOCA5MiBxMjIgLTI2IDQ0IDB6IiBmaWxsPSIjQzlBMjRDIi8+PHBhdGggZD0iTTMxMCA3OCBxMjAgLTI0IDQwIDB6IiBmaWxsPSIjQzlBMjRDIi8+PHJlY3QgeD0iMCIgeT0iMjkyIiB3aWR0aD0iNDgwIiBoZWlnaHQ9IjI4IiBmaWxsPSIjNUE0NjMyIi8+PHJlY3QgeD0iMCIgeT0iMjkyIiB3aWR0aD0iNDgwIiBoZWlnaHQ9IjgiIGZpbGw9IiM4QTZGNEUiLz48cmVjdCB4PSIwIiB5PSIzMjAiIHdpZHRoPSI0ODAiIGhlaWdodD0iMTYwIiBmaWxsPSJ1cmwoI2NvdW50ZXIpIi8+PGcgc3Ryb2tlPSIjMkIyMTFBIiBzdHJva2Utb3BhY2l0eT0iMC42IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik04MCAzMzAgdjE1ME0yMDAgMzMwIHYxNTBNMzIwIDMzMCB2MTUwTTQzMCAzMzAgdjE1MCIvPjwvZz48cGF0aCBkPSJNOTIgMjYyIHEwIDI4IDIyIDI4IHEyMiAwIDIyIC0yOHoiIGZpbGw9IiNGNEVEREUiLz48ZWxsaXBzZSBjeD0iMTE0IiBjeT0iMjYyIiByeD0iMjIiIHJ5PSI2IiBmaWxsPSIjRTNDRkE2Ii8+PHBhdGggZD0iTTE5OCAyMTQgaDIwIHYyMiBsOCAxNCBxNiAxMCA2IDIwIHYxNCBoLTQ4IHYtMTQgcTAgLTEwIDYgLTIwIGw4IC0xNHoiIGZpbGw9IiMzQjRBNDIiLz48cmVjdCB4PSIxODgiIHk9IjIzOCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjI2IiByeD0iMyIgZmlsbD0iI0Y2RUVERiIvPjxwYXRoIGQ9Ik0yODIgMjY4IHEwIDI0IDE4IDI0IHExOCAwIDE4IC0yNHoiIGZpbGw9IiNGNEVEREUiLz48ZWxsaXBzZSBjeD0iMzAwIiBjeT0iMjY4IiByeD0iMTgiIHJ5PSI1IiBmaWxsPSIjRTNDRkE2Ii8+PC9zdmc+", "label_gold": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgNDgwIDQ4MCI+PGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFwZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMjUiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGQkY5RjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFOEUxRDIiLz48L2xpbmVhckdyYWRpZW50Pgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhcGVyR2xvdyIgY3g9IjAuNSIgY3k9IjAuMyIgcj0iMC43Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkZGRkYiIHN0b3Atb3BhY2l0eT0iMC45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGRkZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im5pZ2h0IiB4MT0iMCIgeTE9IjAiIHgyPSIwLjMiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMzQxNEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNDFCMjMiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Indhcm0iIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Y5RUREOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U0QzlBMCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idHVuYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0MyNUI1MCIvPjxzdG9wIG9mZnNldD0iMC42IiBzdG9wLWNvbG9yPSIjQTAzRTM4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0EyQTI3Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJ3aGl0ZUZpc2giIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGOEYyRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFMkQzQjkiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNhbG1vbiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YyQTg3RCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RCN0U1NCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0idW5pIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjJCODVFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQ0I3QTIxIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnbGFzcyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzMxNDIzQSIvPjxzdG9wIG9mZnNldD0iMC4zOCIgc3RvcC1jb2xvcj0iIzc3OTQ4MiIvPjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iIzNCNEY0NCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzIxMkQyNyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY2VyYW1pYyIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZGRkZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRENEMkJGIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiB4MT0iMCIgeTE9IjAiIHgyPSIwLjQiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEQ0MwOEEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI0E1ODU0RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NjkzQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibGFudGVybiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q4N0M2MSIvPjxzdG9wIG9mZnNldD0iMC41NSIgc3RvcC1jb2xvcj0iI0JFNTI0MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzkzMzYyQiIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iY291bnRlciIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRBM0IyQyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJCMjExQSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic2hhZG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+PHN0b3Agb2Zmc2V0PSIwLjYiIHN0b3AtY29sb3I9IiMxQTFEMjIiIHN0b3Atb3BhY2l0eT0iMC4wOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFBMUQyMiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDdBMCIgc3RvcC1vcGFjaXR5PSIwLjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkQ3QTAiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlcikiLz48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0idXJsKCNwYXBlckdsb3cpIi8+PHJlY3Qgd2lkdGg9IjQ4MCIgaGVpZ2h0PSI0ODAiIGZpbGw9IiNFRkU0Q0MiLz48cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRkJGNUU2Ii8+PHJlY3QgeD0iNTQiIHk9IjU0IiB3aWR0aD0iMzcyIiBoZWlnaHQ9IjM3MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjMiLz48Y2lyY2xlIGN4PSIyNDAiIGN5PSIxOTIiIHI9IjcwIiBmaWxsPSIjQTU4NTRGIiBvcGFjaXR5PSIwLjE0Ii8+PGNpcmNsZSBjeD0iMjQwIiBjeT0iMTkyIiByPSI1NCIgZmlsbD0idXJsKCNnb2xkKSIvPjxwYXRoIGQ9Ik0yMTAgMTc4IHExNSAtMTYgMzAgMCBxMTUgMTYgMzAgMCIgc3Ryb2tlPSIjRkJGNUU2IiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC45NSIvPjxwYXRoIGQ9Ik0yMTAgMTk0IHExNSAtMTYgMzAgMCBxMTUgMTYgMzAgMCIgc3Ryb2tlPSIjRkJGNUU2IiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC45NSIvPjxwYXRoIGQ9Ik0yMTAgMjEwIHExNSAtMTYgMzAgMCBxMTUgMTYgMzAgMCIgc3Ryb2tlPSIjRkJGNUU2IiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC45NSIvPjxwYXRoIGQ9Ik0xNzAgMzAwIGgxNDAiIHN0cm9rZT0iIzFCMjQzMCIgc3Ryb2tlLW9wYWNpdHk9IjAuNzUiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTE5NiAzMjYgaDg4IiBzdHJva2U9IiMxQjI0MzAiIHN0cm9rZS1vcGFjaXR5PSIwLjQ1IiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0yMTIgMzUyIGg1NiIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0yNDAgNjIgdjE4TTc4IDI0MCBoMThNMjQwIDQxOCB2LTE4TTQwMiAyNDAgaC0xOCIgc3Ryb2tlPSIjQTU4NTRGIiBzdHJva2Utd2lkdGg9IjMiLz48L3N2Zz4="}</script>
+<script>
+'use strict';
+/* =====================================================================
+   사케 저널 — 스시 · 사케 기록 (프로토타입)
+   단일 파일 모바일 웹앱. 데이터는 브라우저 localStorage에만 저장됩니다.
+   ===================================================================== */
+
+/* ------------------------------ utils ------------------------------ */
+var DB_KEY = 'sakeSushiLog.demo.v1';
+var APP_VERSION = '0.1.0';
+
+function $(sel, root) { return (root || document).querySelector(sel); }
+function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+var _seq = 0;
+function uid(p) {
+  _seq += 1;
+  return (p || 'id') + Date.now().toString(36).slice(-5) + _seq.toString(36) +
+    Math.random().toString(36).slice(2, 6);
+}
+function toYmd(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function todayYmd() { return toYmd(new Date()); }
+function fromYmd(s) {
+  var p = String(s || '').split('-');
+  if (p.length < 3) return new Date();
+  return new Date(+p[0], (+p[1]) - 1, +p[2], 12, 0, 0);
+}
+var WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+function fmtDot(s) { return s ? String(s).replace(/-/g, '.') : ''; }
+function fmtKo(s) {
+  if (!s) return '';
+  var d = fromYmd(s);
+  return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + WEEK[d.getDay()] + ')';
+}
+function fmtMonth(s) {
+  var d = fromYmd(s);
+  return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월';
+}
+function dayNum(s) { return String(parseInt(String(s).slice(8, 10), 10)); }
+function weekdayOf(s) { return WEEK[fromYmd(s).getDay()]; }
+function hm(iso) {
+  if (!iso) return '';
+  var m = String(iso).match(/T(\d{2}):(\d{2})/);
+  return m ? m[1] + ':' + m[2] : '';
+}
+function num(v) { return (v === null || v === undefined || v === '') ? null : Number(v); }
+function round1(n) { return Math.round(n * 10) / 10; }
+function haversine(a, b) {
+  if (!a || !b) return null;
+  var R = 6371000, rad = Math.PI / 180;
+  var dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+  var la1 = a.lat * rad, la2 = b.lat * rad;
+  var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return Math.round(2 * R * Math.asin(Math.min(1, Math.sqrt(h))));
+}
+function distLabel(m) {
+  if (m == null) return '';
+  return m < 1000 ? m + 'm' : round1(m / 1000) + 'km';
+}
+function starsHtml(rating) {
+  var r = Number(rating) || 0;
+  if (r <= 0) return '<span class="stars">★★★★★<i style="width:0%">★★★★★</i></span>';
+  var w = Math.max(0, Math.min(100, (r / 5) * 100));
+  return '<span class="stars">★★★★★<i style="width:' + w + '%">★★★★★</i></span>';
+}
+function starsText(rating) { return Number(rating) ? Number(rating).toFixed(1).replace(/\.0$/, '') : ''; }
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { el.classList.remove('show'); }, 2400);
+}
+
+/* ------------------------------ sheet ------------------------------ */
+var _sheet = null, _sheetClose = null;
+function openSheet(inner, onClose) {
+  closeSheet(true);
+  var layer = document.getElementById('layer');
+  if (!layer) return;
+  var wrap = document.createElement('div');
+  wrap.className = 'sheetwrap';
+  wrap.innerHTML = '<div class="scrim" data-act="close-sheet"></div>' +
+    '<div class="sheet"><div class="handle"></div>' + inner + '</div>';
+  layer.appendChild(wrap);
+  _sheet = wrap;
+  _sheetClose = onClose || null;
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(silent) {
+  if (_sheet) { _sheet.remove(); _sheet = null; }
+  if (!document.querySelector('.lightbox') && !document.querySelector('.sheetwrap')) {
+    document.body.style.overflow = '';
+  }
+  var cb = _sheetClose; _sheetClose = null;
+  if (cb && !silent) cb();
+}
+function sheetHead(title, rightHtml) {
+  return '<div class="sheethead"><h3>' + esc(title) + '</h3>' + (rightHtml || '') +
+    '<button class="iconbtn" data-act="close-sheet" aria-label="닫기" style="width:30px;height:30px;flex:0 0 30px;border-radius:9px">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px">' +
+    '<path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
+}
+
+/* ------------------------------ constants ------------------------------ */
+var GRADES = ['준마이다이긴죠', '준마이긴죠', '준마이', '혼조조', '긴죠', '다이긴죠', '특별준마이', '샴페인', '기타'];
+var HIIRE = [
+  { v: 'hiire', label: '히이레(화입)' },
+  { v: 'namachozo', label: '나마조조(생저장)' },
+  { v: 'nama', label: '나마(생주)' },
+  { v: 'yamahai', label: '야마하이' },
+  { v: '', label: '미기재' }
+];
+function hiireLabel(v) {
+  for (var i = 0; i < HIIRE.length; i++) if (HIIRE[i].v === v) return HIIRE[i].label;
+  return '';
+}
+
+/* ------------------------------ seed data ------------------------------ */
+var SEED_PHOTOS = (function () {
+  try {
+    var el = document.getElementById('seed-photos');
+    return el ? JSON.parse(el.textContent || '{}') : {};
+  } catch (e) { return {}; }
+})();
+
+function seedState() {
+  var gpsA = { lat: 37.5, lng: 127.03 };
+  var gpsB = { lat: 37.49, lng: 127.0 };
+  var gpsC = { lat: 37.57, lng: 126.99 };
+  function ph(id, key, taken, gps) { return { id: id, src: 'seed:' + key, taken: taken, gps: gps }; }
+
+  return {
+    version: 1,
+    settings: { provider: 'anthropic', apiKey: '', model: '', seeded: true },
+    venues: [
+      { id: 'v1', name: '스시 샘플점', area: '강남', address: '서울 강남구 테헤란로 (예시 주소)', lat: gpsA.lat, lng: gpsA.lng, memo: '데모 셰프 · 6석 · 적초 샤리', sample: true },
+      { id: 'v2', name: '사케 바 샘플', area: '서초', address: '', lat: gpsB.lat, lng: gpsB.lng, memo: '데모 · 스트릿 다이닝', sample: true },
+      { id: 'v3', name: '이자카야 샘플', area: '을지로', address: '', lat: gpsC.lat, lng: gpsC.lng, memo: '데모 · 제철 쯔마미와 콜키지', sample: true }
+    ],
+    visits: [
+      {
+        id: 't1', venueId: 'v1', date: '2026-11-14', time: '19:00',
+        lat: gpsA.lat, lng: gpsA.lng,
+        note: '카운터 코스. 츠마미에서 적초 샤리 스시로 넘어가는 후반까지 사케가 잘 붙었다.',
+        photos: [
+          ph('yp1', 'ph01', '2026-11-14T19:21:00', gpsA),
+          ph('yp2', 'ph02', '2026-11-14T19:48:00', gpsA),
+          ph('yp3', 'ph03', '2026-11-14T20:06:00', gpsA),
+          ph('yp4', 'ph04', '2026-11-14T20:31:00', gpsA),
+          ph('yp5', 'ph05', '2026-11-14T21:02:00', gpsA),
+          ph('yp6', 'ph06', '2026-11-14T21:24:00', gpsA),
+          ph('yp7', 'ph07', '2026-11-14T22:05:00', gpsA)
+        ]
+      },
+      {
+        id: 't2', venueId: 'v2', date: '2026-11-06', time: '21:00',
+        lat: gpsB.lat, lng: gpsB.lng,
+        note: '코스가 계속 나오는 스타일. 술은 두 병으로 마무리.',
+        photos: [
+          ph('jp1', 'ph08', '2026-11-06T20:41:00', gpsB),
+          ph('jp2', 'ph09', '2026-11-06T21:12:00', gpsB),
+          ph('jp3', 'ph10', '2026-11-06T21:20:00', gpsB),
+          ph('jp4', 'ph11', '2026-11-06T21:44:00', gpsB)
+        ]
+      },
+      {
+        id: 't3', venueId: 'v3', date: '2026-11-06', time: '18:00',
+        lat: gpsC.lat, lng: gpsC.lng,
+        note: '제철 해산물 쯔마미 중심의 짧은 코스. 콜키지로 한 병.',
+        photos: [
+          ph('rp1', 'ph12', '2026-11-06T18:12:00', gpsC),
+          ph('rp2', 'ph13', '2026-11-06T18:03:00', gpsC)
+        ]
+      }
+    ],
+    sakes: [
+      { id: 's1', visitId: 't1', name: '신슈키레이 헥사곤', brewery: '오카자키 슈조', grade: '준마이다이긴죠', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 5, memo: '둥근 단맛에 여운이 길다. 라인업 중 가장 화려한 향.', photo: '', sample: true },
+      { id: 's2', visitId: 't1', name: '신슈키레이 금거북이', brewery: '오카자키 슈조', grade: '준마이다이긴죠', polish: 39, rice: '긴몬니시키', hiire: 'hiire', abv: null, rating: 5, memo: '화입 1회. 8~12℃에서 향과 단맛이 가장 좋았다.', photo: 'seed:label_gold', sample: true },
+      { id: 's3', visitId: 't1', name: '요코야마 40 신엔 Limited', brewery: '오모야 주조 외 2사 콜라보', grade: '준마이다이긴죠', polish: 40, rice: '야마다니시키(누룩 20%)', hiire: 'hiire', abv: 15, rating: 4.5, memo: '5~8℃ 칠링. 흰살 생선과 조개류에 붙었다.', photo: '', sample: true },
+      { id: 's4', visitId: 't1', name: '덴슈 욘와리코부 아키타사케코마치 45%', brewery: '텐주 슈조', grade: '준마이다이긴죠', polish: 45, rice: '아키타사케코마치', hiire: 'hiire', abv: null, rating: 4, memo: '냉장 숙성 타입. 차게 마시면 산뜻하고 깔끔하다.', photo: '', sample: true },
+      { id: 's5', visitId: 't1', name: '덴슈 욘와리코부 카이료신코우 45%', brewery: '텐주 슈조', grade: '준마이다이긴죠', polish: 45, rice: '카이료신코우', hiire: 'hiire', abv: 16, rating: 4.5, memo: '배 향이 훅 올라오고 옵은 단맛이 퍼졌다.', photo: '', sample: true },
+      { id: 's6', visitId: 't1', name: '지콘 핫탄니시키 히이레', brewery: '', grade: '준마이', polish: null, rice: '핫탄니시키', hiire: 'hiire', abv: null, rating: 4, memo: '스시 후반부에서 산미가 살아났다.', photo: '', sample: true },
+      { id: 's7', visitId: 't1', name: '고쿠류 2025', brewery: '고쿠류 슈조', grade: '', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '깔끔한 마무리. 마지막 네타까지 부담이 없었다.', photo: 'seed:ph06', sample: true },
+      { id: 's8', visitId: 't1', name: '바라 마송 레 마르간', brewery: '바라 마송 · 샹파뉴', grade: '샴페인', polish: null, rice: '샤르도네 100%', hiire: '', abv: 12, rating: 4.5, memo: '블랑 드 블랑 브뤼 나뛰르, 도자주 0g/L.', photo: '', sample: true },
+      { id: 's9', visitId: 't2', name: '고쿠류 야마다니시키 50', brewery: '고쿠류 슈조', grade: '준마이다이긴죠', polish: 50, rice: '야마다니시키', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 코스 중반에 술술 넘어갔다.', photo: '', sample: true },
+      { id: 's10', visitId: 't2', name: '아카부 몬스터', brewery: '아카부 슈조', grade: '준마이', polish: null, rice: '', hiire: '', abv: null, rating: 4.5, memo: '(샘플) 기름진 안주에 붙는 산미.', photo: '', sample: true },
+      { id: 's11', visitId: 't3', name: '고쿠류 이치고', brewery: '고쿠류 슈조', grade: '혼조조', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 쯔마미 곁에 데워서.', photo: '', sample: true }
+    ]
+  };
+}
+
+/* ------------------------------ store ------------------------------ */
+var state = loadState();
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(DB_KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s && s.venues && s.visits && s.sakes) return normalizeState(s);
+    }
+  } catch (e) { /* ignore */ }
+  return seedState();
+}
+function normalizeState(s) {
+  s.venues = s.venues || [];
+  s.visits = s.visits || [];
+  s.sakes = s.sakes || [];
+  s.settings = s.settings || {};
+  if (typeof s.settings.provider !== 'string') s.settings.provider = 'anthropic';
+  if (typeof s.settings.apiKey !== 'string') s.settings.apiKey = '';
+  if (typeof s.settings.model !== 'string') s.settings.model = '';
+  s.visits.forEach(function (v) { v.photos = v.photos || []; });
+  return s;
+}
+function saveState() {
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(state));
+    return true;
+  } catch (e) {
+    toast('저장 공간이 부족해요. 사진 수를 줄이거나 오래된 기록을 정리해 주세요.');
+    return false;
+  }
+}
+function storageKB() {
+  try { return Math.round((localStorage.getItem(DB_KEY) || '').length / 1024); } catch (e) { return 0; }
+}
+
+function venueById(id) {
+  for (var i = 0; i < state.venues.length; i++) if (state.venues[i].id === id) return state.venues[i];
+  return null;
+}
+function visitById(id) {
+  for (var i = 0; i < state.visits.length; i++) if (state.visits[i].id === id) return state.visits[i];
+  return null;
+}
+function sakeById(id) {
+  for (var i = 0; i < state.sakes.length; i++) if (state.sakes[i].id === id) return state.sakes[i];
+  return null;
+}
+function sakesOfVisit(visitId) {
+  return state.sakes.filter(function (s) { return s.visitId === visitId; });
+}
+function sortedVisits() {
+  return state.visits.slice().sort(function (a, b) {
+    var ka = (a.date || '') + ' ' + (a.time || '');
+    var kb = (b.date || '') + ' ' + (b.time || '');
+    return kb.localeCompare(ka);
+  });
+}
+function allPhotos() {
+  var out = [];
+  sortedVisits().forEach(function (v) {
+    var venue = venueById(v.venueId);
+    v.photos.forEach(function (p) {
+      out.push({
+        id: p.id, src: p.src, taken: p.taken, gps: p.gps,
+        visitId: v.id, venueName: venue ? venue.name : '', date: v.date
+      });
+    });
+  });
+  return out;
+}
+function photoSrc(p) {
+  if (!p) return '';
+  var s = typeof p === 'string' ? p : p.src;
+  if (!s) return '';
+  if (s.indexOf('seed:') === 0) return SEED_PHOTOS[s.slice(5)] || '';
+  return s;
+}
+function nearestVenue(lat, lng, maxM) {
+  var best = null, bestD = Infinity;
+  state.venues.forEach(function (v) {
+    if (typeof v.lat !== 'number' || typeof v.lng !== 'number') return;
+    var d = haversine({ lat: lat, lng: lng }, { lat: v.lat, lng: v.lng });
+    if (d != null && d < bestD) { bestD = d; best = v; }
+  });
+  if (!best) return null;
+  if (maxM && bestD > maxM) return null;
+  return { venue: best, dist: bestD };
+}
+
+/* ------------------------------ EXIF (pure JS) ------------------------------ */
+function parseExif(buffer) {
+  var out = { date: null, lat: null, lng: null, make: '', model: '', orientation: 1 };
+  try {
+    if (!buffer || buffer.byteLength < 12) return out;
+    var v = new DataView(buffer);
+    if (v.getUint8(0) !== 0xFF || v.getUint8(1) !== 0xD8) return out; // JPEG only
+    var off = 2, guard = 0;
+    while (off < v.byteLength - 4 && guard++ < 400) {
+      if (v.getUint8(off) !== 0xFF) { off += 1; continue; }
+      var marker = v.getUint8(off + 1);
+      if (marker === 0xDA || marker === 0xD9) break;              // SOS / EOI
+      if (marker === 0x01 || (marker >= 0xD0 && marker <= 0xD7)) { off += 2; continue; }
+      var len = v.getUint16(off + 2);
+      if (marker === 0xE1) {
+        var start = off + 4;
+        if (v.getUint32(start) === 0x45786966) {                   // "Exif"
+          readTiff(v, start + 6, out);
+          return out;
+        }
+      }
+      off += 2 + len;
+    }
+  } catch (e) { /* malformed exif: return what we have */ }
+  return out;
+}
+
+function readTiff(v, tiff, out) {
+  var little = v.getUint16(tiff) === 0x4949;
+  function u16(o) { return v.getUint16(o, little); }
+  function u32(o) { return v.getUint32(o, little); }
+  if (u16(tiff + 2) !== 0x002A) return;
+  var ifd0 = tiff + u32(tiff + 4);
+  var exifIfd = 0, gpsIfd = 0;
+  var n = u16(ifd0);
+  for (var i = 0; i < n && i < 200; i++) {
+    var e = ifd0 + 2 + i * 12;
+    var tag = u16(e);
+    if (tag === 0x8769) exifIfd = tiff + u32(e + 8);
+    else if (tag === 0x8825) gpsIfd = tiff + u32(e + 8);
+    else if (tag === 0x0112) out.orientation = u16(e + 8);
+    else if (tag === 0x010F) out.make = readAscii(v, e, tiff, little);
+    else if (tag === 0x0110) out.model = readAscii(v, e, tiff, little);
+    else if (tag === 0x0132 && !out.date) out.date = exifDate(readAscii(v, e, tiff, little));
+  }
+  if (exifIfd) {
+    var ne = u16(exifIfd);
+    for (var j = 0; j < ne && j < 200; j++) {
+      var ee = exifIfd + 2 + j * 12;
+      var t2 = u16(ee);
+      if (t2 === 0x9003 || t2 === 0x9004) {
+        var ds = exifDate(readAscii(v, ee, tiff, little));
+        if (ds && !out.date) out.date = ds;
+      }
+    }
+  }
+  if (gpsIfd) {
+    var ng = u16(gpsIfd), latRef = 'N', lngRef = 'E', lat = null, lng = null;
+    for (var k = 0; k < ng && k < 100; k++) {
+      var ge = gpsIfd + 2 + k * 12;
+      var t3 = u16(ge);
+      if (t3 === 1) latRef = readAscii(v, ge, tiff, little) || 'N';
+      else if (t3 === 2) lat = readCoord(v, ge, tiff, little);
+      else if (t3 === 3) lngRef = readAscii(v, ge, tiff, little) || 'E';
+      else if (t3 === 4) lng = readCoord(v, ge, tiff, little);
+    }
+    if (lat != null && lng != null) {
+      if (String(latRef).toUpperCase().indexOf('S') === 0) lat = -lat;
+      if (String(lngRef).toUpperCase().indexOf('W') === 0) lng = -lng;
+      if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && (lat !== 0 || lng !== 0)) {
+        out.lat = Math.round(lat * 1e6) / 1e6;
+        out.lng = Math.round(lng * 1e6) / 1e6;
+      }
+    }
+  }
+}
+
+function readAscii(v, entry, tiff, little) {
+  var count = v.getUint32(entry + 4, little);
+  var base = count > 4 ? tiff + v.getUint32(entry + 8, little) : entry + 8;
+  var s = '';
+  for (var i = 0; i < count && i < 64; i++) {
+    var c = v.getUint8(base + i);
+    if (c === 0) break;
+    s += String.fromCharCode(c);
+  }
+  return s.trim();
+}
+function readCoord(v, entry, tiff, little) {
+  var count = v.getUint32(entry + 4, little);
+  var base = tiff + v.getUint32(entry + 8, little);
+  function rat(o) {
+    var den = v.getUint32(o + 4, little);
+    return den ? v.getUint32(o, little) / den : 0;
+  }
+  if (count >= 3) return rat(base) + rat(base + 8) / 60 + rat(base + 16) / 3600;
+  if (count === 1) return rat(base);
+  return 0;
+}
+function exifDate(s) {
+  var m = String(s || '').match(/(\d{4})[:\-](\d{2})[:\-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  return m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':' + m[6];
+}
+
+/* ------------------------------ image helpers ------------------------------ */
+function loadImage(src) {
+  return new Promise(function (resolve, reject) {
+    var im = new Image();
+    im.onload = function () { resolve(im); };
+    im.onerror = function () { reject(new Error('이미지를 열 수 없어요')); };
+    im.src = src;
+  });
+}
+function readAsDataUrl(file) {
+  return new Promise(function (resolve, reject) {
+    var fr = new FileReader();
+    fr.onload = function () { resolve(fr.result); };
+    fr.onerror = function () { reject(fr.error || new Error('파일을 읽지 못했어요')); };
+    fr.readAsDataURL(file);
+  });
+}
+function readAsArrayBuffer(file) {
+  return new Promise(function (resolve) {
+    var fr = new FileReader();
+    fr.onload = function () { resolve(fr.result); };
+    fr.onerror = function () { resolve(null); };
+    fr.readAsArrayBuffer(file);
+  });
+}
+async function shrink(dataUrl, maxSide, quality) {
+  var im = await loadImage(dataUrl);
+  var w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+  var k = Math.min(1, maxSide / Math.max(w, h));
+  if (k >= 1 && dataUrl.length < 340000) return dataUrl;
+  var c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w * k));
+  c.height = Math.max(1, Math.round(h * k));
+  var ctx = c.getContext('2d');
+  ctx.drawImage(im, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', quality || 0.72);
+}
+
+
+/* =====================================================================
+   views
+   ===================================================================== */
+
+var ui = {
+  tab: 'venues',
+  venueFilter: 'all',
+  noteQuery: '',
+  gradeFilter: 'all',
+  noteSort: 'recent',
+  rec: null,
+  grid: { layout: 4, size: 1440, gap: 12, sel: [], uploads: [] }
+};
+var _lastTab = '';
+
+var ICON = {
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M9 6l6 6-6 6"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.5-2h8l1.5 2h3v10h-17z"/><circle cx="12" cy="13" r="3.4"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 12l5 5 5-5M5 20h14"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 14v5h14v-5"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'
+};
+
+/* ------------------------------ render ------------------------------ */
+function setTab(tab) {
+  ui.tab = tab;
+  if (tab === 'record' && !ui.rec) ui.rec = newRecord();
+  render();
+}
+function render() {
+  var main = $('#main');
+  if (!main) return;
+  $$('.tab').forEach(function (b) {
+    b.classList.toggle('on', b.getAttribute('data-tab') === ui.tab);
+  });
+  if (document.body) document.body.setAttribute('data-tab', ui.tab);
+  if (ui.tab === 'venues') main.innerHTML = viewVenues();
+  else if (ui.tab === 'notes') main.innerHTML = viewNotes();
+  else if (ui.tab === 'record') main.innerHTML = viewRecord();
+  else main.innerHTML = viewGrid();
+  if (_lastTab !== ui.tab) { window.scrollTo(0, 0); _lastTab = ui.tab; }
+}
+
+function emptyBlock(big, small) {
+  return '<div class="empty"><div class="big">酒</div><b>' + esc(big) + '</b><br>' + esc(small) + '</div>';
+}
+
+/* ------------------------------ 업장별 ------------------------------ */
+function countVisits(venueId) {
+  return state.visits.filter(function (v) { return v.venueId === venueId; }).length;
+}
+function statsBlock(visits) {
+  var seen = {};
+  visits.forEach(function (v) { seen[v.venueId] = 1; });
+  return '<div class="stats">' +
+    '<div><b>' + Object.keys(seen).length + '</b><span>업장</span></div>' +
+    '<div><b>' + visits.length + '</b><span>방문</span></div>' +
+    '<div><b>' + state.sakes.length + '</b><span>사케 기록</span></div></div>';
+}
+function venueChips(visits) {
+  var counts = {};
+  visits.forEach(function (v) { counts[v.venueId] = (counts[v.venueId] || 0) + 1; });
+  var out = '<button class="chip' + (ui.venueFilter === 'all' ? ' on' : '') + '" data-act="venue-filter" data-id="all">전체</button>';
+  state.venues.forEach(function (v) {
+    if (!counts[v.id]) return;
+    out += '<button class="chip' + (ui.venueFilter === v.id ? ' on' : '') + '" data-act="venue-filter" data-id="' + v.id + '">' +
+      esc(v.name) + ' <span style="opacity:.5">' + counts[v.id] + '</span></button>';
+  });
+  return out;
+}
+function visitCard(v) {
+  var venue = venueById(v.venueId) || { name: '업장 미지정' };
+  var sakes = sakesOfVisit(v.id);
+  var photos = (v.photos || []).slice(0, 4);
+  var h = '<div class="vcard" role="button" tabindex="0" data-act="open-visit" data-id="' + v.id + '">';
+  h += '<div class="vrow"><div class="dbadge"><b>' + dayNum(v.date) + '</b><span>' + weekdayOf(v.date) + '</span></div>' +
+    '<div class="vmeta"><div class="vname">' + esc(venue.name) +
+    (venue.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>' +
+    '<div class="vsub">' + [fmtDot(v.date), v.time, venue.area].filter(Boolean).map(esc).join('<span class="dot"></span>') + '</div></div>' +
+    '<span style="color:#C8C3B6;margin-top:4px;flex:0 0 15px">' + ICON.chev + '</span></div>';
+  if (photos.length) {
+    h += '<div class="strip" style="grid-template-columns:repeat(' + photos.length + ',1fr)">';
+    photos.forEach(function (p, i) {
+      var extra = (v.photos.length > 4 && i === 3) ? '<span class="more">+' + (v.photos.length - 3) + '</span>' : '';
+      h += '<span class="th"><img src="' + photoSrc(p) + '" alt="" loading="lazy">' + extra + '</span>';
+    });
+    h += '</div>';
+  }
+  if (sakes.length) {
+    h += '<div class="sakeline">';
+    sakes.slice(0, 3).forEach(function (s) { h += '<span class="stag">' + esc(s.name) + '</span>'; });
+    if (sakes.length > 3) h += '<span class="stag">+' + (sakes.length - 3) + '</span>';
+    h += '</div>';
+  }
+  if (v.note) h += '<div class="snote">' + esc(v.note) + '</div>';
+  h += '</div>';
+  return h;
+}
+function viewVenues() {
+  var visits = sortedVisits();
+  var list = ui.venueFilter === 'all' ? visits : visits.filter(function (v) { return v.venueId === ui.venueFilter; });
+  var h = '<div class="view">';
+  h += '<div class="vh"><div><h2>업장별 기록</h2><p>사진과 사케로 남긴 다이닝 타임라인</p></div>' +
+    '<button class="btn sm ghost" data-act="go-record">+ 기록</button></div>';
+  h += statsBlock(visits);
+  if (visits.length && state.venues.every(function (x) { return x.sample; })) {
+    h += '<div class="tiny" style="margin:-4px 2px 10px;line-height:1.5">샘플 기록으로 시작했어요 · 설정에서 지우고 내 기록을 쌓을 수 있어요.</div>';
+  }
+  h += '<div class="chips">' + venueChips(visits) + '</div>';
+  if (!list.length) {
+    h += emptyBlock('아직 기록이 없어요', '사진을 올리면 촬영일과 위치로 업장이 자동으로 묶입니다.');
+  } else {
+    var month = '';
+    list.forEach(function (v) {
+      var m = fmtMonth(v.date);
+      if (m !== month) { month = m; h += '<div class="mlabel">' + esc(m) + '</div>'; }
+      h += visitCard(v);
+    });
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 사케 노트 ------------------------------ */
+function gradeChips() {
+  var present = {};
+  state.sakes.forEach(function (s) { present[s.grade || '기타'] = (present[s.grade || '기타'] || 0) + 1; });
+  var out = '<button class="chip' + (ui.gradeFilter === 'all' ? ' on' : '') + '" data-act="grade-filter" data-v="all">전체 ' + state.sakes.length + '</button>';
+  GRADES.forEach(function (g) {
+    if (!present[g]) return;
+    out += '<button class="chip' + (ui.gradeFilter === g ? ' on' : '') + '" data-act="grade-filter" data-v="' + esc(g) + '">' + esc(g) + '</button>';
+  });
+  return out;
+}
+function sortChips() {
+  var opts = [['recent', '최근순'], ['rating', '별점순'], ['name', '이름순']];
+  return opts.map(function (o) {
+    return '<button class="chip mini' + (ui.noteSort === o[0] ? ' on' : '') + '" data-act="note-sort" data-v="' + o[0] + '">' + o[1] + '</button>';
+  }).join('');
+}
+function filteredSakes() {
+  var q = (ui.noteQuery || '').trim().toLowerCase();
+  var arr = state.sakes.slice();
+  if (ui.gradeFilter !== 'all') {
+    arr = arr.filter(function (s) { return (s.grade || '기타') === ui.gradeFilter; });
+  }
+  if (q) {
+    arr = arr.filter(function (s) {
+      var visit = s.visitId ? visitById(s.visitId) : null;
+      var venue = visit ? venueById(visit.venueId) : null;
+      var hay = [s.name, s.brewery, s.rice, s.memo, s.grade, venue ? venue.name : ''].join(' ').toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+  }
+  if (ui.noteSort === 'rating') arr.sort(function (a, b) { return (b.rating || 0) - (a.rating || 0); });
+  else if (ui.noteSort === 'name') arr.sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), 'ko'); });
+  else arr.sort(function (a, b) {
+    var va = a.visitId ? visitById(a.visitId) : null, vb = b.visitId ? visitById(b.visitId) : null;
+    return ((vb ? vb.date : '') + (vb ? vb.time : '')).localeCompare((va ? va.date : '') + (va ? va.time : ''));
+  });
+  return arr;
+}
+function sakeMeta(s) {
+  return [s.brewery, s.grade, s.polish ? '정미보합 ' + s.polish + '%' : '', hiireLabel(s.hiire)].filter(Boolean).join(' · ');
+}
+function sakeCard(s) {
+  var visit = s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var h = '<div class="ncard" role="button" tabindex="0" data-act="open-sake" data-id="' + s.id + '">';
+  h += '<div class="nthumb">' + (src ? '<img src="' + src + '" alt="">' : esc(String(s.name || '酒').slice(0, 1))) + '</div>';
+  h += '<div class="nbody"><div class="nname">' + esc(s.name || '이름 없는 사케') +
+    (s.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>';
+  var meta = sakeMeta(s);
+  if (meta) h += '<div class="nsub">' + esc(meta) + '</div>';
+  if (s.rating) h += '<div>' + starsHtml(s.rating) + '</div>';
+  if (s.memo) h += '<div class="nmemo">' + esc(s.memo) + '</div>';
+  if (venue) {
+    h += '<span class="linkchip">' + ICON.pin + esc(venue.name) + ' · ' + fmtDot(visit.date) + '</span>';
+  } else {
+    h += '<span class="linkchip" style="background:#FBF3F2;color:#9C5B52">업장 미연결</span>';
+  }
+  h += '</div></div>';
+  return h;
+}
+function noteListHtml() {
+  var arr = filteredSakes();
+  if (!arr.length) return emptyBlock('해당하는 사케가 없어요', '검색어나 등급 필터를 바꿔 보세요.');
+  return arr.map(sakeCard).join('');
+}
+function viewNotes() {
+  var h = '<div class="view">';
+  h += '<div class="vh"><div><h2>사케 노트</h2><p>마신 술, 등급과 시음 메모</p></div>' +
+    '<button class="btn sm ghost" data-act="add-sake">+ 사케</button></div>';
+  h += '<div class="search">' + ICON.search +
+    '<input id="noteSearch" type="search" placeholder="이름 · 양조장 · 메모 검색" value="' + esc(ui.noteQuery) + '" data-input="note-search"></div>';
+  h += '<div class="chips">' + gradeChips() + '</div>';
+  h += '<div class="row" style="margin:0 2px 10px"><span class="tiny" id="noteCount">' + filteredSakes().length + '병</span>' +
+    '<span class="spacer"></span>' + sortChips() + '</div>';
+  h += '<div id="noteList">' + noteListHtml() + '</div>';
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 기록 ------------------------------ */
+function newRecord() {
+  return {
+    photos: [], date: todayYmd(), time: '', venueName: '', venueId: '', area: '',
+    note: '', lat: null, lng: null, attachVisitId: '', sakes: []
+  };
+}
+function newDraft(photo) {
+  return {
+    name: '', brewery: '', grade: '', polish: '', rice: '', hiire: '',
+    abv: '', rating: 0, memo: '', manual: !photo,
+    photo: photo ? photo.src : '', photoId: photo ? photo.id : ''
+  };
+}
+function photoRows(rec) {
+  var h = '<div class="phlist">';
+  rec.photos.forEach(function (p) {
+    h += '<div class="phrow">' +
+      '<img class="pth" src="' + photoSrc(p) + '" alt="">' +
+      '<div class="phinfo"><b>' + (p.taken ? fmtDot(p.taken.slice(0, 10)) + ' ' + hm(p.taken) : '촬영일 없음') + '</b>' +
+      (p.gps ? p.gps.lat.toFixed(4) + ', ' + p.gps.lng.toFixed(4) : '위치 정보 없음') + '</div>' +
+      '<button class="toggle' + (p.isLabel ? ' on' : '') + '" data-act="rec-label" data-id="' + p.id + '">' +
+      (p.isLabel ? '사케 라벨 ✓' : '사케 라벨') + '</button>' +
+      '<button class="iconbtn" style="width:28px;height:28px;flex:0 0 28px;border:0;background:none;color:#B9B4A8" data-act="rec-photo-del" data-id="' + p.id + '" aria-label="사진 빼기">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+function venueSuggestions(rec) {
+  var items = [];
+  if (rec.lat != null && rec.lng != null) {
+    state.venues.forEach(function (v) {
+      if (typeof v.lat !== 'number' || typeof v.lng !== 'number') return;
+      var d = haversine({ lat: rec.lat, lng: rec.lng }, { lat: v.lat, lng: v.lng });
+      if (d != null && d <= 600) items.push({ v: v, d: d });
+    });
+    items.sort(function (a, b) { return a.d - b.d; });
+  } else {
+    state.venues.slice(0, 5).forEach(function (v) { items.push({ v: v, d: null }); });
+  }
+  if (!items.length) return '';
+  var h = '<div style="margin:2px 0 10px"><div class="tiny" style="margin-bottom:5px">' +
+    (rec.lat != null ? '이 위치 근처 업장' : '최근 업장') + '</div><div class="chips" style="padding-bottom:0">';
+  items.forEach(function (it) {
+    h += '<button class="chip' + (rec.venueId === it.v.id ? ' on' : '') + '" data-act="rec-venue-pick" data-id="' + it.v.id + '">' +
+      esc(it.v.name) + (it.d != null ? ' <span style="opacity:.55">' + distLabel(it.d) + '</span>' : '') + '</button>';
+  });
+  h += '</div></div>';
+  return h;
+}
+function findAttachTarget(rec) {
+  var venueId = rec.venueId;
+  if (!venueId && rec.venueName) {
+    var found = state.venues.filter(function (v) { return v.name === rec.venueName.trim(); })[0];
+    if (found) venueId = found.id;
+  }
+  if (!venueId) return null;
+  var list = state.visits.filter(function (v) { return v.venueId === venueId && v.date === rec.date; });
+  return list.length ? list[0] : null;
+}
+function attachOption(rec) {
+  var t = findAttachTarget(rec);
+  if (!t) return '';
+  var venue = venueById(t.venueId);
+  return '<label class="row" style="margin:10px 0 0;gap:8px;font-size:12.5px;line-height:1.4">' +
+    '<input type="checkbox" id="rec-attach" data-input="rec-attach" ' + (rec.attachVisitId === t.id ? 'checked' : '') +
+    ' style="width:17px;height:17px;flex:0 0 17px;accent-color:#1B2430">' +
+    '<span>' + esc(fmtDot(t.date)) + ' ' + esc(venue ? venue.name : '') + ' 방문에 <b>이어 붙이기</b></span></label>';
+}
+function draftHtml(d, i, ctx) {
+  ctx = ctx || 'rec';
+  var src = photoSrc(d.photo);
+  var tools = ctx === 'rec';
+  var h = '<div class="sakeblock" data-draft="' + i + '" style="' + (i > 0 ? 'border-top:1px solid var(--line2);padding-top:12px;margin-top:12px' : '') + '">';
+  h += '<div class="row" style="margin-bottom:8px;gap:6px">' +
+    (src ? '<img class="pth" style="width:36px;height:36px;flex:0 0 36px;border-radius:8px" src="' + src + '" alt="">'
+      : '<span class="tiny" style="flex:1">라벨 사진 없음</span>') +
+    '<span class="spacer"></span>' +
+    (tools ? '<button class="btn sm" data-act="ai-read" data-i="' + i + '">' + ICON.sparkle + 'AI로 읽기</button>' +
+      '<button class="btn sm ghost" data-act="demo-fill" data-i="' + i + '">데모 채우기</button>' : '') +
+    (tools && d.manual ? '<button class="btn sm danger" data-act="rec-sake-del" data-i="' + i + '" aria-label="삭제">' + ICON.trash + '</button>' : '') +
+    '</div>';
+  h += '<div class="field"><label>사케 이름</label><input class="input" data-f="name" value="' + esc(d.name) + '" placeholder="예) 신슈키레이 금거북이"></div>';
+  h += '<div class="grid2"><div class="field"><label>양조장</label><input class="input" data-f="brewery" value="' + esc(d.brewery) + '"></div>' +
+    '<div class="field"><label>등급</label><select class="input" data-f="grade">' +
+    '<option value="">선택</option>' +
+    GRADES.map(function (g) { return '<option value="' + esc(g) + '"' + (d.grade === g ? ' selected' : '') + '>' + esc(g) + '</option>'; }).join('') +
+    '</select></div></div>';
+  h += '<div class="grid2"><div class="field"><label>정미보합 (%)</label><input class="input" data-f="polish" inputmode="numeric" value="' + esc(d.polish) + '" placeholder="예) 45"></div>' +
+    '<div class="field"><label>주조미</label><input class="input" data-f="rice" value="' + esc(d.rice) + '" placeholder="예) 야마다니시키"></div></div>';
+  h += '<div class="grid2"><div class="field"><label>화입 여부</label><select class="input" data-f="hiire">' +
+    HIIRE.map(function (o) { return '<option value="' + o.v + '"' + (d.hiire === o.v ? ' selected' : '') + '>' + o.label + '</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="field"><label>도수 (ABV)</label><input class="input" data-f="abv" inputmode="decimal" value="' + esc(d.abv) + '" placeholder="예) 15"></div></div>';
+  h += '<div class="field"><label>별점</label><div class="rateRow">';
+  for (var k = 1; k <= 5; k++) {
+    h += '<button data-act="rec-rate" data-ctx="' + ctx + '" data-i="' + i + '" data-v="' + k + '" class="' + (Number(d.rating) >= k ? 'on' : '') + '" aria-label="' + k + '점">★</button>';
+  }
+  h += '<span class="tiny" style="margin-left:6px">' + (d.rating ? starsText(d.rating) + ' / 5' : '') + '</span></div></div>';
+  h += '<div class="field"><label>시음 메모</label><textarea class="input" data-f="memo" placeholder="향, 온도, 어울린 음식">' + esc(d.memo) + '</textarea></div>';
+  h += '</div>';
+  return h;
+}
+function sakeDraftList(rec) {
+  if (!rec.sakes.length) return '';
+  return rec.sakes.map(function (d, i) { return draftHtml(d, i, 'rec'); }).join('');
+}
+function viewRecord() {
+  var rec = ui.rec || (ui.rec = newRecord());
+  var h = '<div class="view">';
+  h += '<div class="vh"><div><h2>기록 추가</h2><p>사진을 고르면 촬영일·위치로 업장을 찾아요</p></div>' +
+    (rec.photos.length ? '<button class="btn sm ghost" data-act="rec-reset">비우기</button>' : '') + '</div>';
+
+  /* step 1 */
+  h += '<section class="card"><h3><span class="stepnum">1</span>사진</h3>';
+  h += '<label class="drop"><input type="file" accept="image/*" multiple data-file="record">' + ICON.camera +
+    '<b>사진 선택</b><span>여러 장 한 번에 고를 수 있어요</span></label>';
+  h += '<div class="row" style="margin-top:8px;gap:8px"><button class="btn sm ghost" data-act="rec-sample">샘플로 체험</button>' +
+    '<span class="tiny" style="flex:1">사진의 촬영일·GPS를 읽어 업장을 묶습니다</span></div>';
+  if (rec.photos.length) h += photoRows(rec);
+  h += '</section>';
+
+  /* step 2 */
+  h += '<section class="card"><h3><span class="stepnum">2</span>촬영 정보</h3>';
+  h += '<div class="grid2"><div class="field"><label>촬영일</label><input class="input" type="date" data-input="rec-date" value="' + esc(rec.date) + '"></div>' +
+    '<div class="field"><label>시간 (선택)</label><input class="input" type="time" data-input="rec-time" value="' + esc(rec.time) + '"></div></div>';
+  if (rec.lat != null && rec.lng != null) {
+    var near = nearestVenue(rec.lat, rec.lng, 800);
+    h += '<div class="hint">위치 <b>' + rec.lat.toFixed(5) + ', ' + rec.lng.toFixed(5) + '</b>' +
+      (near ? ' · 가장 가까운 업장 <b>' + esc(near.venue.name) + '</b> ' + distLabel(near.dist) : '') + '</div>';
+  } else {
+    h += '<div class="hint">사진에서 위치 정보를 찾지 못했어요. 날짜로만 묶고 업장은 직접 골라 주세요.</div>';
+  }
+  h += '</section>';
+
+  /* step 3 */
+  h += '<section class="card"><h3><span class="stepnum">3</span>업장</h3>';
+  h += '<div class="field"><label>업장 이름</label><input class="input" id="rec-venue" data-input="rec-venue" list="venueList" placeholder="예) 스시 샘플점" value="' + esc(rec.venueName) + '"></div>';
+  h += '<datalist id="venueList">' + state.venues.map(function (v) { return '<option value="' + esc(v.name) + '"></option>'; }).join('') + '</datalist>';
+  h += '<div class="field"><label>지역 (선택)</label><input class="input" data-input="rec-area" placeholder="예) 서초" value="' + esc(rec.area) + '"></div>';
+  h += venueSuggestions(rec);
+  h += attachOption(rec);
+  h += '<div class="field" style="margin-top:10px"><label>방문 메모</label><textarea class="input" data-input="rec-note" placeholder="코스 구성, 동행, 그날의 인상">' + esc(rec.note) + '</textarea></div>';
+  h += '</section>';
+
+  /* step 4 */
+  h += '<section class="card"><h3><span class="stepnum">4</span>사케 라벨' +
+    (rec.sakes.length ? '<span class="side">' + rec.sakes.length + '병</span>' : '') + '</h3>';
+  h += '<div class="hint" style="margin:0 0 4px">' + (rec.photos.length
+    ? '위 사진 목록에서 <b>사케 라벨</b>을 누르면 그 사진이 사케 기록으로 연결돼요.'
+    : '사진을 먼저 고르면 라벨 사진을 사케 기록으로 연결할 수 있어요.') + '</div>';
+  if (rec.sakes.length) h += sakeDraftList(rec);
+  h += '<button class="btn sm ghost block" data-act="rec-sake-add" style="margin-top:9px">+ 사케 직접 추가</button>';
+  h += '</section>';
+
+  h += '<button class="btn primary block" data-act="rec-save" style="padding:14px">기록 저장</button>';
+  h += '<p class="hint" style="text-align:center;margin-top:10px">저장한 기록은 이 브라우저에만 남습니다.<br>설정에서 JSON 백업을 받아 두세요.</p>';
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 격자 ------------------------------ */
+function gridPool() {
+  var seen = {}, out = [];
+  allPhotos().forEach(function (p) {
+    if (seen[p.src]) return;
+    seen[p.src] = 1;
+    out.push(p);
+  });
+  ui.grid.uploads.forEach(function (p) {
+    if (seen[p.src]) return;
+    seen[p.src] = 1;
+    out.push(p);
+  });
+  return out;
+}
+function layoutChips() {
+  var opts = [[4, '2×2', '4장'], [9, '3×3', '9장']];
+  return opts.map(function (o) {
+    return '<button class="chip' + (ui.grid.layout === o[0] ? ' on' : '') + '" data-act="grid-layout" data-v="' + o[0] + '">' +
+      o[1] + ' · ' + o[2] + '</button>';
+  }).join('');
+}
+function sizeChips() {
+  return [[1080, '1080'], [1440, '1440'], [2048, '2048']].map(function (o) {
+    return '<button class="chip mini' + (ui.grid.size === o[0] ? ' on' : '') + '" data-act="grid-size" data-v="' + o[0] + '">' + o[1] + 'px</button>';
+  }).join('');
+}
+function gapChips() {
+  return [[0, '여백 없이'], [12, '여백 12'], [24, '여백 24']].map(function (o) {
+    return '<button class="chip mini' + (ui.grid.gap === o[0] ? ' on' : '') + '" data-act="grid-gap" data-v="' + o[0] + '">' + o[1] + '</button>';
+  }).join('');
+}
+function viewGrid() {
+  var g = ui.grid;
+  var pool = gridPool();
+  var need = g.layout;
+  var h = '<div class="view">';
+  h += '<div class="vh"><div><h2>격자 만들기</h2><p>원본 비율 그대로, 잘림 없이 묶어요</p></div>' +
+    '<span class="side mono">' + g.sel.length + '/' + need + '</span></div>';
+
+  h += '<section class="card"><h3>배치</h3>';
+  h += '<div class="chips" style="padding-bottom:2px">' + layoutChips() + '</div>';
+  h += '<div class="chips" style="padding-bottom:0">' + sizeChips() + gapChips() + '</div>';
+  h += '</section>';
+
+  h += '<section class="card"><h3>사진 <span class="side">' + pool.length + '장</span></h3>';
+  h += '<div class="row" style="margin-bottom:10px"><label class="btn sm ghost" style="cursor:pointer">' +
+    '<input type="file" accept="image/*" multiple data-file="grid" style="display:none">' + ICON.camera + '사진 추가</label>' +
+    (g.sel.length ? '<button class="btn sm ghost" data-act="grid-clear">선택 해제</button>' : '') + '</div>';
+  if (!pool.length) {
+    h += emptyBlock('사진이 없어요', '기록에 사진을 올리거나 여기서 바로 추가하세요.');
+  } else {
+    h += '<div class="pool">' + pool.map(function (p, pi) {
+      var idx = g.sel.indexOf(p.src);
+      return '<button class="cell' + (idx >= 0 ? ' sel' : '') + '" data-act="grid-toggle" data-p="' + pi + '">' +
+        '<img src="' + photoSrc(p) + '" alt="" loading="lazy">' +
+        '<span class="pick">' + (idx >= 0 ? (idx + 1) : '') + '</span>' +
+        (p.venueName ? '<span class="cap">' + esc(p.venueName) + '</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+  h += '</section>';
+
+  h += '<div class="actionbar"><div class="inner">' +
+    '<button class="btn primary block" data-act="grid-compose" ' + (g.sel.length === need ? '' : 'disabled') + '>' +
+    (g.sel.length === need ? (g.layout === 4 ? '2×2' : '3×3') + ' 격자 합성' : '사진 ' + need + '장을 골라 주세요') + '</button>' +
+    '</div></div>';
+  h += '</div>';
+  return h;
+}
+
+
+/* =====================================================================
+   record · detail · grid · settings · events
+   ===================================================================== */
+
+var _confirmCb = null;
+var _ed = null;
+var _lb = null;
+
+/* ------------------------------ record flow ------------------------------ */
+function fileTime(f) {
+  var t = (f && f.lastModified) ? new Date(f.lastModified) : new Date();
+  return toYmd(t) + 'T' + pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ':00';
+}
+function median(arr) {
+  var a = arr.slice().sort(function (x, y) { return x - y; });
+  if (!a.length) return 0;
+  var m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
+function syncRecordForm() {
+  var rec = ui.rec;
+  if (!rec) return;
+  var el;
+  if ((el = $('#rec-venue'))) rec.venueName = el.value;
+  if ((el = $('[data-input="rec-area"]'))) rec.area = el.value;
+  if ((el = $('[data-input="rec-note"]'))) rec.note = el.value;
+  if ((el = $('[data-input="rec-date"]'))) rec.date = el.value;
+  if ((el = $('[data-input="rec-time"]'))) rec.time = el.value;
+  if ((el = $('#rec-attach'))) {
+    var tg = findAttachTarget(rec);
+    rec.attachVisitId = el.checked ? (tg ? tg.id : rec.attachVisitId) : '';
+  }
+  syncDrafts();
+}
+function syncDrafts() {
+  var rec = ui.rec;
+  if (!rec) return;
+  $$('#main [data-draft]').forEach(function (box) {
+    var i = parseInt(box.getAttribute('data-draft'), 10);
+    var d = rec.sakes[i];
+    if (!d) return;
+    $$('[data-f]', box).forEach(function (el) { d[el.getAttribute('data-f')] = el.value; });
+  });
+}
+function refreshRecSuggestions() {
+  var rec = ui.rec;
+  if (!rec || !rec.photos.length) return;
+  var counts = {}, best = '', bestN = 0;
+  rec.photos.forEach(function (p) {
+    if (!p.taken) return;
+    var d = p.taken.slice(0, 10);
+    counts[d] = (counts[d] || 0) + 1;
+    if (counts[d] > bestN) { bestN = counts[d]; best = d; }
+  });
+  if (best) rec.date = best;
+  var first = rec.photos.filter(function (p) { return p.taken; })[0];
+  if (first && !rec.time) rec.time = hm(first.taken);
+  var gps = rec.photos.filter(function (p) { return p.gps; }).map(function (p) { return p.gps; });
+  if (gps.length) {
+    rec.lat = Math.round(median(gps.map(function (g) { return g.lat; })) * 1e5) / 1e5;
+    rec.lng = Math.round(median(gps.map(function (g) { return g.lng; })) * 1e5) / 1e5;
+    if (!rec.venueName) {
+      var near = nearestVenue(rec.lat, rec.lng, 200);
+      if (near) {
+        rec.venueName = near.venue.name;
+        rec.venueId = near.venue.id;
+        rec.area = near.venue.area || '';
+      }
+    }
+  }
+  if (!rec.attachVisitId) {
+    var t = findAttachTarget(rec);
+    if (t) rec.attachVisitId = t.id;
+  }
+}
+async function addRecordFiles(files) {
+  if (!files || !files.length) return;
+  var rec = ui.rec || (ui.rec = newRecord());
+  var ok = 0, noExif = 0, failed = 0;
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    if (f.type && f.type.indexOf('image/') !== 0) continue;
+    try {
+      var buf = await readAsArrayBuffer(f);
+      var ex = buf ? parseExif(buf) : { date: null, lat: null, lng: null };
+      var raw = await readAsDataUrl(f);
+      var small = await shrink(raw, 1400, 0.7);
+      if (!ex.date) noExif++;
+      rec.photos.push({
+        id: uid('p'), src: small, taken: ex.date || fileTime(f),
+        gps: (ex.lat != null && ex.lng != null) ? { lat: ex.lat, lng: ex.lng } : null,
+        isLabel: false
+      });
+      ok++;
+    } catch (err) { failed++; }
+  }
+  if (ok) {
+    refreshRecSuggestions();
+    render();
+    toast('사진 ' + ok + '장 추가' + (noExif ? ' · EXIF 없는 ' + noExif + '장은 파일 시각 사용' : ''));
+  } else if (failed) {
+    toast('사진을 열지 못했어요. 아이폰 HEIC라면 설정 › 카메라 › 포맷을 "높은 호환성"으로 바꿔 주세요.');
+  }
+}
+function addSamplePhotos() {
+  var rec = ui.rec || (ui.rec = newRecord());
+  var d = todayYmd();
+  var keys = ['ph02', 'ph03', 'ph05', 'ph06'];
+  keys.forEach(function (k, i) {
+    rec.photos.push({
+      id: uid('p'), src: 'seed:' + k, taken: d + 'T19:' + pad2(30 + i * 9) + ':00',
+      gps: { lat: 37.5, lng: 127.03 }, isLabel: false
+    });
+  });
+  var last = rec.photos[rec.photos.length - 1];
+  last.isLabel = true;
+  rec.sakes.push(newDraft(last));
+  refreshRecSuggestions();
+  render();
+  toast('샘플 사진 4장 · 라벨 1장이 사케 폼에 연결됐어요.');
+}
+function toggleLabel(id) {
+  var rec = ui.rec;
+  if (!rec) return;
+  syncRecordForm();
+  var p = rec.photos.filter(function (x) { return x.id === id; })[0];
+  if (!p) return;
+  p.isLabel = !p.isLabel;
+  if (p.isLabel) {
+    if (!rec.sakes.some(function (d) { return d.photoId === id; })) rec.sakes.push(newDraft(p));
+  } else {
+    rec.sakes = rec.sakes.filter(function (d) { return d.photoId !== id; });
+  }
+  render();
+}
+function saveRecord() {
+  syncRecordForm();
+  var rec = ui.rec;
+  if (!rec) return;
+  if (!rec.photos.length && !rec.sakes.length) { toast('사진이나 사케를 먼저 추가해 주세요.'); return; }
+  var name = (rec.venueName || '').trim();
+  if (!name) { toast('업장 이름을 입력해 주세요.'); return; }
+  var venue = rec.venueId ? venueById(rec.venueId) : null;
+  if (!venue) {
+    venue = state.venues.filter(function (v) { return v.name === name; })[0] || null;
+  }
+  if (!venue) {
+    venue = { id: uid('v'), name: name, area: (rec.area || '').trim(), address: '', lat: rec.lat, lng: rec.lng, memo: '' };
+    state.venues.push(venue);
+  } else {
+    if (rec.lat != null && (venue.lat == null || venue.lat === '')) { venue.lat = rec.lat; venue.lng = rec.lng; }
+    if (!venue.area && rec.area) venue.area = rec.area.trim();
+  }
+  var visit = rec.attachVisitId ? visitById(rec.attachVisitId) : null;
+  if (!visit) {
+    visit = {
+      id: uid('t'), venueId: venue.id, date: rec.date || todayYmd(), time: rec.time || '',
+      lat: rec.lat, lng: rec.lng, note: (rec.note || '').trim(), photos: []
+    };
+    state.visits.push(visit);
+  } else if (rec.note && !visit.note) {
+    visit.note = rec.note.trim();
+  }
+  rec.photos.forEach(function (p) {
+    visit.photos.push({ id: uid('p'), src: p.src, taken: p.taken, gps: p.gps });
+  });
+  var linked = 0, skipped = 0;
+  rec.sakes.forEach(function (d) {
+    if (!(d.name || '').trim()) { skipped++; return; }
+    var labelPhoto = '';
+    if (d.photoId) {
+      var p = rec.photos.filter(function (x) { return x.id === d.photoId; })[0];
+      if (p) labelPhoto = p.src;
+    }
+    state.sakes.push({
+      id: uid('s'), visitId: visit.id, name: d.name.trim(), brewery: (d.brewery || '').trim(),
+      grade: d.grade || '', polish: num(d.polish), rice: (d.rice || '').trim(), hiire: d.hiire || '',
+      abv: num(d.abv), rating: Number(d.rating) || 0, memo: (d.memo || '').trim(),
+      photo: labelPhoto || ''
+    });
+    linked++;
+  });
+  var vname = venue.name, when = visit.date, nphotos = rec.photos.length;
+  if (saveState()) {
+    ui.rec = null;
+    setTab('venues');
+    toast(fmtDot(when) + ' ' + vname + ' · 사진 ' + nphotos + '장, 사케 ' + linked + '병 저장' +
+      (skipped ? ' (이름 없는 사케 ' + skipped + '병 제외)' : ''));
+  }
+}
+
+/* ------------------------------ AI 라벨 인식 ------------------------------ */
+var DEMO_LABELS = [
+  { name: '신슈키레이 금거북이', brewery: '오카자키 슈조', grade: '준마이다이긴죠', polish: '39', rice: '긴몬니시키', hiire: 'hiire', abv: '', rating: 5, memo: '화입 1회. 8~12℃에서 향이 가장 살아난다.' },
+  { name: '요코야마 40 신엔 Limited', brewery: '오모야 주조 외 2사 콜라보', grade: '준마이다이긴죠', polish: '40', rice: '야마다니시키', hiire: 'hiire', abv: '15', rating: 4, memo: '흰살 생선·조개류에. 5~8℃ 칠링.' },
+  { name: '덴슈 욘와리코부 아키타사케코마치 45%', brewery: '텐주 슈조', grade: '준마이다이긴죠', polish: '45', rice: '아키타사케코마치', hiire: 'hiire', abv: '16', rating: 4, memo: '스시 전반부에.' },
+  { name: '바라 마송 레 마르간', brewery: '바라 마송 · 샹파뉴', grade: '샴페인', polish: '', rice: '샤르도네 100%', hiire: '', abv: '12', rating: 4, memo: '도자주 0g/L, 블랑 드 블랑.' }
+];
+function demoFill(ctx, i) {
+  if (ctx === 'ed') {
+    syncEditor();
+    if (!_ed) return;
+    applyDemo(_ed.draft, i);
+    renderEditor();
+    return;
+  }
+  syncRecordForm();
+  var d = ui.rec && ui.rec.sakes[i];
+  if (!d) return;
+  applyDemo(d, i);
+  render();
+  toast('데모 값으로 채웠어요. 실제 라벨과 다를 수 있어요.');
+}
+function applyDemo(d, seed) {
+  var src = DEMO_LABELS[Math.abs(seed + (d.name ? d.name.length : 0)) % DEMO_LABELS.length];
+  Object.keys(src).forEach(function (k) { d[k] = src[k]; });
+}
+async function aiRead(ctx, i) {
+  var d, photo;
+  if (ctx === 'ed') {
+    syncEditor();
+    d = _ed && _ed.draft;
+    photo = d && d.photo;
+  } else {
+    syncRecordForm();
+    d = ui.rec && ui.rec.sakes[i];
+    photo = d && d.photo;
+  }
+  if (!d) return;
+  if (!(state.settings.apiKey || '').trim()) {
+    toast('설정에서 AI API 키를 넣으면 라벨을 자동으로 읽어요. 지금은 데모 채우기를 써보세요.');
+    return;
+  }
+  var src = photoSrc(photo);
+  var m = src.match(/^data:(image\/[a-z0-9+.\-]+);base64,(.+)$/i);
+  if (!m) { toast('이 사진은 AI로 보낼 수 없어요. 라벨 사진을 새로 골라 주세요.'); return; }
+  if (m[1].indexOf('svg') >= 0) { toast('데모 일러스트는 AI로 읽을 수 없어요. 라벨 사진을 직접 골라 주세요.'); return; }
+  toast('라벨을 읽는 중…');
+  try {
+    var r = await callVision(m[1], m[2]);
+    ['name', 'brewery', 'grade', 'polish', 'rice', 'hiire', 'abv', 'memo'].forEach(function (k) {
+      if (r[k] != null && r[k] !== '') d[k] = r[k];
+    });
+    if (r.rating) d.rating = r.rating;
+    if (ctx === 'ed') renderEditor(); else render();
+    toast('라벨에서 채웠어요. 값을 확인해 주세요.');
+  } catch (e) {
+    toast('AI 인식 실패: ' + (e.message || '알 수 없는 오류') + ' · 데모 채우기로 체험할 수 있어요.');
+  }
+}
+async function callVision(mediaType, b64) {
+  var s = state.settings;
+  var prompt = '이 사진은 일본 사케 병의 라벨입니다. 읽을 수 있는 정보만 골라 JSON 하나로만 답하세요. 모르면 빈 문자열. ' +
+    '형식: {"name":"","brewery":"","grade":"준마이다이긴죠|준마이긴죠|준마이|혼조조|긴죠|다이긴죠|특별준마이|샴페인|기타","polish":"정미보합 숫자","rice":"주조미","hiire":"hiire|namachozo|nama|yamahai","abv":"도수 숫자","memo":"한 줄 메모"}';
+  var res, json, text;
+  if (s.provider === 'openai') {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.apiKey.trim() },
+      body: JSON.stringify({
+        model: (s.model || 'gpt-4o-mini').trim(),
+        max_tokens: 400,
+        messages: [{
+          role: 'user', content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: 'data:' + mediaType + ';base64,' + b64 } }
+          ]
+        }]
+      })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    json = await res.json();
+    text = (json.choices && json.choices[0] && json.choices[0].message.content) || '';
+  } else {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': s.apiKey.trim(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: (s.model || 'claude-3-5-haiku-latest').trim(),
+        max_tokens: 400,
+        messages: [{
+          role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: b64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    json = await res.json();
+    text = (json.content || []).map(function (c) { return c.text || ''; }).join('');
+  }
+  var mm = String(text).match(/\{[\s\S]*\}/);
+  return JSON.parse(mm ? mm[0] : text);
+}
+
+/* ------------------------------ detail sheets ------------------------------ */
+function recentVisits() { return sortedVisits().slice(0, 40); }
+function visitLabel(v) {
+  var venue = venueById(v.venueId);
+  return fmtDot(v.date) + ' ' + (venue ? venue.name : '업장 미지정');
+}
+function openVisit(id) {
+  var v = visitById(id);
+  if (!v) return;
+  var venue = venueById(v.venueId) || { name: '업장 미지정' };
+  var sakes = sakesOfVisit(v.id);
+  var photos = v.photos || [];
+  var hero = photos.length ? photoSrc(photos[0]) : '';
+  var h = sheetHead(venue.name);
+  h += '<div class="sheetbody tight">';
+  if (hero) {
+    h += '<div class="hero"><img src="' + hero + '" alt=""><div class="cap"><b>' + esc(venue.name) + '</b>' +
+      '<span>' + esc(fmtKo(v.date) + (v.time ? ' · ' + v.time : '')) + '</span></div></div>';
+  }
+  h += '<div style="padding:0 16px">';
+  if (!hero) {
+    h += '<div class="dt"><b style="font-size:19px">' + esc(venue.name) + '</b>' +
+      '<div class="tiny" style="margin-top:3px">' + esc(fmtKo(v.date) + (v.time ? ' · ' + v.time : '')) + '</div></div>';
+  }
+  var metaBits = [venue.area, venue.address].filter(Boolean);
+  if (metaBits.length) h += '<div class="tiny" style="margin-top:10px;line-height:1.5">' + metaBits.map(esc).join(' · ') + '</div>';
+  h += '<h4 class="dt">마신 사케 ' + sakes.length + '병</h4>';
+  if (sakes.length) {
+    sakes.forEach(function (s) {
+      h += '<button class="srow" data-act="open-sake" data-id="' + s.id + '">' +
+        '<span class="sn"><b>' + esc(s.name) + '</b><span>' + esc(sakeMeta(s)) + '</span></span>' +
+        (s.rating ? '<span class="st">' + starsText(s.rating) + '</span>' : '') + '</button>';
+    });
+  } else {
+    h += '<p class="hint" style="margin-top:0">기록된 사케가 없어요.</p>';
+  }
+  h += '<button class="btn sm ghost" data-act="add-sake-to-visit" data-id="' + v.id + '" style="margin:2px 0 4px">+ 이 방문에 사케 추가</button>';
+  if (photos.length) {
+    h += '<h4>사진 ' + photos.length + '장</h4><div class="photoGrid">';
+    photos.forEach(function (p, i) {
+      h += '<button class="ph" data-act="lb-open" data-visit="' + v.id + '" data-p="' + i + '" style="border:0;padding:0">' +
+        '<img src="' + photoSrc(p) + '" alt="" loading="lazy"></button>';
+    });
+    h += '</div>';
+  }
+  if (v.note) h += '<h4>메모</h4><div class="noteBox">' + esc(v.note) + '</div>';
+  h += '<div class="row" style="margin-top:16px;gap:8px">' +
+    '<label class="btn ghost" style="flex:1;cursor:pointer"><input type="file" accept="image/*" multiple data-file="visit" data-id="' + v.id + '" style="display:none">' + ICON.camera + '사진 추가</label>' +
+    '<button class="btn danger" data-act="ask-delete-visit" data-id="' + v.id + '">' + ICON.trash + '방문 삭제</button></div>';
+  h += '</div></div>';
+  openSheet(h);
+}
+function openSake(id) {
+  var s = sakeById(id);
+  if (!s) return;
+  var visit = s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var h = sheetHead(s.name || '사케');
+  h += '<div class="sheetbody">';
+  h += '<div class="row" style="align-items:flex-start;gap:12px">';
+  if (src) h += '<img src="' + src + '" alt="" style="width:74px;height:74px;object-fit:cover;border-radius:12px;flex:0 0 74px">';
+  h += '<div style="flex:1;min-width:0"><div style="font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1.3">' + esc(s.name || '이름 없는 사케') + '</div>';
+  if (s.brewery) h += '<div class="tiny" style="margin-top:3px">' + esc(s.brewery) + '</div>';
+  if (s.rating) h += '<div style="margin-top:6px">' + starsHtml(s.rating) + ' <span class="tiny">' + starsText(s.rating) + '</span></div>';
+  h += '</div></div>';
+  var rows = [
+    ['등급', s.grade], ['정미보합', s.polish ? s.polish + '%' : ''],
+    ['주조미', s.rice], ['화입', hiireLabel(s.hiire)],
+    ['도수', s.abv ? s.abv + '도' : ''], ['기록일', visit ? fmtDot(visit.date) : '']
+  ].filter(function (r) { return r[1]; });
+  if (rows.length) {
+    h += '<div class="kv" style="margin-top:14px">';
+    rows.forEach(function (r) { h += '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; });
+    h += '</div>';
+  }
+  if (s.memo) h += '<h4 style="margin:16px 2px 8px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:700">시음 메모</h4><div class="noteBox">' + esc(s.memo) + '</div>';
+  if (venue) {
+    h += '<button class="linkchip" style="margin-top:14px;font-size:11.5px;padding:7px 10px" data-act="open-visit" data-id="' + visit.id + '">' +
+      ICON.pin + ' 마신 곳 · ' + esc(venue.name) + ' ' + fmtDot(visit.date) + '</button>';
+  }
+  h += '<div class="row" style="margin-top:18px;gap:8px">' +
+    '<button class="btn" style="flex:1" data-act="edit-sake" data-id="' + s.id + '">수정</button>' +
+    '<button class="btn danger" data-act="ask-delete-sake" data-id="' + s.id + '">삭제</button></div>';
+  h += '</div>';
+  openSheet(h);
+}
+function renderEditor() {
+  var ed = _ed;
+  if (!ed) return;
+  var h = sheetHead(ed.id ? '사케 수정' : '사케 추가');
+  h += '<div class="sheetbody">';
+  h += draftHtml(ed.draft, 0, 'ed');
+  h += '<div class="field" style="margin-top:12px"><label>마신 방문</label><select class="input" id="ed-visit">' +
+    '<option value="">업장 미연결</option>' +
+    recentVisits().map(function (v) {
+      return '<option value="' + v.id + '"' + (ed.visitId === v.id ? ' selected' : '') + '>' + esc(visitLabel(v)) + '</option>';
+    }).join('') + '</select></div>';
+  h += '<button class="btn primary block" data-act="ed-save" style="margin-top:16px;padding:13px">저장</button>';
+  if (ed.id) h += '<button class="btn danger block" data-act="ask-delete-sake" data-id="' + ed.id + '" style="margin-top:8px">이 사케 삭제</button>';
+  h += '</div>';
+  openSheet(h);
+}
+function openSakeEditor(opts) {
+  opts = opts || {};
+  var sake = opts.sake || null;
+  var d = sake ? {
+    name: sake.name || '', brewery: sake.brewery || '', grade: sake.grade || '',
+    polish: sake.polish == null ? '' : sake.polish, rice: sake.rice || '', hiire: sake.hiire || '',
+    abv: sake.abv == null ? '' : sake.abv, rating: sake.rating || 0, memo: sake.memo || '',
+    photo: sake.photo || ''
+  } : newDraft(null);
+  _ed = { id: sake ? sake.id : null, draft: d, visitId: sake ? sake.visitId : (opts.visitId || '') };
+  renderEditor();
+}
+function syncEditor() {
+  if (!_ed) return;
+  $$('#layer [data-draft]').forEach(function (box) {
+    $$('[data-f]', box).forEach(function (el) { _ed.draft[el.getAttribute('data-f')] = el.value; });
+  });
+  var sel = $('#ed-visit');
+  if (sel) _ed.visitId = sel.value;
+}
+function saveEditor() {
+  syncEditor();
+  if (!_ed) return;
+  var d = _ed.draft;
+  if (!(d.name || '').trim()) { toast('사케 이름을 입력해 주세요.'); return; }
+  var payload = {
+    name: d.name.trim(), brewery: (d.brewery || '').trim(), grade: d.grade || '',
+    polish: num(d.polish), rice: (d.rice || '').trim(), hiire: d.hiire || '',
+    abv: num(d.abv), rating: Number(d.rating) || 0, memo: (d.memo || '').trim(),
+    photo: d.photo || ''
+  };
+  if (_ed.id) {
+    var s = sakeById(_ed.id);
+    if (s) {
+      Object.keys(payload).forEach(function (k) { s[k] = payload[k]; });
+      s.visitId = _ed.visitId;
+    }
+  } else {
+    payload.id = uid('s');
+    payload.visitId = _ed.visitId;
+    state.sakes.push(payload);
+  }
+  _ed = null;
+  saveState();
+  closeSheet();
+  render();
+  toast('저장했어요.');
+}
+function askDeleteSake(id) {
+  confirmSheet('사케 기록 삭제', '이 사케 기록을 지웁니다. 방문 사진은 그대로 남아요.', '삭제', true, function () {
+    state.sakes = state.sakes.filter(function (s) { return s.id !== id; });
+    saveState();
+    _ed = null;
+    closeSheet();
+    render();
+    toast('삭제했어요.');
+  });
+}
+function askDeleteVisit(id) {
+  confirmSheet('방문 기록 삭제', '이 방문과 연결된 사케 기록도 함께 지워집니다. 되돌릴 수 없어요.', '삭제', true, function () {
+    state.visits = state.visits.filter(function (v) { return v.id !== id; });
+    state.sakes = state.sakes.filter(function (s) { return s.visitId !== id; });
+    saveState();
+    closeSheet();
+    render();
+    toast('삭제했어요.');
+  });
+}
+function confirmSheet(title, body, okLabel, danger, onOk) {
+  _confirmCb = onOk;
+  openSheet(sheetHead(title) + '<div class="sheetbody">' +
+    '<p style="margin:0 0 16px;font-size:13.5px;color:var(--ink2);line-height:1.6">' + esc(body) + '</p>' +
+    '<div class="row"><button class="btn ghost" style="flex:1" data-act="close-sheet">취소</button>' +
+    '<button class="btn ' + (danger ? 'danger' : 'primary') + '" style="flex:1" data-act="confirm-ok">' + esc(okLabel) + '</button></div></div>');
+}
+
+/* ------------------------------ lightbox ------------------------------ */
+function openLightbox(list, i) {
+  closeLightbox();
+  var idx = Math.max(0, Math.min(list.length - 1, i || 0));
+  var el = document.createElement('div');
+  el.className = 'lightbox';
+  el.innerHTML = '<div class="lbTop"><span class="mono">' + (idx + 1) + ' / ' + list.length + '</span>' +
+    '<button data-act="lb-close" style="color:#E8E4DA;font-size:20px;padding:4px 8px">✕</button></div>' +
+    '<div class="lbStage"><img src="' + list[idx] + '" alt=""></div>' +
+    '<div class="lbBottom"><button data-act="lb-prev">‹</button><button data-act="lb-next">›</button></div>';
+  document.getElementById('layer').appendChild(el);
+  document.body.style.overflow = 'hidden';
+  _lb = { el: el, list: list, i: idx };
+}
+function lbMove(d) {
+  if (!_lb) return;
+  var i = (_lb.i + d + _lb.list.length) % _lb.list.length;
+  _lb.i = i;
+  _lb.el.querySelector('.lbStage img').src = _lb.list[i];
+  _lb.el.querySelector('.lbTop .mono').textContent = (i + 1) + ' / ' + _lb.list.length;
+}
+function closeLightbox() {
+  if (_lb && _lb.el) { _lb.el.remove(); _lb = null; }
+  if (!document.querySelector('.sheetwrap')) document.body.style.overflow = '';
+}
+
+/* ------------------------------ grid ------------------------------ */
+async function addGridFiles(files) {
+  if (!files || !files.length) return;
+  var ok = 0;
+  for (var i = 0; i < files.length; i++) {
+    try {
+      var raw = await readAsDataUrl(files[i]);
+      var small = await shrink(raw, 1400, 0.7);
+      ui.grid.uploads.push({ id: uid('g'), src: small, venueName: '', date: todayYmd() });
+      ok++;
+    } catch (e) { /* skip */ }
+  }
+  if (ok) { render(); toast('사진 ' + ok + '장 추가'); }
+}
+function drawCell(ctx, img, x, y, size) {
+  var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  if (!iw || !ih) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, size, size);
+  ctx.clip();
+  /* 1) 여백은 같은 사진을 흐리게 깔아 채운다 (무크롭) */
+  var tmp = document.createElement('canvas');
+  tmp.width = 32; tmp.height = 32;
+  var tc = tmp.getContext('2d');
+  var cover = Math.max(32 / iw, 32 / ih);
+  tc.drawImage(img, (32 - iw * cover) / 2, (32 - ih * cover) / 2, iw * cover, ih * cover);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(tmp, 0, 0, 32, 32, x, y, size, size);
+  /* 2) 원본 비율 유지, 잘림 없이 중앙 배치 */
+  var k = Math.min(size / iw, size / ih);
+  var dw = iw * k, dh = ih * k;
+  ctx.drawImage(img, x + (size - dw) / 2, y + (size - dh) / 2, dw, dh);
+  ctx.restore();
+}
+async function composeGrid() {
+  var g = ui.grid;
+  var n = g.layout === 9 ? 3 : 2;
+  if (g.sel.length !== g.layout) return;
+  var size = g.size, gap = g.gap;
+  var canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  var cell = (size - gap * (n + 1)) / n;
+  var imgs = [];
+  for (var i = 0; i < g.sel.length; i++) {
+    imgs.push(await loadImage(photoSrc(g.sel[i])));
+  }
+  for (var j = 0; j < imgs.length; j++) {
+    var col = j % n, row = Math.floor(j / n);
+    var x = gap + col * (cell + gap);
+    var y = gap + row * (cell + gap);
+    drawCell(ctx, imgs[j], x, y, cell);
+  }
+  g.last = {
+    jpg: canvas.toDataURL('image/jpeg', 0.92),
+    canvas: canvas,
+    size: size,
+    name: 'sake_grid_' + todayYmd().replace(/-/g, '') + '_' + g.layout
+  };
+  openGridPreview();
+}
+function openGridPreview() {
+  var last = ui.grid.last;
+  if (!last) return;
+  var h = sheetHead('격자 미리보기');
+  h += '<div class="sheetbody">';
+  h += '<div class="previewBox"><img src="' + last.jpg + '" alt=""></div>';
+  h += '<p class="hint">' + last.size + ' × ' + last.size + 'px · 원본 비율 유지, 잘림 없이 여백은 흐린 배경으로 채웠어요.</p>';
+  h += '<div class="row" style="margin-top:14px;gap:7px">' +
+    '<button class="btn primary" style="flex:1" data-act="grid-jpg">' + ICON.down + 'JPG</button>' +
+    '<button class="btn" style="flex:1" data-act="grid-png">PNG</button>' +
+    '<button class="btn" style="flex:1" data-act="grid-share">' + ICON.share + '공유</button></div>';
+  h += '<button class="btn ghost block" style="margin-top:8px" data-act="grid-next">다음 장 고르기</button>';
+  h += '<p class="hint" style="text-align:center;margin-top:10px">아이폰에서 저장이 안 되면 이미지를 길게 눌러 "사진에 저장"을 눌러 주세요.</p>';
+  h += '</div>';
+  openSheet(h);
+}
+function downloadDataUrl(dataUrl, filename) {
+  var a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { a.remove(); }, 1200);
+}
+async function shareGrid() {
+  var last = ui.grid.last;
+  if (!last) return;
+  try {
+    var blob = await (await fetch(last.jpg)).blob();
+    var file = new File([blob], last.name + '.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+    } else {
+      downloadDataUrl(last.jpg, last.name + '.jpg');
+      toast('공유를 지원하지 않아 다운로드했어요.');
+    }
+  } catch (e) {
+    toast('공유를 취소했어요.');
+  }
+}
+
+/* ------------------------------ settings ------------------------------ */
+function openSettings() {
+  var s = state.settings;
+  var h = sheetHead('설정');
+  h += '<div class="sheetbody">';
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">AI 라벨 인식</div>';
+  h += '<div class="card" style="margin-bottom:14px">';
+  h += '<div class="field"><label>제공자</label><select class="input" data-set="provider">' +
+    '<option value="anthropic"' + (s.provider === 'anthropic' ? ' selected' : '') + '>Anthropic (Claude)</option>' +
+    '<option value="openai"' + (s.provider === 'openai' ? ' selected' : '') + '>OpenAI</option>' +
+    '</select></div>';
+  h += '<div class="field"><label>API 키</label><input class="input" type="password" data-set="apiKey" value="' + esc(s.apiKey) + '" placeholder="sk-..." autocomplete="off"></div>';
+  h += '<div class="field"><label>모델 (선택)</label><input class="input" data-set="model" value="' + esc(s.model) + '" placeholder="claude-3-5-haiku-latest"></div>';
+  h += '<p class="hint">키는 이 브라우저에만 저장되고, 라벨 사진을 그 API로 직접 보냅니다. 키가 없어도 <b>데모 채우기</b>로 전체 흐름을 체험할 수 있어요.</p>';
+  h += '</div>';
+
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">데이터</div>';
+  h += '<div class="card" style="margin-bottom:14px">';
+  h += '<div class="row" style="gap:7px"><button class="btn" style="flex:1" data-act="export-json">' + ICON.down + 'JSON 내보내기</button>' +
+    '<label class="btn" style="flex:1;cursor:pointer"><input type="file" accept="application/json,.json" data-file="import" style="display:none">JSON 가져오기</label></div>';
+  h += '<div class="sep"></div>';
+  h += '<div class="row" style="gap:7px"><button class="btn ghost" style="flex:1" data-act="restore-seed">샘플 데이터로 되돌리기</button>' +
+    '<button class="btn danger" data-act="wipe-all">전체 삭제</button></div>';
+  h += '<p class="hint">저장 용량 ' + storageKB() + 'KB · 방문 ' + state.visits.length + '건 · 사케 ' + state.sakes.length + '병<br>' +
+    '데이터는 이 브라우저(localStorage)에만 남습니다. 브라우저 기록을 지우면 함께 사라져요.</p>';
+  h += '</div>';
+
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">앱 정보</div>';
+  h += '<div class="card">';
+  h += '<p class="hint" style="margin:0">사케 저널 v' + APP_VERSION + ' · 프로토타입<br>' +
+    '공개 데모 빌드 · 업장·방문·사케 기록은 모두 예시 데이터이고, 사진은 일러스트로 대체되어 있어요.<br>' +
+    '사진은 기기 안에서만 처리되고 서버로 보내지 않아요. (AI 라벨 인식을 켜면 라벨 사진만 선택한 API로 전송)<br>' +
+    'EXIF 없는 사진은 파일 시각으로 정렬하고, 위치는 직접 고를 수 있어요.</p>';
+  h += '</div>';
+  h += '</div>';
+  openSheet(h);
+}
+function exportJson() {
+  var payload = { app: 'sake-sushi-log', version: APP_VERSION, exportedAt: new Date().toISOString(), data: state };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'sake-journal-' + todayYmd().replace(/-/g, '') + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1500);
+  toast('JSON 백업 파일을 만들었어요.');
+}
+async function importJson(file) {
+  if (!file) return;
+  try {
+    var text = await file.text();
+    var obj = JSON.parse(text);
+    var data = obj && obj.data ? obj.data : obj;
+    if (!data || !data.venues || !data.visits || !data.sakes) throw new Error('형식이 맞지 않는 파일이에요');
+    confirmSheet('기록 가져오기', '지금 기록을 이 파일로 바꿉니다. 기존 기록은 사라져요.', '가져오기', false, function () {
+      state = normalizeState(data);
+      saveState();
+      closeSheet();
+      setTab('venues');
+      toast('가져왔어요 · 방문 ' + state.visits.length + '건, 사케 ' + state.sakes.length + '병');
+    });
+  } catch (e) {
+    toast('가져오기 실패: ' + (e.message || '파일을 읽지 못했어요'));
+  }
+}
+function askRestoreSeed() {
+  confirmSheet('샘플로 되돌리기', '지금 기록을 지우고 처음 샘플 데이터로 돌아갑니다.', '되돌리기', true, function () {
+    state = seedState();
+    saveState();
+    closeSheet();
+    setTab('venues');
+    toast('샘플 데이터로 되돌렸어요.');
+  });
+}
+function askWipe() {
+  confirmSheet('전체 삭제', '모든 방문·사진·사케 기록을 지웁니다. 되돌릴 수 없어요. 백업을 먼저 받아 두세요.', '모두 삭제', true, function () {
+    state = { version: 1, settings: state.settings, venues: [], visits: [], sakes: [] };
+    saveState();
+    closeSheet();
+    setTab('venues');
+    toast('모두 지웠어요.');
+  });
+}
+function addPhotosToVisit(files, visitId) {
+  var v = visitById(visitId);
+  if (!v || !files || !files.length) return;
+  var self = async function () {
+    var ok = 0;
+    for (var i = 0; i < files.length; i++) {
+      try {
+        var buf = await readAsArrayBuffer(files[i]);
+        var ex = buf ? parseExif(buf) : { date: null };
+        var raw = await readAsDataUrl(files[i]);
+        var small = await shrink(raw, 1400, 0.7);
+        v.photos.push({
+          id: uid('p'), src: small, taken: ex.date || fileTime(files[i]),
+          gps: (ex.lat != null && ex.lng != null) ? { lat: ex.lat, lng: ex.lng } : null
+        });
+        ok++;
+      } catch (e) { /* skip */ }
+    }
+    if (ok) {
+      saveState();
+      openVisit(visitId);
+      render();
+      toast('사진 ' + ok + '장 추가');
+    }
+  };
+  self();
+}
+
+/* ------------------------------ events ------------------------------ */
+function updateGridSelection() {
+  var g = ui.grid, need = g.layout;
+  var pool = gridPool();
+  $$('#main .pool .cell').forEach(function (cell, i) {
+    var p = pool[i];
+    if (!p) return;
+    var idx = g.sel.indexOf(p.src);
+    cell.classList.toggle('sel', idx >= 0);
+    var pick = cell.querySelector('.pick');
+    if (pick) pick.textContent = idx >= 0 ? (idx + 1) : '';
+  });
+  var side = $('#main .view .vh .side');
+  if (side) side.textContent = g.sel.length + '/' + need;
+  var btn = $('#main [data-act="grid-compose"]');
+  if (btn) {
+    btn.disabled = g.sel.length !== need;
+    btn.textContent = g.sel.length === need
+      ? ((g.layout === 4 ? '2×2' : '3×3') + ' 격자 합성')
+      : ('사진 ' + need + '장을 골라 주세요');
+  }
+}
+function updateRateRow(box, rating) {
+  if (!box) return;
+  $$('.rateRow button', box).forEach(function (b) {
+    b.classList.toggle('on', Number(rating) >= Number(b.getAttribute('data-v')));
+  });
+  var span = box.querySelector('.rateRow .tiny');
+  if (span) span.textContent = rating ? starsText(rating) + ' / 5' : '';
+}
+function setRating(ctx, i, v) {
+  if (ctx === 'ed') {
+    syncEditor();
+    if (!_ed) return;
+    _ed.draft.rating = +v;
+    renderEditor();
+    return;
+  }
+  syncRecordForm();
+  if (ui.rec && ui.rec.sakes[i]) ui.rec.sakes[i].rating = +v;
+  updateRateRow($('#main [data-draft="' + i + '"]'), +v);
+}
+function onTabClick(tab) {
+  setTab(tab);
+}
+function onClick(e) {
+  var el = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!el) return;
+  var act = el.getAttribute('data-act');
+  var id = el.getAttribute('data-id');
+  var v = el.getAttribute('data-v');
+  var i = parseInt(el.getAttribute('data-i'), 10);
+  var ctx = el.getAttribute('data-ctx') || 'rec';
+
+  switch (act) {
+    case 'close-sheet': closeSheet(); break;
+    case 'settings': openSettings(); break;
+    case 'go-record': setTab('record'); break;
+    case 'confirm-ok':
+      if (_confirmCb) { var cb = _confirmCb; _confirmCb = null; cb(); }
+      break;
+
+    case 'venue-filter': ui.venueFilter = id; render(); break;
+    case 'grade-filter': ui.gradeFilter = v; render(); break;
+    case 'note-sort': ui.noteSort = v; render(); break;
+
+    case 'open-visit': openVisit(id); break;
+    case 'open-sake': openSake(id); break;
+    case 'add-sake': openSakeEditor({}); break;
+    case 'add-sake-to-visit': openSakeEditor({ visitId: id }); break;
+    case 'edit-sake': openSakeEditor({ sake: sakeById(id) }); break;
+    case 'ask-delete-sake': askDeleteSake(id); break;
+    case 'ask-delete-visit': askDeleteVisit(id); break;
+
+    case 'rec-sample': addSamplePhotos(); break;
+    case 'rec-reset': ui.rec = newRecord(); render(); break;
+    case 'rec-photo-del':
+      syncRecordForm();
+      ui.rec.photos = ui.rec.photos.filter(function (p) { return p.id !== id; });
+      ui.rec.sakes = ui.rec.sakes.filter(function (d) { return d.photoId !== id; });
+      render();
+      break;
+    case 'rec-label': toggleLabel(id); break;
+    case 'rec-venue-pick': {
+      syncRecordForm();
+      var ven = venueById(id);
+      if (ven && ui.rec) {
+        ui.rec.venueId = ven.id;
+        ui.rec.venueName = ven.name;
+        ui.rec.area = ven.area || '';
+        var t = findAttachTarget(ui.rec);
+        ui.rec.attachVisitId = t ? t.id : '';
+      }
+      render();
+      break;
+    }
+    case 'rec-sake-add':
+      syncRecordForm();
+      ui.rec.sakes.push(newDraft(null));
+      render();
+      break;
+    case 'rec-sake-del':
+      syncRecordForm();
+      ui.rec.sakes.splice(i, 1);
+      render();
+      break;
+    case 'rec-rate': setRating(ctx, i, v); break;
+    case 'demo-fill': demoFill(ctx, i); break;
+    case 'ai-read': aiRead(ctx, i); break;
+    case 'rec-save': saveRecord(); break;
+
+    case 'ed-save': saveEditor(); break;
+
+    case 'lb-open': {
+      var vis = visitById(el.getAttribute('data-visit'));
+      if (!vis) break;
+      var list = vis.photos.map(photoSrc);
+      openLightbox(list, parseInt(el.getAttribute('data-p'), 10) || 0);
+      break;
+    }
+    case 'lb-close': closeLightbox(); break;
+    case 'lb-prev': lbMove(-1); break;
+    case 'lb-next': lbMove(1); break;
+
+    case 'grid-layout': ui.grid.layout = +v; ui.grid.sel = ui.grid.sel.slice(0, +v); render(); break;
+    case 'grid-size': ui.grid.size = +v; render(); break;
+    case 'grid-gap': ui.grid.gap = +v; render(); break;
+    case 'grid-toggle': {
+      var pool = gridPool();
+      var p = pool[parseInt(el.getAttribute('data-p'), 10)];
+      if (!p) break;
+      var at = ui.grid.sel.indexOf(p.src);
+      if (at >= 0) ui.grid.sel.splice(at, 1);
+      else if (ui.grid.sel.length >= ui.grid.layout) { toast('최대 ' + ui.grid.layout + '장까지 고를 수 있어요.'); break; }
+      else ui.grid.sel.push(p.src);
+      updateGridSelection();
+      break;
+    }
+    case 'grid-clear': ui.grid.sel = []; render(); break;
+    case 'grid-compose': composeGrid(); break;
+    case 'grid-jpg': if (ui.grid.last) { downloadDataUrl(ui.grid.last.jpg, ui.grid.last.name + '.jpg'); toast('JPG로 저장했어요.'); } break;
+    case 'grid-png':
+      if (ui.grid.last && ui.grid.last.canvas) {
+        downloadDataUrl(ui.grid.last.canvas.toDataURL('image/png'), ui.grid.last.name + '.png');
+        toast('PNG로 저장했어요 (용량이 커요).');
+      }
+      break;
+    case 'grid-share': shareGrid(); break;
+    case 'grid-next': ui.grid.sel = []; closeSheet(); render(); window.scrollTo(0, 0); break;
+
+    case 'export-json': exportJson(); break;
+    case 'restore-seed': askRestoreSeed(); break;
+    case 'wipe-all': askWipe(); break;
+  }
+}
+function onChange(e) {
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var kind = t.getAttribute('data-file');
+  if (kind) {
+    if (kind === 'record') addRecordFiles(t.files);
+    else if (kind === 'grid') addGridFiles(t.files);
+    else if (kind === 'visit') addPhotosToVisit(t.files, t.getAttribute('data-id'));
+    else if (kind === 'import') importJson(t.files[0]);
+    t.value = '';
+    return;
+  }
+  var ds = t.getAttribute('data-set');
+  if (ds) { state.settings[ds] = t.value; saveState(); return; }
+  var field = t.getAttribute('data-input');
+  if (field === 'rec-date') {
+    if (ui.rec) ui.rec.date = t.value;
+    render();
+    return;
+  }
+  if (field === 'rec-attach') {
+    var rec = ui.rec;
+    if (rec) {
+      var tg = findAttachTarget(rec);
+      rec.attachVisitId = t.checked ? (tg ? tg.id : '') : '';
+    }
+  }
+}
+function onInput(e) {
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var ds = t.getAttribute('data-set');
+  if (ds) { state.settings[ds] = t.value; return; }
+  var field = t.getAttribute('data-input');
+  if (!field) return;
+  if (field === 'note-search') {
+    ui.noteQuery = t.value;
+    var list = $('#noteList');
+    if (list) list.innerHTML = noteListHtml();
+    var c = $('#noteCount');
+    if (c) c.textContent = filteredSakes().length + '병';
+    return;
+  }
+  var rec = ui.rec;
+  if (!rec) return;
+  if (field === 'rec-venue') {
+    rec.venueName = t.value;
+    var m = state.venues.filter(function (v) { return v.name === t.value.trim(); })[0];
+    rec.venueId = m ? m.id : '';
+  } else if (field === 'rec-area') rec.area = t.value;
+  else if (field === 'rec-note') rec.note = t.value;
+  else if (field === 'rec-time') rec.time = t.value;
+  else if (field === 'rec-date') rec.date = t.value;
+}
+
+function init() {
+  $$('.tab').forEach(function (b) {
+    b.addEventListener('click', function () { onTabClick(b.getAttribute('data-tab')); });
+  });
+  document.addEventListener('click', onClick);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var el = e.target && e.target.closest ? e.target.closest('[data-act][role="button"]') : null;
+    if (!el) return;
+    e.preventDefault();
+    onClick({ target: el });
+  });
+  document.addEventListener('input', onInput);
+  document.addEventListener('change', onChange);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  setTab('venues');
+}
+function onScroll() {
+  var tb = $('#topbar');
+  if (tb) tb.classList.toggle('scrolled', (window.scrollY || 0) > 3);
+}
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined' && document.getElementById('main')) {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+}
+
+/* 테스트용 노출 (앱 동작과 무관) */
+var __TEST__ = {
+  parseExif: parseExif,
+  haversine: haversine,
+  exifDate: exifDate,
+  fmtKo: fmtKo,
+  dayNum: dayNum,
+  weekdayOf: weekdayOf,
+  starsHtml: starsHtml,
+  seedState: seedState,
+  photoSrc: photoSrc,
+  viewVenues: viewVenues,
+  viewNotes: viewNotes,
+  viewRecord: viewRecord,
+  viewGrid: viewGrid,
+  visitCard: visitCard,
+  sakeCard: sakeCard,
+  draftHtml: draftHtml,
+  filteredSakes: filteredSakes,
+  composeTest: function () { return typeof drawCell === 'function'; }
+};
+</script>
+</body>
+</html>
