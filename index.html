@@ -7,11 +7,11 @@
 <meta name="theme-color" content="#F4F2EC">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="사케 저널">
+<meta name="apple-mobile-web-app-title" content="사케 노트">
 <meta name="format-detection" content="telephone=no">
-<meta name="description" content="스시·사케 기록 앱 데모 — 업장·기록·사진은 모두 예시 데이터입니다.">
+<meta name="description" content="사케 노트 — 스시·사케 기록 앱 데모. 업장·기록·사진은 모두 예시 데이터입니다.">
 <meta name="robots" content="noindex,nofollow">
-<title>사케 저널 · 스시·사케 기록 (데모)</title>
+<title>사케 노트 · 스시·사케 기록 (데모)</title>
 <style>
 :root{
   --bg:#F4F2EC; --bg2:#EAE7DE; --card:#FFFFFF; --ink:#1A1D22; --ink2:#4B5057;
@@ -297,7 +297,7 @@ h4.dt{margin-top:16px}
     <div class="brand">
       <div class="mark">酒</div>
       <div>
-        <h1>사케 저널</h1>
+        <h1>사케 노트</h1>
         <small>스시 · 사케 기록 · DEMO</small>
       </div>
     </div>
@@ -311,7 +311,7 @@ h4.dt{margin-top:16px}
 
   <main id="main" tabindex="-1">
     <div class="view">
-      <div class="vh"><div><h2>사케 저널</h2><p>스시 · 사케 기록</p></div></div>
+      <div class="vh"><div><h2>사케 노트</h2><p>스시 · 사케 기록</p></div></div>
       <div class="empty"><div class="big">酒</div><b>화면을 준비하고 있어요</b><br>
         이 문구가 그대로 보이면 자바스크립트가 꺼진 미리보기예요.<br>Safari나 Chrome에서 열어 주세요.</div>
     </div>
@@ -330,7 +330,7 @@ h4.dt{margin-top:16px}
           <path d="M10 3h4v3.4l1.7 2.3c.2.3.3.7.3 1.1V19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-9.2c0-.4.1-.8.3-1.1L10 6.4V3Z"/>
           <path d="M9 13.5h6"/>
         </svg>
-        <span>사케 노트</span>
+        <span>사케 목록</span>
       </button>
       <button class="tab rec" data-tab="record">
         <span class="recicon">
@@ -359,13 +359,13 @@ h4.dt{margin-top:16px}
 <script>
 'use strict';
 /* =====================================================================
-   사케 저널 — 스시 · 사케 기록 (프로토타입)
+   사케 노트 — 스시 · 사케 기록 (프로토타입)
    단일 파일 모바일 웹앱. 데이터는 브라우저 localStorage에만 저장됩니다.
    ===================================================================== */
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.1.0';
+var APP_VERSION = '0.2.0';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -498,7 +498,7 @@ function seedState() {
 
   return {
     version: 1,
-    settings: { provider: 'anthropic', apiKey: '', model: '', seeded: true },
+    settings: { provider: 'anthropic', apiKey: '', model: '', kakaoKey: '', seeded: true },
     venues: [
       { id: 'v1', name: '스시 샘플점', area: '강남', address: '서울 강남구 테헤란로 (예시 주소)', lat: gpsA.lat, lng: gpsA.lng, memo: '데모 셰프 · 6석 · 적초 샤리', sample: true },
       { id: 'v2', name: '사케 바 샘플', area: '서초', address: '', lat: gpsB.lat, lng: gpsB.lng, memo: '데모 · 스트릿 다이닝', sample: true },
@@ -577,6 +577,7 @@ function normalizeState(s) {
   if (typeof s.settings.provider !== 'string') s.settings.provider = 'anthropic';
   if (typeof s.settings.apiKey !== 'string') s.settings.apiKey = '';
   if (typeof s.settings.model !== 'string') s.settings.model = '';
+  if (typeof s.settings.kakaoKey !== 'string') s.settings.kakaoKey = '';
   s.visits.forEach(function (v) { v.photos = v.photos || []; });
   return s;
 }
@@ -919,7 +920,7 @@ function viewVenues() {
   return h;
 }
 
-/* ------------------------------ 사케 노트 ------------------------------ */
+/* ------------------------------ 사케 목록 ------------------------------ */
 function gradeChips() {
   var present = {};
   state.sakes.forEach(function (s) { present[s.grade || '기타'] = (present[s.grade || '기타'] || 0) + 1; });
@@ -988,7 +989,7 @@ function noteListHtml() {
 }
 function viewNotes() {
   var h = '<div class="view">';
-  h += '<div class="vh"><div><h2>사케 노트</h2><p>마신 술, 등급과 시음 메모</p></div>' +
+  h += '<div class="vh"><div><h2>사케 목록</h2><p>마신 술, 등급과 시음 메모</p></div>' +
     '<button class="btn sm ghost" data-act="add-sake">+ 사케</button></div>';
   h += '<div class="search">' + ICON.search +
     '<input id="noteSearch" type="search" placeholder="이름 · 양조장 · 메모 검색" value="' + esc(ui.noteQuery) + '" data-input="note-search"></div>';
@@ -1003,8 +1004,8 @@ function viewNotes() {
 /* ------------------------------ 기록 ------------------------------ */
 function newRecord() {
   return {
-    photos: [], date: todayYmd(), time: '', venueName: '', venueId: '', area: '',
-    note: '', lat: null, lng: null, attachVisitId: '', sakes: []
+    photos: [], date: todayYmd(), time: '', venueName: '', venueId: '', area: '', address: '',
+    note: '', lat: null, lng: null, venueLat: null, venueLng: null, attachVisitId: '', sakes: []
   };
 }
 function newDraft(photo) {
@@ -1120,7 +1121,7 @@ function viewRecord() {
   h += '<label class="drop"><input type="file" accept="image/*" multiple data-file="record">' + ICON.camera +
     '<b>사진 선택</b><span>여러 장 한 번에 고를 수 있어요</span></label>';
   h += '<div class="row" style="margin-top:8px;gap:8px"><button class="btn sm ghost" data-act="rec-sample">샘플로 체험</button>' +
-    '<span class="tiny" style="flex:1">사진의 촬영일·GPS를 읽어 업장을 묶습니다</span></div>';
+    '<span class="tiny" style="flex:1">사진의 촬영일·GPS로 업장을 찾고, 처음 가는 곳은 주변 업장을 추천합니다</span></div>';
   if (rec.photos.length) h += photoRows(rec);
   h += '</section>';
 
@@ -1142,7 +1143,9 @@ function viewRecord() {
   h += '<div class="field"><label>업장 이름</label><input class="input" id="rec-venue" data-input="rec-venue" list="venueList" placeholder="예) 스시 샘플점" value="' + esc(rec.venueName) + '"></div>';
   h += '<datalist id="venueList">' + state.venues.map(function (v) { return '<option value="' + esc(v.name) + '"></option>'; }).join('') + '</datalist>';
   h += '<div class="field"><label>지역 (선택)</label><input class="input" data-input="rec-area" placeholder="예) 서초" value="' + esc(rec.area) + '"></div>';
+  h += '<div class="field"><label>주소 (선택)</label><input class="input" data-input="rec-address" placeholder="예) 서울 서초구 서초대로 123" value="' + esc(rec.address) + '"></div>';
   h += venueSuggestions(rec);
+  h += nearbyBlock(rec);
   h += attachOption(rec);
   h += '<div class="field" style="margin-top:10px"><label>방문 메모</label><textarea class="input" data-input="rec-note" placeholder="코스 구성, 동행, 그날의 인상">' + esc(rec.note) + '</textarea></div>';
   h += '</section>';
@@ -1259,6 +1262,7 @@ function syncRecordForm() {
   var el;
   if ((el = $('#rec-venue'))) rec.venueName = el.value;
   if ((el = $('[data-input="rec-area"]'))) rec.area = el.value;
+  if ((el = $('[data-input="rec-address"]'))) rec.address = el.value;
   if ((el = $('[data-input="rec-note"]'))) rec.note = el.value;
   if ((el = $('[data-input="rec-date"]'))) rec.date = el.value;
   if ((el = $('[data-input="rec-time"]'))) rec.time = el.value;
@@ -1301,6 +1305,8 @@ function refreshRecSuggestions() {
         rec.venueName = near.venue.name;
         rec.venueId = near.venue.id;
         rec.area = near.venue.area || '';
+      } else {
+        startNearbyLookup(rec);
       }
     }
   }
@@ -1381,11 +1387,13 @@ function saveRecord() {
     venue = state.venues.filter(function (v) { return v.name === name; })[0] || null;
   }
   if (!venue) {
-    venue = { id: uid('v'), name: name, area: (rec.area || '').trim(), address: '', lat: rec.lat, lng: rec.lng, memo: '' };
+    venue = { id: uid('v'), name: name, area: (rec.area || '').trim(), address: (rec.address || '').trim(),
+      lat: (rec.venueLat != null ? rec.venueLat : rec.lat), lng: (rec.venueLat != null ? rec.venueLng : rec.lng), memo: '' };
     state.venues.push(venue);
   } else {
     if (rec.lat != null && (venue.lat == null || venue.lat === '')) { venue.lat = rec.lat; venue.lng = rec.lng; }
     if (!venue.area && rec.area) venue.area = rec.area.trim();
+    if (!venue.address && rec.address) venue.address = rec.address.trim();
   }
   var visit = rec.attachVisitId ? visitById(rec.attachVisitId) : null;
   if (!visit) {
@@ -1863,6 +1871,14 @@ function openSettings() {
   h += '<p class="hint">키는 이 브라우저에만 저장되고, 라벨 사진을 그 API로 직접 보냅니다. 키가 없어도 <b>데모 채우기</b>로 전체 흐름을 체험할 수 있어요.</p>';
   h += '</div>';
 
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">위치 · 업장 추론</div>';
+  h += '<div class="card" style="margin-bottom:14px">';
+  h += '<div class="field"><label>카카오 로컬 REST API 키 (선택)</label><input class="input" type="password" data-set="kakaoKey" value="' + esc(s.kakaoKey || '') + '" placeholder="비워 두면 OpenStreetMap으로 찾아요" autocomplete="off"></div>';
+  h += '<p class="hint">사진의 GPS 좌표로 반경 150m 안의 음식점·술집을 찾아 <b>업장 후보</b>로 보여 줍니다.<br>' +
+    '키가 있으면 카카오 로컬로 먼저 찾고, 없거나 실패하면 OpenStreetMap(Overpass·Nominatim)으로 조회해요.<br>' +
+    '외부로 나가는 값은 좌표뿐이고 사진·기록은 보내지 않습니다. 지도 데이터 © OpenStreetMap contributors</p>';
+  h += '</div>';
+
   h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">데이터</div>';
   h += '<div class="card" style="margin-bottom:14px">';
   h += '<div class="row" style="gap:7px"><button class="btn" style="flex:1" data-act="export-json">' + ICON.down + 'JSON 내보내기</button>' +
@@ -1876,7 +1892,7 @@ function openSettings() {
 
   h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">앱 정보</div>';
   h += '<div class="card">';
-  h += '<p class="hint" style="margin:0">사케 저널 v' + APP_VERSION + ' · 프로토타입<br>' +
+  h += '<p class="hint" style="margin:0">사케 노트 v' + APP_VERSION + ' · 프로토타입<br>' +
     '공개 데모 빌드 · 업장·방문·사케 기록은 모두 예시 데이터이고, 사진은 일러스트로 대체되어 있어요.<br>' +
     '사진은 기기 안에서만 처리되고 서버로 보내지 않아요. (AI 라벨 인식을 켜면 라벨 사진만 선택한 API로 전송)<br>' +
     'EXIF 없는 사진은 파일 시각으로 정렬하고, 위치는 직접 고를 수 있어요.</p>';
@@ -1890,7 +1906,7 @@ function exportJson() {
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'sake-journal-' + todayYmd().replace(/-/g, '') + '.json';
+  a.download = 'sake-note-' + todayYmd().replace(/-/g, '') + '.json';
   document.body.appendChild(a);
   a.click();
   setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1500);
@@ -2056,6 +2072,8 @@ function onClick(e) {
       render();
       break;
     }
+    case 'nearby-pick': nearbyPick(i); break;
+    case 'nearby-retry': retryNearby(); break;
     case 'rec-sake-add':
       syncRecordForm();
       ui.rec.sakes.push(newDraft(null));
@@ -2165,6 +2183,7 @@ function onInput(e) {
     var m = state.venues.filter(function (v) { return v.name === t.value.trim(); })[0];
     rec.venueId = m ? m.id : '';
   } else if (field === 'rec-area') rec.area = t.value;
+  else if (field === 'rec-address') rec.address = t.value;
   else if (field === 'rec-note') rec.note = t.value;
   else if (field === 'rec-time') rec.time = t.value;
   else if (field === 'rec-date') rec.date = t.value;
@@ -2219,6 +2238,379 @@ var __TEST__ = {
   filteredSakes: filteredSakes,
   composeTest: function () { return typeof drawCell === 'function'; }
 };
+
+
+/* =====================================================================
+   위치 기반 업장 추론 — 사진 EXIF 좌표로 '처음 가는 업장' 후보 찾기
+   ---------------------------------------------------------------------
+   · 이미 방문한 업장은 기존 기능(200m 이내 자동 선택)이 먼저 처리한다.
+   · 그 밖의 위치는 아래 순서로 주변 업장 후보를 조회한다.
+       1) 설정에 카카오 로컬 REST 키가 있으면 카카오 로컬(음식점 FD6, 150m)
+       2) 키가 없거나 카카오가 실패하면 OpenStreetMap
+          - Overpass API : 반경 150m 음식점·바·이자카야 등 POI
+          - Nominatim    : 역지오코딩(accept-language=ko)으로 동네명
+   · 조회는 전부 비동기이며 실패·타임아웃·오프라인이어도 수동 입력을 막지 않는다.
+   · 외부로 나가는 값은 사진의 좌표뿐이다(사진·기록·개인정보는 보내지 않음).
+   ===================================================================== */
+var NEARBY_RADIUS = 150;
+var OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+var NOMINATIM_REVERSE = 'https://nominatim.openstreetmap.org/reverse';
+var KAKAO_CATEGORY = 'https://dapi.kakao.com/v2/local/search/category.json';
+
+var _nearby = {
+  key: '', loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0
+};
+
+function nearbyKey(lat, lng) {
+  return Number(lat).toFixed(4) + ',' + Number(lng).toFixed(4);
+}
+function nearbyHasNetwork() {
+  return typeof fetch === 'function';
+}
+function nearbyState() {
+  var rec = ui.rec;
+  if (!rec || rec.lat == null || rec.lng == null) return null;
+  return _nearby.key === nearbyKey(rec.lat, rec.lng) ? _nearby : null;
+}
+
+/* ------------------------------ fetch util ------------------------------ */
+function fetchWithTimeout(url, opt, ms) {
+  opt = opt || {};
+  return new Promise(function (resolve, reject) {
+    var settled = false, ctrl = null, timer = null;
+    function finish(fn, arg) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn(arg);
+    }
+    if (typeof AbortController !== 'undefined') {
+      try { ctrl = new AbortController(); opt.signal = ctrl.signal; } catch (e) { ctrl = null; }
+    }
+    timer = setTimeout(function () {
+      try { if (ctrl) ctrl.abort(); } catch (e) { /* noop */ }
+      finish(reject, new Error('timeout'));
+    }, ms || 6000);
+    try {
+      fetch(url, opt).then(function (res) {
+        if (!res || (!res.ok && res.status >= 400)) throw new Error('http ' + (res && res.status));
+        return res.json();
+      }).then(function (json) {
+        finish(resolve, json);
+      }).catch(function (err) {
+        finish(reject, err || new Error('network'));
+      });
+    } catch (e) {
+      finish(reject, e);
+    }
+  });
+}
+
+/* ------------------------------ 카카오 로컬 ------------------------------ */
+function fetchKakao(lat, lng, key) {
+  var url = KAKAO_CATEGORY + '?category_group_code=FD6' +
+    '&x=' + encodeURIComponent(lng) + '&y=' + encodeURIComponent(lat) +
+    '&radius=' + NEARBY_RADIUS + '&sort=distance&size=15';
+  return fetchWithTimeout(url, { headers: { Authorization: 'KakaoAK ' + String(key).trim() } }, 5000)
+    .then(function (json) { return kakaoPlaces(json, lat, lng); });
+}
+function kakaoPlaces(json, lat, lng) {
+  var docs = (json && json.documents) || [];
+  var out = [];
+  docs.forEach(function (d) {
+    var name = String(d.place_name || '').trim();
+    if (!name) return;
+    var plat = parseFloat(d.y), plng = parseFloat(d.x);
+    if (isNaN(plat) || isNaN(plng)) return;
+    var dist = haversine({ lat: lat, lng: lng }, { lat: plat, lng: plng });
+    if (dist != null && dist > NEARBY_RADIUS + 30) return;
+    var road = String(d.road_address_name || '').trim();
+    var addr = road || String(d.address_name || '').trim();
+    out.push({
+      name: name,
+      kind: String(d.category_name || '').split('>').pop().trim(),
+      address: addr,
+      area: kakaoArea(d.address_name || road),
+      lat: plat, lng: plng,
+      dist: dist
+    });
+  });
+  return out;
+}
+function kakaoArea(addr) {
+  var parts = String(addr || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return '';
+  var city = shortCity(parts[0]);
+  var out = [city];
+  for (var i = 1; i < parts.length && out.length < 3; i++) {
+    if (/^\d/.test(parts[i])) break;
+    out.push(parts[i]);
+  }
+  return out.join(' ').trim();
+}
+
+/* ------------------------------ OpenStreetMap ------------------------------ */
+function overpassQuery(lat, lng) {
+  var around = '(around:' + NEARBY_RADIUS + ',' + lat + ',' + lng + ')';
+  return '[out:json][timeout:8];(' +
+    'nwr["amenity"~"^(restaurant|bar|pub|izakaya|sushi|biergarten|food_court)$"]' + around + ';' +
+    'nwr["cuisine"~"sushi|japanese|sake|washoku|izakaya",i]' + around + ';' +
+    ');out center 40;';
+}
+async function fetchOsm(lat, lng) {
+  var body = 'data=' + encodeURIComponent(overpassQuery(lat, lng));
+  var lastErr = null;
+  for (var i = 0; i < OVERPASS_ENDPOINTS.length; i++) {
+    try {
+      var json = await fetchWithTimeout(OVERPASS_ENDPOINTS[i], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      }, i === 0 ? 8000 : 6000);
+      var list = osmPlaces(json, lat, lng);
+      if (list.length) return list;
+      lastErr = new Error('empty');
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('osm failed');
+}
+function osmPlaces(json, lat, lng) {
+  var els = (json && json.elements) || [];
+  var out = [];
+  els.forEach(function (el) {
+    var t = el.tags || {};
+    var name = String(t['name:ko'] || t.name || '').trim();
+    if (!name) return;
+    var plat = (typeof el.lat === 'number') ? el.lat : (el.center && el.center.lat);
+    var plng = (typeof el.lon === 'number') ? el.lon : (el.center && el.center.lon);
+    if (typeof plat !== 'number' || typeof plng !== 'number') return;
+    var dist = haversine({ lat: lat, lng: lng }, { lat: plat, lng: plng });
+    if (dist == null || dist > NEARBY_RADIUS + 30) return;
+    out.push({ name: name, kind: osmKind(t), address: '', area: '', lat: plat, lng: plng, dist: dist });
+  });
+  return out;
+}
+function osmKind(t) {
+  var a = String(t.amenity || ''), c = String(t.cuisine || '').toLowerCase();
+  if (c.indexOf('sushi') >= 0) return '스시';
+  if (c.indexOf('japanese') >= 0) return '일식';
+  if (a === 'izakaya' || c.indexOf('izakaya') >= 0) return '이자카야';
+  if (a === 'bar' || a === 'pub' || a === 'biergarten') return '바';
+  if (a === 'restaurant' || a === 'food_court') return '음식점';
+  return '';
+}
+function fetchReverse(lat, lng) {
+  var url = NOMINATIM_REVERSE + '?format=jsonv2&addressdetails=1&zoom=16&accept-language=ko' +
+    '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng);
+  return fetchWithTimeout(url, { headers: { Accept: 'application/json' } }, 6000)
+    .then(function (json) { return { area: nominatimArea(json), address: nominatimAddress(json) }; });
+}
+function shortCity(s) {
+  return String(s || '').replace(/(특별자치시|특별자치도|특별시|광역시|도)$/, '').trim();
+}
+function nominatimArea(json) {
+  var a = (json && json.address) || {};
+  var city = shortCity(a.city || a.province || a.state || a.town || a.village || '');
+  var district = a.borough || a.city_district || a.county || a.district || '';
+  var dong = a.suburb || a.quarter || a.neighbourhood || a.hamlet || '';
+  var parts = [];
+  [city, district, dong].forEach(function (p) {
+    p = String(p || '').trim();
+    if (p && parts.indexOf(p) < 0) parts.push(p);
+  });
+  return parts.join(' ');
+}
+function nominatimAddress(json) {
+  var a = (json && json.address) || {};
+  var area = nominatimArea(json);
+  var road = String(a.road || '').trim();
+  var no = String(a.house_number || '').trim();
+  if (road) return road + (no ? ' ' + no : '') + (area ? ', ' + area : '');
+  var display = String((json && json.display_name) || '').trim();
+  if (display) return display.split(',').slice(0, 3).join(',').trim();
+  return area;
+}
+
+/* ------------------------------ merge & lookup ------------------------------ */
+function nearbyMerge(places) {
+  var seen = {}, out = [];
+  (places || []).forEach(function (p) {
+    if (!p || !p.name) return;
+    var k = String(p.name).replace(/\s+/g, '').toLowerCase();
+    if (seen[k]) return;
+    seen[k] = 1;
+    out.push(p);
+  });
+  out.sort(function (a, b) {
+    var da = (a.dist == null) ? 1e9 : a.dist, db = (b.dist == null) ? 1e9 : b.dist;
+    return da - db;
+  });
+  return out.slice(0, 8);
+}
+async function lookupNearby(lat, lng) {
+  var revP = fetchReverse(lat, lng).catch(function () { return null; });
+  var places = [], src = '', err = null;
+  var kakaoKey = String((state.settings && state.settings.kakaoKey) || '').trim();
+  if (kakaoKey) {
+    try {
+      var k = await fetchKakao(lat, lng, kakaoKey);
+      if (k && k.length) { places = k; src = '카카오'; }
+    } catch (e) { err = e; }
+  }
+  if (!src) {
+    try {
+      var o = await fetchOsm(lat, lng);
+      places = o;
+      src = 'OpenStreetMap';
+      err = null;
+    } catch (e) { err = err || e; }
+  }
+  var rev = await revP;
+  return {
+    places: nearbyMerge(places),
+    src: src,
+    error: places.length ? '' : (err ? 'network' : 'empty'),
+    area: rev && rev.area ? translateArea(rev.area) : '',
+    address: rev && rev.address ? translateArea(rev.address) : ''
+  };
+}
+/* Nominatim 은 '등촌2동'처럼 숫자가 붙는 경우가 있어 표시만 정리한다(값은 유지) */
+function translateArea(s) {
+  return String(s || '').replace(/\s+/g, ' ').trim();
+}
+
+function startNearbyLookup(rec) {
+  if (!rec || rec.lat == null || rec.lng == null) return;
+  if (!nearbyHasNetwork()) { _nearby.error = 'offline'; return; }
+  var key = nearbyKey(rec.lat, rec.lng);
+  if (_nearby.key === key && (_nearby.loading || (_nearby.done && _nearby.places.length))) return;
+  var lat = rec.lat, lng = rec.lng;
+  _nearby = { key: key, loading: true, done: false, places: [], area: '', address: '', src: '', error: '', at: Date.now() };
+  refreshNearbyUI();
+  lookupNearby(lat, lng).then(function (res) {
+    if (_nearby.key !== key) return;
+    _nearby.loading = false;
+    _nearby.done = true;
+    _nearby.at = Date.now();
+    _nearby.places = res.places || [];
+    _nearby.src = res.src || '';
+    _nearby.error = _nearby.places.length ? '' : res.error;
+    _nearby.area = res.area || '';
+    _nearby.address = res.address || '';
+    refreshNearbyUI();
+  }).catch(function () {
+    if (_nearby.key !== key) return;
+    _nearby.loading = false;
+    _nearby.done = true;
+    _nearby.error = 'network';
+    refreshNearbyUI();
+  });
+}
+function retryNearby() {
+  var rec = ui.rec;
+  if (!rec || rec.lat == null) return;
+  _nearby.key = '';
+  startNearbyLookup(rec);
+}
+
+/* ------------------------------ view ------------------------------ */
+function nearbyBlock(rec) {
+  if (!rec || rec.lat == null || rec.lng == null) return '';
+  return '<div id="nearbyBox" style="margin:2px 0 10px">' + nearbyBoxInner(rec) + '</div>';
+}
+function nearbyBoxInner(rec) {
+  var n = nearbyState();
+  var loading = !n || n.loading;
+  var h = '<div class="row" style="margin-bottom:4px;gap:6px;align-items:baseline">' +
+    '<span class="tiny" style="color:var(--ink2);font-weight:700;letter-spacing:.02em">이 위치 근처 추천 업장</span>' +
+    '<span class="spacer"></span>' +
+    (n && n.src ? '<span class="tiny" style="opacity:.6">' + esc(n.src) + '</span>' : '') + '</div>';
+  h += '<div class="tiny" style="opacity:.65;margin-bottom:5px">' +
+    (n && n.area ? esc(n.area) + ' · ' : '') + '반경 ' + NEARBY_RADIUS + 'm</div>';
+  if (loading) {
+    h += '<div class="tiny" style="opacity:.75">주변 업장을 찾는 중…</div>';
+    return h;
+  }
+  if (!n.places.length) {
+    h += '<div class="tiny" style="opacity:.75">' +
+      (n.error === 'network'
+        ? '주변 업장을 조회하지 못했어요. 이름을 직접 입력해 주세요.'
+        : '반경 ' + NEARBY_RADIUS + 'm 안에서 등록된 업장을 찾지 못했어요. 이름을 직접 입력해 주세요.') +
+      ' <button class="btn sm ghost" data-act="nearby-retry" style="margin-left:4px;padding:4px 8px;font-size:11px">다시 찾기</button>' +
+      '</div>';
+    return h;
+  }
+  h += '<div class="chips" style="padding-bottom:0">';
+  n.places.forEach(function (p, i) {
+    var on = rec && rec.venueName && rec.venueName === p.name;
+    var kind = (p.kind && String(p.name).indexOf(p.kind) < 0) ? p.kind : '';
+    h += '<button class="chip' + (on ? ' on' : '') + '" data-act="nearby-pick" data-i="' + i + '">' +
+      esc(p.name) +
+      (kind ? ' <span style="opacity:.5">' + esc(kind) + '</span>' : '') +
+      (p.dist != null ? ' <span style="opacity:.55">' + distLabel(p.dist) + '</span>' : '') +
+      '</button>';
+  });
+  h += '</div>';
+  h += '<div class="tiny" style="margin-top:5px;opacity:.65">누르면 업장명 · 지역' +
+    (n.address ? ' · 주소' : '') + '가 채워져요</div>';
+  return h;
+}
+function refreshNearbyUI() {
+  var box = document.getElementById('nearbyBox');
+  if (box && ui.rec) { box.innerHTML = nearbyBoxInner(ui.rec); return; }
+  if (ui.tab === 'record') render();
+}
+
+/* ------------------------------ pick ------------------------------ */
+function nearbyPick(i) {
+  var rec = ui.rec;
+  var n = nearbyState();
+  if (!rec || !n) return;
+  var p = n.places[i];
+  if (!p) return;
+  if (typeof syncRecordForm === 'function') syncRecordForm();
+  rec.venueName = p.name;
+  rec.area = p.area || n.area || '';
+  rec.address = p.address || n.address || '';
+  var known = state.venues.filter(function (v) { return v.name === p.name; })[0] || null;
+  rec.venueId = known ? known.id : '';
+  if (known) {
+    if (!rec.area) rec.area = known.area || '';
+    if (!rec.address) rec.address = known.address || '';
+  }
+  if (typeof p.lat === 'number' && typeof p.lng === 'number') {
+    rec.venueLat = p.lat;
+    rec.venueLng = p.lng;
+  }
+  var t = (typeof findAttachTarget === 'function') ? findAttachTarget(rec) : null;
+  rec.attachVisitId = t ? t.id : '';
+  render();
+  toast(p.name + ' · 업장 정보를 채웠어요');
+}
+
+/* 테스트용 노출 (앱 동작과 무관) */
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.nearbyKey = nearbyKey;
+  __TEST__.nearbyBlock = nearbyBlock;
+  __TEST__.nearbyBoxInner = nearbyBoxInner;
+  __TEST__.nearbyPick = nearbyPick;
+  __TEST__.nearbyMerge = nearbyMerge;
+  __TEST__.startNearbyLookup = startNearbyLookup;
+  __TEST__.retryNearby = retryNearby;
+  __TEST__.osmPlaces = osmPlaces;
+  __TEST__.osmKind = osmKind;
+  __TEST__.kakaoPlaces = kakaoPlaces;
+  __TEST__.kakaoArea = kakaoArea;
+  __TEST__.nominatimArea = nominatimArea;
+  __TEST__.nominatimAddress = nominatimAddress;
+  __TEST__.nearbyState = function () { return _nearby; };
+  __TEST__.nearbyReset = function () {
+    _nearby = { key: '', loading: false, done: false, places: [], area: '', address: '', src: '', error: '', at: 0 };
+  };
+}
 </script>
 </body>
 </html>
