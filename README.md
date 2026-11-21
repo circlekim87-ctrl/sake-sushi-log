@@ -4,8 +4,9 @@
 개인정보·실제 사진이 전혀 남지 않도록 비식별 처리한 버전이다.
 
 - 앱 버전: **v1.0.0** (정식 배포) — 설정 › 앱 정보에 `사케 노트 v1.0.0` / English `Sake Note v1.0.0` / 日本語 `酒ノート v1.0.0` 로 표시
-- 산출물: `index.html` (약 425KB) + 앱 아이콘 `icon-512.png` · `icon-180.png` · `icon-32.png`
+- 산출물: `index.html` (약 463KB) + 앱 아이콘 `icon-512.png` · `icon-180.png` · `icon-32.png`
 - 서버 설정(1회): `supabase-setup.sql` — Supabase SQL Editor 에 붙여 넣고 실행(테이블·RLS·사진 버킷)
+- 관리자 인사이트 설정(1회): `supabase-admin-insights.sql` — 같은 SQL Editor 에서 실행(관리자 명단·집계 함수)
 - 빌드: `python3 build.py`  (원본 소스는 읽기만 하며 수정하지 않는다)
 - 아이콘: `python3 make_icons.py`  (원본 아이콘의 베지 배경을 채워 불투명 정사각형으로 만들고 512/180/32px 생성)
 - 검증: `python3 test_public.py` (HTML 구조·개인정보 감사·QuickJS 단위 테스트 — Gemini 요청/응답·키 접힘 포함)
@@ -23,6 +24,8 @@
 - 주종·업장 기록 검증: `python3 verify_categories.py` (사케·와인·전통주·위스키 주종 카드·분류별 섹션·
   주종 배지·주종별 입력 폼·AI 라벨 인식의 주종 판별, 업장을 누르면 열리는 날짜별 기록(음식 사진·메모 +
   마신 주류 배지·이름·스타일·별점), 320px 폭, 한/영/일 — 스크린샷 `70`~`84`)
+- 관리자 인사이트 검증: `python3 verify_cloud.py` 의 `a1`~`a3` 스크린샷 + `python3 verify_admin_sql.py`
+  (집계 함수 응답이 정상 객체면 카드·시트 노출, null·403·404 면 아무것도 그리지 않음까지 확인)
 - 사전 점검(개발용): `python3 i18n_coverage.py` (화면에 그린 한국어 문구가 모두 번역되는지, 자리표시자 불일치가 없는지)
 - 배포: `https://sakenoteproject.vercel.app/` (Vercel 프로덕션 — 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 커밋을 자동 배포)
 - 예비 주소: `https://circlekim87-ctrl.github.io/sake-sushi-log/` (같은 저장소의 GitHub Pages)
@@ -92,6 +95,29 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
    이 설정이 없으면 확인·재설정·매직링크 메일이 `localhost` 로 돌아가 링크가 동작하지 않는다.
 3. (선택) **Authentication → Emails**: 기본 메일 발송은 시간당 횟수 제한이 있어, 여러 번 시험하면
    `메일을 너무 자주 보냈어요` 안내가 뜰 수 있다.
+
+## 관리자 전용 인사이트 (1.0.0+)
+
+앱을 쓰는 사람 전체의 **집계 숫자만** 보는 화면. 관리자 계정으로 로그인했을 때만 설정 › **클라우드 · 계정**
+아래에 `📊 관리자 인사이트` 카드가 나타난다.
+
+- **관리자 판별은 서버가 한다.** 앱은 로그인 뒤 `POST /rest/v1/rpc/sake_note_admin_insights` 를 조용히 한 번 부르고,
+  - 정상 JSON(집계 객체)이 오면 → 카드·인사이트 시트를 그린다.
+  - `null`(관리자 아님) · 403 · 404(SQL 을 아직 실행하지 않음) · 오류 → **아무것도 그리지 않는다**(안내창·토스트 없음).
+  코드에는 관리자 이메일 같은 값이 하나도 없다(공개 저장소).
+- **보여 주는 것**(인사이트 시트): 총 가입자(이메일 인증) · 최근 7일 신규 · 최근 7일 활성(24시간 활성 함께) ·
+  클라우드 동기화 계정 · 방문 기록 · 기록한 업장 · 주류 기록 · 저장된 사진(용량) · 주종별 막대(사케·와인·전통주·위스키) ·
+  최근 7일 신규 가입 막대 · `[새로고침]` · 마지막 조회 시각.
+- **보여 주지 않는 것**: 다른 사람의 이메일·업장명·메모·사진 경로·기록 내용. 서버 함수가 숫자와 날짜만 돌려준다.
+
+### Supabase 대시보드에서 할 일 (1회)
+
+1. **SQL Editor** → `supabase-admin-insights.sql` 전체를 붙여 넣고 Run
+   (관리자 명단 `sake_note_admins` + RLS + 집계 함수 `sake_note_admin_insights()`).
+2. 초기 관리자는 **가장 먼저 가입한 계정 1명**이 자동 등록된다(이메일을 SQL 에 적지 않는다).
+   다른 관리자를 더하려면 Authentication › Users 에서 그 사람의 User UID 를 복사해
+   `insert into public.sake_note_admins (user_id) values ('<user-id-uuid>');` 한 줄만 실행한다.
+3. 마지막 `select` 결과에 `sake_note_admins` 행이 1개 이상이면 정상.
 
 ## 위치 기반 업장 추론 (`nearby.js`)
 
@@ -332,6 +358,8 @@ Overpass·Nominatim 응답을 가로채 **기본 5m 후보 → 0건 안내 → 3
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_ui.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_nearby.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_settings_key.py
+LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_cloud.py
+python3 verify_admin_sql.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_gemini.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_i18n.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_stats_brands.py

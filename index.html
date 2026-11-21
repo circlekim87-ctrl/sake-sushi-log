@@ -461,6 +461,41 @@ body[data-tab="grid"] .view{min-height:calc(100vh - 132px)}
 @media (max-width:360px){
   .iconbtn.cloudbtn{width:32px;flex:0 0 32px}
 }
+
+/* --- 1.0.0+: 관리자 인사이트(관리자 계정에만 보임) --- */
+.adminopen{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:1px 0}
+.adminicon{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:var(--gold-soft);
+  border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;font-size:15px}
+.admintext{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.admintext b{font-size:13.5px;font-weight:650;letter-spacing:-.01em;color:var(--navy)}
+.admintext .hint{margin:0;font-size:11px}
+.adminchev{color:#C8C3B6;display:flex;flex:0 0 auto}
+.adgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.adm{padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:var(--shadow)}
+.adml{font-size:10.5px;letter-spacing:.06em;font-weight:700;color:var(--muted)}
+.admv{font-size:21px;font-weight:750;letter-spacing:-.02em;color:var(--navy);margin-top:3px;
+  font-variant-numeric:tabular-nums}
+.adms{font-size:10.5px;color:var(--muted);margin-top:2px}
+.adms b{color:var(--ink2);font-weight:650;font-variant-numeric:tabular-nums}
+.adsec{font-size:10.5px;letter-spacing:.1em;font-weight:700;color:var(--muted);margin:16px 2px 8px}
+.adbar + .adbar{margin-top:9px}
+.adbl{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink2);margin-bottom:5px}
+.adbl b{font-variant-numeric:tabular-nums;color:var(--navy);font-weight:650}
+.adtrack{height:7px;border-radius:4px;background:rgba(27,36,48,.07);overflow:hidden}
+.adtrack i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#A5854F,#C4A87A)}
+.adchart{display:flex;align-items:flex-end;gap:5px;height:104px;padding:4px 2px 0}
+.adcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+.adcb{width:100%;border-radius:4px 4px 0 0;background:rgba(165,133,79,.30);min-height:2px}
+.adcn{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1}
+.adcd{font-size:9.5px;color:var(--muted);line-height:1.25}
+.adcempty{flex:1;font-size:11.5px;color:var(--muted);align-self:center;text-align:center}
+.adactions{display:flex;align-items:center;gap:8px;margin-top:16px}
+.adwhen{flex:1;min-width:0;font-size:11px;color:var(--muted)}
+.adwhen b{color:var(--ink2);font-weight:650}
+@media (max-width:340px){
+  .adgrid{grid-template-columns:1fr}
+  .admv{font-size:19px}
+}
 </style>
 </head>
 <body>
@@ -2446,6 +2481,82 @@ body[data-tab="grid"] .view{min-height:calc(100vh - 132px)}
   "서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.": {
     "en": "Couldn't reach the server. Check your internet connection.",
     "ja": "サーバーに接続できません。インターネット接続を確認してください。"
+  },
+  "관리자 인사이트": {
+    "en": "Admin insights",
+    "ja": "管理者インサイト"
+  },
+  "앱 전체 사용 현황": {
+    "en": "Overall app usage",
+    "ja": "アプリ全体の利用状況"
+  },
+  "집계 숫자만 보여 줍니다. 다른 사람의 기록 내용은 보이지 않아요.": {
+    "en": "Counts only — other people's records are not shown.",
+    "ja": "集計数値のみ表示します。他の人の記録内容は表示されません。"
+  },
+  "총 가입자": {
+    "en": "Total users",
+    "ja": "総登録者"
+  },
+  "이메일 인증": {
+    "en": "Email confirmed",
+    "ja": "メール認証済み"
+  },
+  "최근 7일 신규": {
+    "en": "New (7 days)",
+    "ja": "新規（7日）"
+  },
+  "최근 7일 활성": {
+    "en": "Active (7 days)",
+    "ja": "アクティブ（7日）"
+  },
+  "24시간": {
+    "en": "24 hours",
+    "ja": "24時間"
+  },
+  "클라우드 동기화": {
+    "en": "Cloud synced",
+    "ja": "クラウド同期"
+  },
+  "방문 기록": {
+    "en": "Visit entries",
+    "ja": "訪問の記録"
+  },
+  "기록한 업장": {
+    "en": "Venues logged",
+    "ja": "記録した店舗"
+  },
+  "저장된 사진": {
+    "en": "Photos stored",
+    "ja": "保存された写真"
+  },
+  "주종별 기록": {
+    "en": "By drink type",
+    "ja": "種類別の記録"
+  },
+  "최근 7일 신규 가입": {
+    "en": "New signups · last 7 days",
+    "ja": "新規登録（過去7日）"
+  },
+  "최근 7일 기록이 없어요.": {
+    "en": "No signups in the last 7 days.",
+    "ja": "過去7日の記録はありません。"
+  },
+  "마지막 조회": {
+    "en": "Last updated",
+    "ja": "最終取得"
+  },
+  "새로고침": {
+    "en": "Refresh",
+    "ja": "更新"
+  },
+  "불러오는 중": {
+    "en": "Loading…",
+    "ja": "読み込み中"
+  },
+  "인사이트를 불러오지 못했어요.": {
+    "en": "Could not load the insights.",
+    "ja": "インサイトを読み込めませんでした。"
   }
 }
 </script>
@@ -7808,6 +7919,8 @@ function cloudSettingsHtml() {
     '<button class="btn ghost" style="flex:1" data-act="cloud-pull">클라우드에서 불러오기</button></div>';
   h += '<button class="btn ghost block sm" style="margin-top:7px" data-act="cloud-forgot">비밀번호 재설정 메일</button>';
   h += '</div>';
+  /* 관리자로 확인된 계정에만 붙는다(admin-insights.js). 일반 사용자는 아무것도 안 보인다. */
+  h += adminInsightsCardHtml();
   return h;
 }
 function cloudRefreshSettings() {
@@ -8037,6 +8150,7 @@ function cloudAuthFailMessage(e) {
 /* 로그인 직후: 클라우드에 기록이 있으면 어느 쪽을 쓸지 묻고, 없으면 이 기기 기록을 올린다 */
 async function cloudAfterLogin(showSettings) {
   cloudUpdateBadge();
+  adminInsightsProbe();          /* 관리자면 설정에 📊 카드가 붙는다 — 아니면 조용히 무시 */
   var tok = await cloudToken();
   if (!tok) return;
   var r = await cloudRemoteData(tok);
@@ -8184,6 +8298,7 @@ function cloudOnClick(e) {
       break;
     case 'cloud-signout':
       cloudSignOut().then(function () {
+        adminInsightsReset();      /* 다음에 다른 계정으로 로그인해도 관리자 화면이 남지 않게 */
         toast('로그아웃했어요. 기록은 이 기기에 그대로 있어요.');
         cloudRefreshSettings();
       });
@@ -8259,6 +8374,7 @@ function cloudInit() {
     m.email = cloudEmail();
     cloudMetaWrite();
     cloudUpdateBadge();
+    if (cloudSignedIn()) adminInsightsProbe();
     if (typeof setTimeout !== 'undefined') setTimeout(function () { cloudSync(true); }, 1200);
   }).catch(function () { /* ignore */ });
 }
@@ -8290,6 +8406,258 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.cloudSettingsHtml = cloudSettingsHtml;
   __TEST__.cloudRedirect = cloudRedirect;
   __TEST__.cloudAuthFailMessage = cloudAuthFailMessage;
+}
+
+
+/* =====================================================================
+   관리자 인사이트 (1.0.0+)
+   ---------------------------------------------------------------------
+   · 앱 전체 사용 현황의 '집계 숫자'만 보여 준다. 관리자 판별은 서버가 한다:
+     로그인한 앱이 POST /rest/v1/rpc/sake_note_admin_insights 를 조용히 호출하고,
+       - 정상 JSON(집계 객체) → 관리자로 보고 설정 › 클라우드 · 계정 아래에 카드
+       - null(비관리자) · 403 · 404(SQL 전) · 오류 → 아무것도 그리지 않는다
+         (안내창·토스트도 띄우지 않는다. 일반 사용자는 이 기능이 있는지도 모른다.)
+   · 이 파일에는 관리자 이메일·계정 정보를 적지 않는다(공개 저장소).
+     관리자 명단은 Supabase 의 public.sake_note_admins 테이블에만 있다.
+   · 돌려받는 값은 숫자·날짜뿐이다: 다른 사람의 이메일·업장명·메모·사진 경로는
+     서버 함수가 애초에 돌려주지 않는다.
+   ===================================================================== */
+
+var ADMIN_RPC = '/rest/v1/rpc/sake_note_admin_insights';
+/* state: 'idle'(아직 확인 전) · 'on'(관리자) · 'off'(관리자 아님) */
+var _admin = { state: 'idle', email: '', data: null, at: 0 };
+
+function adminInsightsNum(v, dflt) {
+  var x = Number(v);
+  return isFinite(x) ? x : (dflt || 0);
+}
+/* 화면용 숫자 — 1234 → 1,234 (값은 따로 그려서 언어 사전이 건드리지 않게 한다) */
+function adminInsightsFmt(v) {
+  var x = adminInsightsNum(v);
+  if (Math.abs(x) >= 1000) {
+    return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  return String(x);
+}
+function adminInsightsMB(v) {
+  var x = adminInsightsNum(v);
+  return (Math.round(x * 10) / 10).toFixed(1);
+}
+/* 서버 응답이 '관리자용 집계 객체'인지 — 빈 객체·오류 본문은 관리자로 보지 않는다 */
+function adminInsightsData(b) {
+  if (!b || typeof b !== 'object') return null;
+  if (Object.prototype.toString.call(b) === '[object Array]') return null;
+  if (typeof b.total_users !== 'number' || !isFinite(b.total_users)) return null;
+  if (typeof b.generated_at !== 'string' || !b.generated_at) return null;
+  return b;
+}
+function adminInsightsOn() {
+  return _admin.state === 'on' && !!_admin.data;
+}
+function adminInsightsReset() {
+  _admin = { state: 'idle', email: '', data: null, at: 0 };
+}
+/* 관리자 확인 — 실패는 모두 조용히 넘어간다(일반 사용자에게 흔적을 남기지 않는다) */
+async function adminInsightsCheck(force) {
+  if (typeof cloudSignedIn !== 'function' || !cloudSignedIn()) {
+    adminInsightsReset();
+    return null;
+  }
+  if (!cloudCfgOk()) return null;
+  var email = (typeof cloudEmail === 'function') ? cloudEmail() : '';
+  if (!force && _admin.state !== 'idle' && _admin.email === email) {
+    return adminInsightsOn() ? _admin.data : null;
+  }
+  var tok = '';
+  try { tok = await cloudToken(); } catch (e) { tok = ''; }
+  if (!tok) return null;
+  var r = null;
+  try {
+    r = await cloudFetch(ADMIN_RPC, { method: 'POST', token: tok, body: {}, timeout: 12000 });
+  } catch (e) {
+    r = null;   /* 오프라인 등 — 지금까지의 판정을 지우지 않는다 */
+  }
+  if (!r) return adminInsightsOn() ? _admin.data : null;
+  var d = r.ok ? adminInsightsData(r.body) : null;
+  if (!d && r.ok === false && r.status !== 401 && r.status !== 403 && r.status !== 404 &&
+      r.body && typeof r.body !== 'string') {
+    /* 서버 오류(5xx 등)는 판정을 바꾸지 않는다 */
+    return adminInsightsOn() ? _admin.data : null;
+  }
+  _admin.email = email;
+  _admin.state = d ? 'on' : 'off';
+  _admin.data = d;
+  _admin.at = d ? Date.now() : 0;
+  return d;
+}
+/* 로그인·앱 시작 때 한 번 조용히 확인한다(결과는 다음 설정 화면부터 반영) */
+function adminInsightsProbe() {
+  return adminInsightsCheck(false).then(function (d) {
+    if (d) cloudRefreshSettings();
+    return d;
+  }).catch(function () { return null; });
+}
+
+/* ------------------------------ 화면: 설정 카드 ------------------------------ */
+function adminInsightsCardHtml() {
+  if (!adminInsightsOn()) return '';
+  var h = '<div class="card admincard" style="margin-bottom:14px">';
+  h += '<button class="adminopen" data-act="admin-insights" aria-label="관리자 인사이트">';
+  h += '<span class="adminicon" aria-hidden="true">📊</span>';
+  h += '<span class="admintext"><b>관리자 인사이트</b>';
+  h += '<span class="hint" style="margin:0">앱 전체 사용 현황</span></span>';
+  h += '<span class="adminchev" aria-hidden="true">' + ICON.chev + '</span>';
+  h += '</button>';
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 화면: 인사이트 시트 ------------------------------ */
+function adminInsightsMetric(label, value, sub) {
+  var h = '<div class="adm"><div class="adml">' + esc(label) + '</div>';
+  h += '<div class="admv">' + esc(value) + '</div>';
+  if (sub) h += '<div class="adms">' + sub + '</div>';
+  return h + '</div>';
+}
+function adminInsightsWeek(d) {
+  var w = (typeof I18N_WEEK !== 'undefined' && I18N_WEEK[_lang]) ? I18N_WEEK[_lang] : ['일', '월', '화', '수', '목', '금', '토'];
+  return w[d.getDay()];
+}
+function adminInsightsBodyHtml(d) {
+  var total = adminInsightsNum(d.total_users);
+  var confirmed = adminInsightsNum(d.confirmed_users);
+  var added = adminInsightsNum(d.new_users_7d);
+  var dau = adminInsightsNum(d.active_users_1d);
+  var wau = adminInsightsNum(d.active_users_7d);
+  var synced = adminInsightsNum(d.synced_users);
+  var venues = adminInsightsNum(d.total_venues);
+  var visits = adminInsightsNum(d.total_visits);
+  var drinks = adminInsightsNum(d.total_drinks);
+  var photos = adminInsightsNum(d.total_photos);
+  var mb = adminInsightsNum(d.photo_mb);
+
+  var h = '<p class="hint" style="margin:0 2px 11px">집계 숫자만 보여 줍니다. 다른 사람의 기록 내용은 보이지 않아요.</p>';
+
+  /* 핵심 지표 */
+  h += '<div class="adgrid">';
+  h += adminInsightsMetric('총 가입자', adminInsightsFmt(total),
+    '이메일 인증 <b>' + esc(adminInsightsFmt(confirmed)) + '</b>');
+  h += adminInsightsMetric('최근 7일 신규', adminInsightsFmt(added), '');
+  h += adminInsightsMetric('최근 7일 활성', adminInsightsFmt(wau),
+    '24시간 <b>' + esc(adminInsightsFmt(dau)) + '</b>');
+  h += adminInsightsMetric('클라우드 동기화', adminInsightsFmt(synced), '');
+  h += adminInsightsMetric('방문 기록', adminInsightsFmt(visits), '');
+  h += adminInsightsMetric('기록한 업장', adminInsightsFmt(venues), '');
+  h += adminInsightsMetric('주류 기록', adminInsightsFmt(drinks), '');
+  h += adminInsightsMetric('저장된 사진', adminInsightsFmt(photos),
+    adminInsightsMB(mb) + ' MB');
+  h += '</div>';
+
+  /* 주종별 분포 */
+  var cats = d.drinks_by_category || {};
+  var rows = [
+    { id: 'sake', n: adminInsightsNum(cats.sake) },
+    { id: 'wine', n: adminInsightsNum(cats.wine) },
+    { id: 'traditional', n: adminInsightsNum(cats.traditional) },
+    { id: 'whisky', n: adminInsightsNum(cats.whisky) }
+  ];
+  var catTotal = 0;
+  rows.forEach(function (r) { catTotal += r.n; });
+  h += '<div class="adsec">주종별 기록</div>';
+  h += '<div class="card">';
+  rows.forEach(function (r) {
+    var pct = catTotal > 0 ? Math.round(r.n * 100 / catTotal) : 0;
+    var name = (typeof catDef === 'function') ? catDef(r.id).ko : r.id;
+    h += '<div class="adbar"><div class="adbl"><span>' + esc(name) + '</span>' +
+      '<b>' + esc(adminInsightsFmt(r.n)) + '</b></div>' +
+      '<div class="adtrack"><i style="width:' + pct + '%"></i></div></div>';
+  });
+  h += '</div>';
+
+  /* 최근 7일 신규 가입 */
+  var days = [];
+  if (Object.prototype.toString.call(d.daily_signups) === '[object Array]') {
+    days = d.daily_signups.slice(-7);
+  }
+  var maxN = 1;
+  days.forEach(function (x) { maxN = Math.max(maxN, adminInsightsNum(x && x.count)); });
+  h += '<div class="adsec">최근 7일 신규 가입</div>';
+  h += '<div class="card"><div class="adchart">';
+  if (!days.length) {
+    h += '<div class="adcempty">최근 7일 기록이 없어요.</div>';
+  }
+  days.forEach(function (x) {
+    var c = adminInsightsNum(x && x.count);
+    var ymd = String((x && x.date) || '');
+    var parts = ymd.split('-');
+    var dt = parts.length === 3 ? new Date(+parts[0], (+parts[1]) - 1, +parts[2]) : null;
+    var hgt = Math.max(2, Math.round(c / maxN * 62));
+    h += '<div class="adcol">' +
+      '<div class="adcn">' + esc(adminInsightsFmt(c)) + '</div>' +
+      '<div class="adcb" style="height:' + hgt + 'px"></div>' +
+      '<div class="adcd">' + esc(dt ? adminInsightsWeek(dt) : '') + '</div>' +
+      '<div class="adcd mono">' + esc(parts.length === 3 ? String(+parts[2]) : '') + '</div>' +
+      '</div>';
+  });
+  h += '</div></div>';
+
+  /* 마지막 조회 · 새로고침 */
+  var at = _admin.at ? new Date(_admin.at) : null;
+  var hhmm = at ? (('0' + at.getHours()).slice(-2) + ':' + ('0' + at.getMinutes()).slice(-2)) : '';
+  h += '<div class="adactions"><span class="adwhen">마지막 조회 <b class="mono">' + esc(hhmm) + '</b></span>' +
+    '<button class="btn" data-act="admin-insights-refresh" style="flex:0 0 auto">새로고침</button></div>';
+  return h;
+}
+function adminInsightsSheet() {
+  if (!adminInsightsOn()) return;
+  openSheet(sheetHead('관리자 인사이트') +
+    '<div class="sheetbody" data-admin-body>' + adminInsightsBodyHtml(_admin.data) + '</div>');
+}
+function adminInsightsRefresh() {
+  var btn = null;
+  try { btn = document.querySelector('[data-act="admin-insights-refresh"]'); } catch (e) { btn = null; }
+  if (btn) {
+    btn.textContent = '불러오는 중';
+    if ('disabled' in btn) btn.disabled = true;
+  }
+  return adminInsightsCheck(true).then(function (d) {
+    if (!d) {
+      /* 더 이상 관리자가 아니면 카드도 지운다 */
+      adminInsightsReset();
+      closeSheet();
+      if (typeof openSettings === 'function') openSettings();
+      return;
+    }
+    adminInsightsSheet();
+  }).catch(function () {
+    toast('인사이트를 불러오지 못했어요.');
+    if (typeof adminInsightsSheet === 'function') adminInsightsSheet();
+  });
+}
+
+/* ------------------------------ 이벤트 ------------------------------ */
+function adminInsightsOnClick(e) {
+  var el = e && e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!el) return;
+  var act = el.getAttribute('data-act');
+  if (act === 'admin-insights') { adminInsightsSheet(); return; }
+  if (act === 'admin-insights-refresh') { adminInsightsRefresh(); }
+}
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('click', adminInsightsOnClick);
+}
+
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.adminInsightsData = adminInsightsData;
+  __TEST__.adminInsightsCardHtml = adminInsightsCardHtml;
+  __TEST__.adminInsightsBodyHtml = adminInsightsBodyHtml;
+  __TEST__.adminInsightsFmt = adminInsightsFmt;
+  __TEST__.adminInsightsMB = adminInsightsMB;
+  __TEST__.adminInsightsSet = function (d) {
+    if (!d) { adminInsightsReset(); return; }
+    _admin = { state: 'on', email: 'admin@example.com', data: d, at: Date.UTC(2026, 10, 21, 5, 30) };
+  };
+  __TEST__.adminInsightsState = function () { return _admin.state; };
 }
 
 
