@@ -2,10 +2,12 @@
    api/ai.js — 사케 노트 AI 라벨 인식 프록시 (Vercel 서버리스 함수)
    ---------------------------------------------------------------------
    POST /api/ai
-     body : { imageBase64, mimeType, prompt }
+     body : { imageBase64, mimeType, prompt, lang }
             · imageBase64  라벨 사진의 base64 (data: 접두어 없이)
             · mimeType     image/jpeg · image/png 등 (사진이 있으면 필수)
             · prompt       모델에 보낼 지시문 (선택, 기본 프롬프트가 있다)
+            · lang         앱 언어 'ko' | 'en' | 'ja' (선택, 기본 ko)
+                           — 모든 값이 이 언어로만 나오게 서버가 규칙을 건다
      env  : GEMINI_API_KEY  (Vercel 대시보드 › Settings › Environment Variables)
    ---------------------------------------------------------------------
    · 키는 절대 코드에 넣지 않는다. process.env.GEMINI_API_KEY 만 쓴다.
@@ -39,6 +41,60 @@ var RATE_PER_HOUR = 60;
 var DEFAULT_PROMPT = '이 사진은 주류(사케·와인·전통주·위스키) 병·라벨입니다. 사진에 병이 1병이면 1개, 여러 병이면 보이는 모든 병을 왼쪽부터 순서대로 빠짐없이 담아 JSON 하나로만 답하세요. ' +
   '병마다 어느 주종인지 따로 판단하고(한 사진에 사케와 샴페인이 섞여 있어도 각각 맞게), 읽을 수 있는 정보만 골라 채우세요. 모르면 빈 문자열. ' +
   '형식: {"items":[{"category":"sake|wine|traditional|whisky","name":"","brewery":"생산자·양조장·증류소","grade":"사케 등급 또는 와인·전통주·위스키 종류","vintage":"와인 빈티지 연도","polish":"사케 정미보합 숫자","rice":"사케 주조미·와인 품종·전통주 원료","hiire":"hiire|namachozo|nama|yamahai","age":"위스키 숙성연수","cask":"위스키 캐스크","abv":"도수 숫자","memo":"한 줄 메모"}]}';
+
+/* -------------------------- 출력 언어 강제 --------------------------
+   라벨에는 일본어 한자·가나·영문이 그대로 적혀 있어서, 그대로 두면 한국어 화면에서
+   브랜드가 田酒/덴슈 처럼 갈라지고 등급·주조미가 원문으로 섞인다. 앱은 요청 본문에
+   lang(ko·en·ja)을 싣고, 여기서도 같은 규칙을 프롬프트 끝에 한 번 더 건다 —
+   예전 화면(캐시된 JS)이나 lang 없이 온 요청도 한국어로 나오게 하기 위해서다.
+   프롬프트에 이미 언어 규칙이 들어 있으면(새 화면) 두 번 붙이지 않는다. */
+var LANG_RULES = {
+  ko: '반드시 한국어(한글)로만 답하세요. name·brewery·grade·rice·cask·memo 같은 모든 글자 값은 ' +
+    '라벨에 일본어(한자·히라가나·가타카나)나 영어·프랑스어가 적혀 있어도 원문을 그대로 옮기지 말고, ' +
+    '한국 주류 애호가들이 쓰는 한국어 표기(음차 또는 번역)로 바꿔 쓰세요. ' +
+    '같은 브랜드는 사진 안에서 표기를 하나로 통일하세요(田酒와 田酒 純米大吟醸는 모두 덴슈). ' +
+    '예: 田酒→덴슈, 而今→지콘, 新政→아라마사, 信州亀齢→신슈키레이, 黒龍→코쿠류, 十四代→주욘다이, ' +
+    '獺祭→닷사이, 久保田→쿠보타, 鍋島→나베시마, 純米大吟醸→준마이 다이긴조, 純米吟醸→준마이긴조, ' +
+    '特別純米→특별준마이, 山田錦→야마다니시키, 八反錦→핫타니시키, 雄町→오마치, 火入れ→히이레, ' +
+    '生酛→기모토, 山廃→야마하이, Barrat Masson Les Margannes→바라 마송 레 마르간. ' +
+    '단, category와 hiire는 정해진 영문 코드(sake·wine·traditional·whisky, hiire·namachozo·nama·yamahai) ' +
+    '그대로 쓰고, polish·abv·vintage·age는 숫자만 쓰세요.',
+  en: 'Write every text value (name, brewery, grade, rice, cask, memo) in English. ' +
+    'Even when the label is in Japanese (kanji, hiragana, katakana), Korean or French, ' +
+    'do not copy the original script: use the romanized brand and brewery names and English style names. ' +
+    'Use one spelling per brand across the photo (田酒 and 田酒 純米大吟醸 are both Denshu). ' +
+    'Examples: 田酒→Denshu, 而今→Jikon, 新政→Aramasa, 信州亀齢→Shinshu Kirei, 黒龍→Kokuryu, ' +
+    '十四代→Juyondai, 純米大吟醸→Junmai Daiginjo, 純米吟醸→Junmai Ginjo, 特別純米→Tokubetsu Junmai, ' +
+    '山田錦→Yamadanishiki, 八反錦→Hattanishiki, 火入れ→Hi-ire. ' +
+    'Keep category and hiire as the given codes (sake·wine·traditional·whisky, hiire·namachozo·nama·yamahai) ' +
+    'and write polish·abv·vintage·age as digits only.',
+  ja: 'すべての文字列（name・brewery・grade・rice・cask・memo など）は日本語で書いてください。' +
+    'ラベルが英語・ハングル・フランス語でも原語のまま写さず、日本語の表記に直してください。' +
+    '同じ銘柄は写真の中で表記を一つに統一してください（例：Denshu→田酒、Jikon→而今、' +
+    'Junmai Daiginjo→純米大吟醸、Yamadanishiki→山田錦、Hi-ire→火入れ）。' +
+    'ただし category と hiire は指定のコード（sake・wine・traditional・whisky、' +
+    'hiire・namachozo・nama・yamahai）のまま、polish・abv・vintage・age は数字のみで書いてください。'
+};
+/* 새 화면(aiLangInstruction)이 이미 넣은 규칙인지 보는 표식 — 있으면 다시 붙이지 않는다 */
+var LANG_MARKERS = ['반드시 한국어(한글)로만', 'Write every text value', 'すべての文字列'];
+function normalizeLang(v) {
+  var l = String(v == null ? '' : v).trim().toLowerCase();
+  return (l === 'en' || l === 'ja' || l === 'ko') ? l : 'ko';   // 기본값 한국어
+}
+function hasLangRule(prompt) {
+  var p = String(prompt || '');
+  for (var i = 0; i < LANG_MARKERS.length; i++) {
+    if (p.indexOf(LANG_MARKERS[i]) >= 0) return true;
+  }
+  return false;
+}
+function withLangRule(prompt, lang) {
+  var p = String(prompt == null ? '' : prompt).trim();
+  var rule = LANG_RULES[normalizeLang(lang)];
+  if (!p) return rule;
+  if (hasLangRule(p)) return p;
+  return p + ' ' + rule;
+}
 
 /* ------------------------------ 응답 도우미 ------------------------------ */
 function cors(res) {
@@ -249,7 +305,9 @@ module.exports = async function handler(req, res) {
   }
   var mime = String(body.mimeType || '').trim();
   var b64 = String(body.imageBase64 || '');
-  var prompt = String(body.prompt || '').trim() || DEFAULT_PROMPT;
+  var lang = normalizeLang(body.lang);
+  /* 사진만 왔을 때는 기본 프롬프트, 지시문이 왔으면 앱 언어 규칙을 보태거나 그대로 쓴다 */
+  var prompt = withLangRule(String(body.prompt || '').trim() || DEFAULT_PROMPT, lang);
   try {
     var out = await generate(key, mime, b64, prompt);
     send(res, 200, { ok: true, model: out.model, text: out.text });
@@ -281,4 +339,9 @@ module.exports.__rateLimited = rateLimited;
 module.exports.__validate = validate;
 module.exports.__geminiBody = geminiBody;
 module.exports.__geminiText = geminiText;
+module.exports.__normalizeLang = normalizeLang;
+module.exports.__withLangRule = withLangRule;
+module.exports.__hasLangRule = hasLangRule;
+module.exports.LANG_RULES = LANG_RULES;
+module.exports.DEFAULT_PROMPT = DEFAULT_PROMPT;
 module.exports.GEMINI_MODELS = GEMINI_MODELS;

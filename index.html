@@ -3975,7 +3975,7 @@ async function callVision(mediaType, b64) {
   var s = state.settings;
   var prompt = '이 사진은 주류(사케·와인·전통주·위스키) 병·라벨입니다. 사진에 병이 1병이면 1개, 여러 병이면 보이는 모든 병을 왼쪽부터 순서대로 빠짐없이 담아 JSON 하나로만 답하세요. ' +
     '병마다 어느 주종인지 따로 판단하고(한 사진에 사케와 샴페인이 섞여 있어도 각각 맞게), 읽을 수 있는 정보만 골라 채우세요. 모르면 빈 문자열. ' +
-    '형식: {"items":[{"category":"sake|wine|traditional|whisky","name":"","brewery":"생산자·양조장·증류소","grade":"사케 등급 또는 와인·전통주·위스키 종류","vintage":"와인 빈티지 연도","polish":"사케 정미보합 숫자","rice":"사케 주조미·와인 품종·전통주 원료","hiire":"hiire|namachozo|nama|yamahai","age":"위스키 숙성연수","cask":"위스키 캐스크","abv":"도수 숫자","memo":"한 줄 메모"}]}';
+    '형식: {"items":[{"category":"sake|wine|traditional|whisky","name":"","brewery":"생산자·양조장·증류소","grade":"사케 등급 또는 와인·전통주·위스키 종류","vintage":"와인 빈티지 연도","polish":"사케 정미보합 숫자","rice":"사케 주조미·와인 품종·전통주 원료","hiire":"hiire|namachozo|nama|yamahai","age":"위스키 숙성연수","cask":"위스키 캐스크","abv":"도수 숫자","memo":"한 줄 메모"}]}' + aiLangInstruction();
   var res, json, text;
   /* 내 키가 있으면 내 키로, 없으면 기본 서버(/api/ai)로 라벨을 읽는다. */
   if (!aiKey(s) && serverApiOn()) {
@@ -4727,14 +4727,15 @@ function serverError(kind, status, message) {
   e.status = status || 0;
   return e;
 }
-/* /api/ai 호출 — 성공하면 모델이 준 텍스트를 돌려준다(파싱은 parseAiJson). */
+/* /api/ai 호출 — 성공하면 모델이 준 텍스트를 돌려준다(파싱은 parseAiJson).
+   lang 은 앱 언어(ko·en·ja) — 서버가 같은 언어 규칙을 한 번 더 건다. */
 async function callServerAi(mediaType, b64, prompt) {
   var res, text = '', json = null;
   try {
     res = await fetch(SERVER_AI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64: b64, mimeType: mediaType, prompt: prompt })
+      body: JSON.stringify({ imageBase64: b64, mimeType: mediaType, prompt: prompt, lang: aiLangId() })
     });
   } catch (e) {
     throw serverError('offline', 0, '서버 AI에 연결하지 못했어요.');
@@ -9290,12 +9291,46 @@ weekdayOf = function (s) {
   var w = I18N_WEEK[_lang] || I18N_WEEK.ko;
   return w[fromYmd(s).getDay()];
 };
-/* AI 라벨 인식: 시음 메모를 화면 언어로 받는다(브랜드·등급 값은 그대로) */
-function aiLangHint() {
-  if (_lang === 'en') return ' Write the "memo" field in English.';
-  if (_lang === 'ja') return ' 「memo」は日本語で書いてください。';
-  return '';
+/* ---------------------- AI 라벨 인식: 출력 언어 강제 ----------------------
+   라벨에는 일본어 한자·가나·영문이 그대로 적혀 있어서, 그대로 두면 한국어 화면에서
+   브랜드가 田酒/덴슈 처럼 갈라지고 등급·주조미가 원문으로 섞인다. 그래서 앱 언어와
+   같은 언어로만 값이 나오게 프롬프트 끝에 규칙을 붙이고, /api/ai 에도 같은 lang 을
+   보낸다(서버도 같은 규칙을 한 번 더 건다 — 캐시된 예전 화면도 한국어로 나오게).
+   category·hiire 는 앱이 읽는 코드라 영문 그대로, 숫자 항목은 숫자만 쓰게 한다. */
+var AI_LANG_INSTRUCTIONS = {
+  ko: '반드시 한국어(한글)로만 답하세요. name·brewery·grade·rice·cask·memo 같은 모든 글자 값은 ' +
+    '라벨에 일본어(한자·히라가나·가타카나)나 영어·프랑스어가 적혀 있어도 원문을 그대로 옮기지 말고, ' +
+    '한국 주류 애호가들이 쓰는 한국어 표기(음차 또는 번역)로 바꿔 쓰세요. ' +
+    '같은 브랜드는 사진 안에서 표기를 하나로 통일하세요(田酒와 田酒 純米大吟醸는 모두 덴슈). ' +
+    '예: 田酒→덴슈, 而今→지콘, 新政→아라마사, 信州亀齢→신슈키레이, 黒龍→코쿠류, 十四代→주욘다이, ' +
+    '獺祭→닷사이, 久保田→쿠보타, 鍋島→나베시마, 純米大吟醸→준마이 다이긴조, 純米吟醸→준마이긴조, ' +
+    '特別純米→특별준마이, 山田錦→야마다니시키, 八反錦→핫타니시키, 雄町→오마치, 火入れ→히이레, ' +
+    '生酛→기모토, 山廃→야마하이, Barrat Masson Les Margannes→바라 마송 레 마르간. ' +
+    '단, category와 hiire는 정해진 영문 코드(sake·wine·traditional·whisky, hiire·namachozo·nama·yamahai) ' +
+    '그대로 쓰고, polish·abv·vintage·age는 숫자만 쓰세요.',
+  en: 'Write every text value (name, brewery, grade, rice, cask, memo) in English. ' +
+    'Even when the label is in Japanese (kanji, hiragana, katakana), Korean or French, ' +
+    'do not copy the original script: use the romanized brand and brewery names and English style names. ' +
+    'Use one spelling per brand across the photo (田酒 and 田酒 純米大吟醸 are both Denshu). ' +
+    'Examples: 田酒→Denshu, 而今→Jikon, 新政→Aramasa, 信州亀齢→Shinshu Kirei, 黒龍→Kokuryu, ' +
+    '十四代→Juyondai, 純米大吟醸→Junmai Daiginjo, 純米吟醸→Junmai Ginjo, 特別純米→Tokubetsu Junmai, ' +
+    '山田錦→Yamadanishiki, 八反錦→Hattanishiki, 火入れ→Hi-ire. ' +
+    'Keep category and hiire as the given codes (sake·wine·traditional·whisky, hiire·namachozo·nama·yamahai) ' +
+    'and write polish·abv·vintage·age as digits only.',
+  ja: 'すべての文字列（name・brewery・grade・rice・cask・memo など）は日本語で書いてください。' +
+    'ラベルが英語・ハングル・フランス語でも原語のまま写さず、日本語の表記に直してください。' +
+    '同じ銘柄は写真の中で表記を一つに統一してください（例：Denshu→田酒、Jikon→而今、' +
+    'Junmai Daiginjo→純米大吟醸、Yamadanishiki→山田錦、Hi-ire→火入れ）。' +
+    'ただし category と hiire は指定のコード（sake・wine・traditional・whisky、' +
+    'hiire・namachozo・nama・yamahai）のまま、polish・abv・vintage・age は数字のみで書いてください。'
+};
+/* 앱 언어 → 라벨 인식 언어. ko 가 기본이고, 그 밖의 값은 한국어로 본다. */
+function aiLangId() { return (_lang === 'en' || _lang === 'ja') ? _lang : 'ko'; }
+function aiLangInstruction() {
+  return AI_LANG_INSTRUCTIONS[aiLangId()] || AI_LANG_INSTRUCTIONS.ko;
 }
+/* 예전 이름(메모만 언어 지정) — 지금은 언어별 전체 규칙을 그대로 돌려준다. */
+function aiLangHint() { return aiLangInstruction(); }
 
 if (typeof __TEST__ !== 'undefined') {
   __TEST__.T = T;
@@ -9304,6 +9339,9 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.langField = langField;
   __TEST__.i18nData = function () { return I18N_DATA; };
   __TEST__.aiLangHint = aiLangHint;
+  __TEST__.aiLangId = aiLangId;
+  __TEST__.aiLangInstruction = aiLangInstruction;
+  __TEST__.aiLangInstructions = AI_LANG_INSTRUCTIONS;
   __TEST__.fmtKo = function (s) { return fmtKo(s); };
   __TEST__.fmtMonth = function (s) { return fmtMonth(s); };
   __TEST__.weekdayOf = function (s) { return weekdayOf(s); };
