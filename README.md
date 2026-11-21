@@ -299,6 +299,11 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
 2. Vercel 프로젝트 `sakenoteproject` 가 `main` 의 새 커밋을 자동으로 배포한다 → `https://sakenoteproject.vercel.app/`
 3. 같은 커밋을 GitHub Pages 도 서비스한다 (Settings › Pages › Source: `Deploy from a branch` → `main` / `/ (root)`) → `https://circlekim87-ctrl.github.io/sake-sushi-log/`
 
+첫 실행은 **빈 상태**(업장·방문·주류 기록 0건, 헤더 `DEMO` 표기 없음)로 시작한다.
+저장된 기록이 있으면 그 기록을 그대로 불러온다. 화면 검증용 샘플 기록은 주소 뒤에
+`?demo=1` 을 붙였을 때만 보이며(`샘플로 체험`·`샘플 데이터로 되돌리기` 버튼도 이때만 나온다),
+`test_public.py`·`verify_cloud.py` 등 검증 스크립트는 `?demo=1` 로 연다.
+
 `.nojekyll` 은 필요 없다(밑줄로 시작하는 경로가 없음). `robots.txt` 와
 `<meta name="robots" content="noindex,nofollow">` 로 검색 노출을 막아 두었다.
 
