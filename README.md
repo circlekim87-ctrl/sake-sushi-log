@@ -23,7 +23,8 @@
   주종 배지·주종별 입력 폼·AI 라벨 인식의 주종 판별, 업장을 누르면 열리는 날짜별 기록(음식 사진·메모 +
   마신 주류 배지·이름·스타일·별점), 320px 폭, 한/영/일 — 스크린샷 `70`~`84`)
 - 사전 점검(개발용): `python3 i18n_coverage.py` (화면에 그린 한국어 문구가 모두 번역되는지, 자리표시자 불일치가 없는지)
-- 배포: `https://circlekim87-ctrl.github.io/sake-sushi-log/`
+- 배포: `https://sakenoteproject.vercel.app/` (Vercel 프로덕션 — 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 커밋을 자동 배포)
+- 예비 주소: `https://circlekim87-ctrl.github.io/sake-sushi-log/` (같은 저장소의 GitHub Pages)
 
 ## 원본에서 바꾼 것
 
@@ -84,8 +85,9 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
 1. **SQL Editor** → `supabase-setup.sql` 전체를 붙여 넣고 Run
    (테이블 `sake_note_journals`, RLS 4개 정책, `updated_at` 트리거, 비공개 버킷 `sake-note-photos` + Storage 정책 4개).
 2. **Authentication → URL Configuration**
-   - `Site URL`: `https://circlekim87-ctrl.github.io/sake-sushi-log/`
-   - `Redirect URLs`: 같은 주소 추가 (`.../sake-sushi-log/**` 도 가능)
+   - `Site URL`: `https://sakenoteproject.vercel.app/`
+   - `Redirect URLs`: `https://sakenoteproject.vercel.app/**`
+     (예비 주소 `https://circlekim87-ctrl.github.io/sake-sushi-log/**` 도 함께 넣어 두면 두 주소에서 모두 링크가 돌아온다)
    이 설정이 없으면 확인·재설정·매직링크 메일이 `localhost` 로 돌아가 링크가 동작하지 않는다.
 3. (선택) **Authentication → Emails**: 기본 메일 발송은 시간당 횟수 제한이 있어, 여러 번 시험하면
    `메일을 너무 자주 보냈어요` 안내가 뜰 수 있다.
@@ -291,11 +293,11 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
 · 새 문구(`날짜별 기록 · 최신순` · `그날 먹은 음식` · `마신 주류 {n}병` · `사진 {n}장 · 눌러서 크게 보기`
   · `이 업장만 모아 보기` 등)는 `i18n.json` 에 영어·일본어까지 넣어 `i18n_coverage.py` 미번역 0개를 유지한다.
 
-## 배포 방법 (GitHub Pages)
+## 배포 방법 (Vercel · GitHub Pages)
 
-1. 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 브랜치 루트에 `index.html` 을 올린다.
-2. Settings › Pages › Source: `Deploy from a branch` → `main` / `/ (root)`.
-3. 1~2분 뒤 `https://circlekim87-ctrl.github.io/sake-sushi-log/` 로 열린다.
+1. 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 브랜치 루트에 `index.html` 등 배포 파일을 올린다.
+2. Vercel 프로젝트 `sakenoteproject` 가 `main` 의 새 커밋을 자동으로 배포한다 → `https://sakenoteproject.vercel.app/`
+3. 같은 커밋을 GitHub Pages 도 서비스한다 (Settings › Pages › Source: `Deploy from a branch` → `main` / `/ (root)`) → `https://circlekim87-ctrl.github.io/sake-sushi-log/`
 
 `.nojekyll` 은 필요 없다(밑줄로 시작하는 경로가 없음). `robots.txt` 와
 `<meta name="robots" content="noindex,nofollow">` 로 검색 노출을 막아 두었다.
