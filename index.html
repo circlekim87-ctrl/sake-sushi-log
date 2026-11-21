@@ -434,6 +434,29 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 .vdlist .srow{padding:8px 10px}
 .vdlist .srow .sn b{white-space:normal;display:block}
 .sdline{display:block;margin-bottom:2px;line-height:1}
+
+/* --- 0.7.0: 클라우드 저장 · 계정 --- */
+.iconbtn.cloudbtn{position:relative}
+.iconbtn.cloudbtn.on{color:#4F6B45;border-color:rgba(95,138,87,.36);background:rgba(95,138,87,.10)}
+.iconbtn.cloudbtn.on:after{content:"";position:absolute;right:3px;top:3px;width:7px;height:7px;
+  border-radius:50%;background:#5F8A57;box-shadow:0 0 0 1.5px #F4F2EC}
+.iconbtn.cloudbtn.busy.on:after{background:var(--gold)}
+.cloudState{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px 11px;
+  border:1px solid var(--gold-line);border-radius:11px;background:var(--gold-soft)}
+.cloudState .dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#C8C3B6}
+.cloudState .dot.on{background:#5F8A57}
+.cloudState .lbl{flex:1;min-width:0;font-size:13px;font-weight:650;color:var(--navy);
+  letter-spacing:-.01em;word-break:break-all}
+.cloudpill{font-size:10.5px;font-weight:650;color:#4C5560;background:rgba(255,255,255,.85);
+  border-radius:6px;padding:3px 7px;white-space:nowrap}
+.cloudmsg{margin:2px 2px 10px;padding:9px 11px;border-radius:10px;font-size:12px;line-height:1.45;
+  letter-spacing:-.01em}
+.cloudmsg.err{background:#FBEDEC;color:#8E3B47;border:1px solid #F0D3D1}
+.cloudmsg.ok{background:#EAF0E6;color:#45603C;border:1px solid #D6E3CE}
+.cloudsent{margin:0 2px 8px;font-size:13.5px;font-weight:650;color:var(--navy);word-break:break-all}
+@media (max-width:360px){
+  .iconbtn.cloudbtn{width:32px;flex:0 0 32px}
+}
 </style>
 </head>
 <body>
@@ -446,6 +469,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
         <small>스시 · 사케 기록 · DEMO</small>
       </div>
     </div>
+    <button class="iconbtn cloudbtn" id="cloudBadge" data-act="account" aria-label="클라우드 계정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.6 18.5h8.9a3.5 3.5 0 0 0 .4-6.98A5 5 0 0 0 7.2 10.1 5 3.65 0 0 0 7.6 18.5Z"/></svg></button>
     <button class="iconbtn langbtn" data-act="lang-open" aria-label="언어">KO</button>
     <button class="iconbtn" data-act="settings" aria-label="설정">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -1982,6 +2006,434 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
   "이 업장의 방문": {
     "en": "Visits at this venue",
     "ja": "この店舗の訪問"
+  },
+  "나중에": {
+    "en": "Later",
+    "ja": "あとで"
+  },
+  "로그인": {
+    "en": "Sign in",
+    "ja": "ログイン"
+  },
+  "로그아웃": {
+    "en": "Sign out",
+    "ja": "ログアウト"
+  },
+  "로그인됨": {
+    "en": "Signed in",
+    "ja": "ログイン中"
+  },
+  "회원가입": {
+    "en": "Sign up",
+    "ja": "新規登録"
+  },
+  "가입하기": {
+    "en": "Create account",
+    "ja": "登録する"
+  },
+  "이메일": {
+    "en": "Email",
+    "ja": "メールアドレス"
+  },
+  "비밀번호": {
+    "en": "Password",
+    "ja": "パスワード"
+  },
+  "새 비밀번호": {
+    "en": "New password",
+    "ja": "新しいパスワード"
+  },
+  "새 비밀번호 확인": {
+    "en": "Confirm new password",
+    "ja": "新しいパスワード（確認）"
+  },
+  "비밀번호 바꾸기": {
+    "en": "Change password",
+    "ja": "パスワードを変更"
+  },
+  "비밀번호 찾기": {
+    "en": "Forgot password",
+    "ja": "パスワードを忘れた"
+  },
+  "비밀번호 재설정 메일": {
+    "en": "Password reset email",
+    "ja": "パスワード再設定メール"
+  },
+  "이메일로 로그인": {
+    "en": "Sign in by email",
+    "ja": "メールでログイン"
+  },
+  "로그인 · 회원가입": {
+    "en": "Sign in · Sign up",
+    "ja": "ログイン・新規登録"
+  },
+  "6자 이상": {
+    "en": "6+ characters",
+    "ja": "6文字以上"
+  },
+  "한 번 더": {
+    "en": "Once more",
+    "ja": "もう一度"
+  },
+  "클라우드 · 계정": {
+    "en": "Cloud account",
+    "ja": "クラウド・アカウント"
+  },
+  "클라우드 계정": {
+    "en": "Cloud account",
+    "ja": "クラウドアカウント"
+  },
+  "지금 동기화": {
+    "en": "Sync now",
+    "ja": "今すぐ同期"
+  },
+  "방금 동기화됨": {
+    "en": "Synced just now",
+    "ja": "同期済み"
+  },
+  "동기화 대기 중": {
+    "en": "Waiting to sync",
+    "ja": "同期待ち"
+  },
+  "동기화 중...": {
+    "en": "Syncing...",
+    "ja": "同期中..."
+  },
+  "동기화 실패": {
+    "en": "Sync failed",
+    "ja": "同期に失敗"
+  },
+  "오프라인 · 로컬 저장": {
+    "en": "Offline · saved locally",
+    "ja": "オフライン・端末に保存"
+  },
+  "다른 기기 기록과 다름": {
+    "en": "Differs from another device",
+    "ja": "他の端末と不一致"
+  },
+  "클라우드 설정 대기 중": {
+    "en": "Waiting for cloud setup",
+    "ja": "クラウド設定待ち"
+  },
+  "이 기기 기록 올리기": {
+    "en": "Upload this device's log",
+    "ja": "この端末の記録をアップロード"
+  },
+  "클라우드에서 불러오기": {
+    "en": "Load from cloud",
+    "ja": "クラウドから読み込む"
+  },
+  "클라우드 기록 불러오기": {
+    "en": "Load the cloud log",
+    "ja": "クラウドの記録を読み込む"
+  },
+  "어느 기록을 쓸까요?": {
+    "en": "Which log should we keep?",
+    "ja": "どちらの記録を使いますか？"
+  },
+  "로그인 링크 보내기": {
+    "en": "Send sign-in link",
+    "ja": "ログインリンクを送る"
+  },
+  "재설정 링크 보내기": {
+    "en": "Send reset link",
+    "ja": "リセットリンクを送る"
+  },
+  "확인 메일 보내기": {
+    "en": "Send confirmation email",
+    "ja": "確認メールを送る"
+  },
+  "보내기": {
+    "en": "Send",
+    "ja": "送信"
+  },
+  "올리기": {
+    "en": "Upload",
+    "ja": "アップロード"
+  },
+  "불러오기": {
+    "en": "Load",
+    "ja": "読み込む"
+  },
+  "확인 메일 다시 받기": {
+    "en": "Resend confirmation email",
+    "ja": "確認メールを再送"
+  },
+  "메일을 보냈어요": {
+    "en": "We sent the email",
+    "ja": "メールを送りました"
+  },
+  "재설정 메일을 보냈어요": {
+    "en": "Reset email sent",
+    "ja": "再設定メールを送りました"
+  },
+  "로그인 링크를 보냈어요": {
+    "en": "Sign-in link sent",
+    "ja": "ログインリンクを送りました"
+  },
+  "확인 메일을 보냈어요": {
+    "en": "Confirmation email sent",
+    "ja": "確認メールを送りました"
+  },
+  "확인 메일을 보냈어요.": {
+    "en": "We sent a confirmation email.",
+    "ja": "確認メールを送りました。"
+  },
+  "확인 메일을 다시 보냈어요": {
+    "en": "Confirmation email sent again",
+    "ja": "確認メールを再送しました"
+  },
+  "확인 메일을 보냈어요. 메일의 링크를 누르면 로그인됩니다.": {
+    "en": "We sent a confirmation email. Tap the link in the email to sign in.",
+    "ja": "確認メールを送りました。メールのリンクを押すとログインします。"
+  },
+  "처리 중...": {
+    "en": "Working...",
+    "ja": "処理中..."
+  },
+  "저장 중...": {
+    "en": "Saving...",
+    "ja": "保存中..."
+  },
+  "이 브라우저의 기록을 이 계정에 저장합니다.": {
+    "en": "Saves this browser's log to your account.",
+    "ja": "このブラウザの記録をアカウントに保存します。"
+  },
+  "이 계정으로 로그인한 다른 기기에서도 같은 기록을 볼 수 있어요.": {
+    "en": "Other devices signed in to this account see the same log.",
+    "ja": "このアカウントでログインした他の端末でも同じ記録を見られます。"
+  },
+  "이 계정의 기록·사진을 주고받는 중이에요.": {
+    "en": "Syncing this account's logs and photos.",
+    "ja": "このアカウントの記録と写真を同期しています。"
+  },
+  "바뀐 기록을 곧 올립니다.": {
+    "en": "We'll upload your changes shortly.",
+    "ja": "変更した記録をまもなくアップロードします。"
+  },
+  "Supabase SQL Editor에서 supabase-setup.sql을 한 번 실행하면 클라우드 저장이 켜져요. 그때까지는 이 기기에만 저장됩니다.": {
+    "en": "Run supabase-setup.sql once in the Supabase SQL Editor to turn on cloud saving. Until then it saves on this device only.",
+    "ja": "Supabase SQL Editor で supabase-setup.sql を一度実行するとクラウド保存が有効になります。それまではこの端末にのみ保存されます。"
+  },
+  "동기화하지 못했어요. 인터넷 연결을 확인하고 [지금 동기화]를 눌러 주세요. 기록은 이 기기에 그대로 있습니다.": {
+    "en": "Couldn't sync. Check your connection and tap [Sync now]. Your log is still on this device.",
+    "ja": "同期できませんでした。接続を確認して[今すぐ同期]を押してください。記録はこの端末にあります。"
+  },
+  "다른 기기에서 기록이 바뀌었어요. 덮어쓰지 않으려고 멈춰 뒀습니다. 아래에서 어느 쪽을 남길지 골라 주세요.": {
+    "en": "The log changed on another device. We stopped instead of overwriting. Choose which one to keep below.",
+    "ja": "別の端末で記録が変わりました。上書きしないよう止めています。下でどちらを残すか選んでください。"
+  },
+  "지금은 오프라인이라 이 기기에만 저장하고 있어요. 연결되면 자동으로 올라갑니다.": {
+    "en": "You're offline, so it's saved on this device only. It will upload when you're back online.",
+    "ja": "今はオフラインなのでこの端末にだけ保存しています。つながると自動でアップロードします。"
+  },
+  "이메일과 비밀번호만으로 가입·로그인합니다. 이름·전화번호는 묻지 않아요.": {
+    "en": "Sign up or in with just an email and password. We don't ask for a name or phone number.",
+    "ja": "メールとパスワードだけで登録・ログインします。名前や電話番号は聞きません。"
+  },
+  "로그인하지 않아도 앱은 그대로 쓸 수 있고, 기록은 이 브라우저에 저장됩니다.": {
+    "en": "You can use the app without signing in; the log stays in this browser.",
+    "ja": "ログインしなくてもアプリは使えます。記録はこのブラウザに保存されます。"
+  },
+  "로그인하지 않아도 앱은 그대로 쓸 수 있어요. 기록은 이 브라우저에 저장됩니다.": {
+    "en": "You can use the app without signing in. The log stays in this browser.",
+    "ja": "ログインしなくてもアプリは使えます。記録はこのブラウザに保存されます。"
+  },
+  "가입하면 확인 메일이 가요. 메일의 링크를 누르면 바로 로그인됩니다. 받는 정보는 이메일과 비밀번호뿐입니다.": {
+    "en": "After you sign up we send a confirmation email; tap the link to sign in. We only collect your email and password.",
+    "ja": "登録すると確認メールが届きます。リンクを押すとログインします。受け取る情報はメールとパスワードだけです。"
+  },
+  "아이디(이메일)를 잊었으면 [이메일로 로그인]에 주소를 넣어 확인할 수 있어요. 비밀번호는 [비밀번호 찾기]로 다시 정합니다.": {
+    "en": "If you forget your email, enter an address in [Sign in by email] to check. For the password, use [Forgot password].",
+    "ja": "メールアドレスが分からないときは[メールでログイン]にアドレスを入れて確認できます。パスワードは[パスワードを忘れた]で再設定します。"
+  },
+  "가입한 이메일로 새 비밀번호를 정하는 링크를 보냅니다.": {
+    "en": "We'll email a link to set a new password.",
+    "ja": "登録したメールに新しいパスワードを決めるリンクを送ります。"
+  },
+  "이메일로 로그인 링크를 보냅니다. 비밀번호 없이 바로 들어갈 수 있어요.": {
+    "en": "We'll email you a sign-in link. You can get in without a password.",
+    "ja": "メールでログインリンクを送ります。パスワードなしで入れます。"
+  },
+  "가입 확인 메일을 다시 보냅니다.": {
+    "en": "Resends the sign-up confirmation email.",
+    "ja": "登録確認メールを再送します。"
+  },
+  "메일의 링크를 누르면 비밀번호 없이 로그인됩니다. 링크는 한 번만 쓸 수 있어요.": {
+    "en": "Tap the link in the email to sign in without a password. The link works once.",
+    "ja": "メールのリンクを押すとパスワードなしでログインします。リンクは一度だけ使えます。"
+  },
+  "메일의 링크를 누르면 새 비밀번호를 정하는 화면이 열립니다.": {
+    "en": "Tap the link in the email to open the new-password screen.",
+    "ja": "メールのリンクを押すと新しいパスワードを決める画面が開きます。"
+  },
+  "메일의 링크를 누르면 가입이 확인되고 로그인됩니다.": {
+    "en": "Tap the link in the email to confirm and sign in.",
+    "ja": "メールのリンクを押すと登録が確認され、ログインします。"
+  },
+  "메일이 안 보이면 스팸함도 확인해 주세요. 같은 메일을 너무 자주 보내면 잠시 제한될 수 있어요.": {
+    "en": "If you don't see it, check the spam folder. Sending too many emails in a row can be rate-limited.",
+    "ja": "メールが見当たらなければ迷惑メールも確認してください。同じメールを続けて送ると一時的に制限されることがあります。"
+  },
+  "이 계정의 클라우드 기록과 이 기기의 기록이 모두 있습니다. 어느 쪽을 쓸지 골라 주세요.": {
+    "en": "This account has a cloud log and this device has its own. Choose which one to use.",
+    "ja": "このアカウントのクラウド記録とこの端末の記録の両方があります。どちらを使うか選んでください。"
+  },
+  "다른 기기에서 바뀐 기록이 있어요. 어느 쪽을 남길지 골라 주세요.": {
+    "en": "Another device changed the log. Choose which one to keep.",
+    "ja": "別の端末で記録が変わりました。どちらを残すか選んでください。"
+  },
+  "고르기 전에는 어느 쪽도 지우지 않아요.": {
+    "en": "Nothing is deleted until you choose.",
+    "ja": "選ぶまでどちらも消えません。"
+  },
+  "이 기기: 방문 {n}건 · 주류 {a}병": {
+    "en": "This device: {n} visits · {a} drinks",
+    "ja": "この端末: 訪問{n}件・酒{a}本"
+  },
+  "클라우드: {a}에 저장됨": {
+    "en": "Cloud: saved {a}",
+    "ja": "クラウド: {a} 保存"
+  },
+  "{a} 계정의 새 비밀번호를 정해 주세요.": {
+    "en": "Set a new password for {a}.",
+    "ja": "{a} の新しいパスワードを決めてください。"
+  },
+  "이 브라우저에서는 클라우드 저장을 쓸 수 없어요. 기록은 이 기기에만 저장됩니다.": {
+    "en": "Cloud saving isn't available in this browser. The log is saved on this device only.",
+    "ja": "このブラウザではクラウド保存を使えません。記録はこの端末にだけ保存されます。"
+  },
+  "클라우드에 있는 이 계정의 기록을 이 기기 기록으로 바꿉니다.": {
+    "en": "Replaces this account's cloud log with this device's log.",
+    "ja": "このアカウントのクラウド記録をこの端末の記録に置き換えます。"
+  },
+  "이 기기의 기록을 계정에 저장된 기록으로 바꿉니다. 아직 올리지 않은 이 기기의 변경은 사라져요.": {
+    "en": "Replaces this device's log with the account's saved log. Changes not yet uploaded will be lost.",
+    "ja": "この端末の記録をアカウントの記録に置き換えます。まだアップロードしていない変更は失われます。"
+  },
+  "가입 완료 · 클라우드에 저장합니다.": {
+    "en": "Signed up · saving to the cloud.",
+    "ja": "登録完了・クラウドに保存します。"
+  },
+  "로그인했어요 · {a}": {
+    "en": "Signed in · {a}",
+    "ja": "ログインしました・{a}"
+  },
+  "비밀번호를 바꿨어요 · 로그인됐습니다.": {
+    "en": "Password changed · you're signed in.",
+    "ja": "パスワードを変更しました・ログイン済みです。"
+  },
+  "로그아웃했어요. 기록은 이 기기에 그대로 있어요.": {
+    "en": "Signed out. The log stays on this device.",
+    "ja": "ログアウトしました。記録はこの端末にそのままあります。"
+  },
+  "동기화했어요.": {
+    "en": "Synced.",
+    "ja": "同期しました。"
+  },
+  "동기화하는 중이에요.": {
+    "en": "Syncing...",
+    "ja": "同期しています。"
+  },
+  "이 기기 기록을 계정에 올렸어요.": {
+    "en": "Uploaded this device's log to your account.",
+    "ja": "この端末の記録をアカウントにアップロードしました。"
+  },
+  "이 기기의 기록을 계정에 올렸어요.": {
+    "en": "Uploaded this device's log to your account.",
+    "ja": "この端末の記録をアカウントにアップロードしました。"
+  },
+  "계정의 기록을 불러왔어요.": {
+    "en": "Loaded your account's log.",
+    "ja": "アカウントの記録を読み込みました。"
+  },
+  "다른 기기의 기록을 불러왔어요.": {
+    "en": "Loaded the log from another device.",
+    "ja": "別の端末の記録を読み込みました。"
+  },
+  "클라우드 기록을 불러왔어요.": {
+    "en": "Loaded the cloud log.",
+    "ja": "クラウドの記録を読み込みました。"
+  },
+  "불러올 기록이 없거나 실패했어요.": {
+    "en": "There was nothing to load, or it failed.",
+    "ja": "読み込む記録がないか、失敗しました。"
+  },
+  "동기화하지 못했어요. 잠시 후 다시 시도해 주세요.": {
+    "en": "Couldn't sync. Try again in a moment.",
+    "ja": "同期できませんでした。しばらくしてからもう一度お試しください。"
+  },
+  "올리지 못했어요. 잠시 후 다시 시도해 주세요.": {
+    "en": "Couldn't upload. Try again in a moment.",
+    "ja": "アップロードできませんでした。しばらくしてからもう一度お試しください。"
+  },
+  "불러오지 못했어요. 잠시 후 다시 시도해 주세요.": {
+    "en": "Couldn't load. Try again in a moment.",
+    "ja": "読み込めませんでした。しばらくしてからもう一度お試しください。"
+  },
+  "클라우드 설정 대기 중이에요. SQL을 먼저 실행해 주세요.": {
+    "en": "Waiting for cloud setup. Run the SQL first.",
+    "ja": "クラウド設定待ちです。先に SQL を実行してください。"
+  },
+  "어느 기록을 남길지 골라 주세요.": {
+    "en": "Choose which log to keep.",
+    "ja": "どちらの記録を残すか選んでください。"
+  },
+  "다른 기기에서 기록이 바뀌었어요. 설정에서 어느 쪽을 남길지 골라 주세요.": {
+    "en": "The log changed on another device. Choose which one to keep in Settings.",
+    "ja": "別の端末で記録が変わりました。設定でどちらを残すか選んでください。"
+  },
+  "다시 로그인해 주세요.": {
+    "en": "Please sign in again.",
+    "ja": "もう一度ログインしてください。"
+  },
+  "로그인이 필요해요.": {
+    "en": "Please sign in.",
+    "ja": "ログインが必要です。"
+  },
+  "이메일 주소를 다시 확인해 주세요.": {
+    "en": "Check the email address again.",
+    "ja": "メールアドレスをもう一度確認してください。"
+  },
+  "비밀번호는 6자 이상으로 정해 주세요.": {
+    "en": "Use a password of at least 6 characters.",
+    "ja": "パスワードは6文字以上にしてください。"
+  },
+  "비밀번호가 너무 짧아요. 6자 이상으로 정해 주세요.": {
+    "en": "That password is too short. Use at least 6 characters.",
+    "ja": "パスワードが短すぎます。6文字以上にしてください。"
+  },
+  "두 비밀번호가 서로 달라요.": {
+    "en": "The two passwords don't match.",
+    "ja": "2つのパスワードが一致しません。"
+  },
+  "이메일 또는 비밀번호가 맞지 않아요.": {
+    "en": "The email or password is incorrect.",
+    "ja": "メールアドレスまたはパスワードが違います。"
+  },
+  "이메일 확인이 아직 안 됐어요. 받은 메일의 링크를 누른 뒤 다시 로그인해 주세요.": {
+    "en": "Your email isn't confirmed yet. Tap the link in the email, then sign in again.",
+    "ja": "メールの確認がまだです。届いたメールのリンクを押してから再度ログインしてください。"
+  },
+  "이미 가입된 이메일이에요. 로그인하거나 [이메일로 로그인]을 써 주세요.": {
+    "en": "That email is already registered. Sign in, or use [Sign in by email].",
+    "ja": "すでに登録済みのメールです。ログインするか[メールでログイン]をお使いください。"
+  },
+  "이미 가입된 이메일이에요. 로그인하거나 비밀번호 찾기를 써 주세요.": {
+    "en": "That email is already registered. Sign in, or use Forgot password.",
+    "ja": "すでに登録済みのメールです。ログインするかパスワードを忘れたをお使いください。"
+  },
+  "메일을 너무 자주 보냈어요. 조금 뒤에 다시 시도해 주세요.": {
+    "en": "Too many emails sent. Try again a little later.",
+    "ja": "メールを送りすぎました。少し後でもう一度お試しください。"
+  },
+  "지금은 새 가입을 받지 않아요.": {
+    "en": "Sign-ups are closed right now.",
+    "ja": "現在は新規登録を受け付けていません。"
+  },
+  "서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.": {
+    "en": "Couldn't reach the server. Check your internet connection.",
+    "ja": "サーバーに接続できません。インターネット接続を確認してください。"
   }
 }
 </script>
@@ -1994,7 +2446,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.6.0';
+var APP_VERSION = '0.7.0';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -3847,6 +4299,7 @@ function openSettings() {
   var h = sheetHead('설정');
   h += '<div class="sheetbody">';
   h += langField();
+  h += cloudSettingsHtml();
   h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">AI 주류 라벨 인식</div>';
   h += '<div class="card" style="margin-bottom:14px">';
   h += aiProviderField(s);
@@ -6600,6 +7053,1202 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.venueFoodHtml = venueFoodHtml;
   __TEST__.venueDrinksHtml = venueDrinksHtml;
   __TEST__.venueTotalsBlock = venueTotalsBlock;
+}
+
+
+/* =====================================================================
+   클라우드 저장 · 계정 — Supabase (0.7.0)
+   ---------------------------------------------------------------------
+   · 받는 정보는 이메일과 비밀번호 둘뿐이다. 이름·전화번호는 묻지 않는다.
+   · 로그인하지 않으면 예전처럼 localStorage + IndexedDB 로만 저장된다.
+   · 로그인하면 업장·방문·주류 기록(JSON)을 sake_note_journals 한 행에,
+     사진은 Storage 의 {user_id}/{photo_id}.jpg 에 올린다. 이 기기에 없는
+     사진은 내려받아 IndexedDB 에 캐시한다(한 번 받으면 오프라인에서도 보임).
+   · AI·카카오 API 키는 절대 올리지 않는다(cloudPayload 에서 빼고, 내려받을
+     때도 이 기기에 있던 키를 그대로 둔다).
+   · Supabase 테이블·버킷이 아직 없으면 앱은 깨지지 않고
+     '클라우드 설정 대기 중(로컬 저장 유지)' 으로 남는다.
+   · 아이디·비밀번호는 모두 이메일로 찾는다:
+       비밀번호 찾기 → 재설정 링크 → 새 비밀번호
+       이메일 링크(매직링크) → 비밀번호 없이 로그인
+   원본 소스(sake-journal-src)는 건드리지 않고 build.py 가 이 파일을 덧붙인다.
+   ===================================================================== */
+
+/* Supabase 프로젝트의 공개 클라이언트 키(publishable). 비밀 키가 아니며,
+   모든 테이블·Storage 는 RLS(auth.uid() = user_id)로 본인 행만 열린다. */
+var CLOUD_URL = 'https://zcfuvovgrurfazpwqirw.supabase.co';
+var CLOUD_KEY = 'sb_publishable_ycFCOBNRoUNj9XYk4Zup6g_DOVbU3pv';
+var CLOUD_TABLE = 'sake_note_journals';
+var CLOUD_BUCKET = 'sake-note-photos';
+var CLOUD_PAGE = 'https://circlekim87-ctrl.github.io/sake-sushi-log/';
+var CLOUD_SESSION_KEY = 'sakeNoteSession.v1';
+var CLOUD_META_KEY = 'sakeNoteCloud.v1';
+var CLOUD_PHOTO_MAX = 5242880;      /* 버킷 file_size_limit 5MB */
+var CLOUD_SECRETS = ['apiKey', 'apiKeys', 'kakaoKey'];
+
+var _cloudSession = null;
+var _cloudMeta = null;
+var _cloudBusy = false;
+var _cloudSuppress = false;
+var _cloudForm = { email: '', password: '', password2: '' };
+var _cloudTab = 'in';               /* 'in' 로그인 · 'up' 회원가입 */
+var _cloudMsg = null;               /* {kind:'error'|'ok', text:''} */
+var _cloudTimer = null;
+var _cloudBoot = false;
+
+/* ------------------------------ 작은 도구 ------------------------------ */
+function cloudLsGet(k) {
+  try { return localStorage.getItem(k); } catch (e) { return null; }
+}
+function cloudLsSet(k, v) {
+  try { localStorage.setItem(k, v); return true; } catch (e) { return false; }
+}
+function cloudLsDel(k) {
+  try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+}
+function cloudHasFetch() {
+  return typeof fetch === 'function';
+}
+function cloudCfgOk() {
+  return !!(CLOUD_URL && CLOUD_KEY && cloudHasFetch());
+}
+/* 링크를 돌아올 주소 — 배포 주소(https)에서 열었으면 그 주소, 로컬 파일이면 배포 주소 */
+function cloudRedirect() {
+  try {
+    var loc = window.location;
+    if (loc && loc.protocol === 'https:') return loc.origin + loc.pathname.replace(/index\.html$/, '');
+  } catch (e) { /* ignore */ }
+  return CLOUD_PAGE;
+}
+function cloudIsEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim());
+}
+
+/* ------------------------------ 세션 ------------------------------ */
+function cloudSessionRead() {
+  if (_cloudSession) return _cloudSession;
+  var raw = cloudLsGet(CLOUD_SESSION_KEY);
+  if (!raw) return null;
+  try {
+    var s = JSON.parse(raw);
+    if (s && s.access_token) _cloudSession = s;
+  } catch (e) { _cloudSession = null; }
+  return _cloudSession;
+}
+function cloudUser() {
+  var s = cloudSessionRead();
+  return (s && s.user) ? s.user : null;
+}
+function cloudEmail() {
+  var u = cloudUser();
+  return (u && u.email) ? u.email : '';
+}
+function cloudSignedIn() {
+  return !!cloudSessionRead();
+}
+function cloudAdoptSession(b) {
+  if (!b || !b.access_token) return null;
+  var u = b.user || {};
+  var prev = _cloudSession || null;
+  _cloudSession = {
+    access_token: b.access_token,
+    refresh_token: b.refresh_token || '',
+    expires_at: Date.now() + ((Number(b.expires_in) || 3600) * 1000),
+    user: { id: u.id || '', email: u.email || '' }
+  };
+  cloudLsSet(CLOUD_SESSION_KEY, JSON.stringify(_cloudSession));
+  /* 다른 계정으로 바뀌었으면 사진 업로드 기록을 새로 센다 */
+  var m = cloudMetaRead();
+  var email = _cloudSession.user.email || '';
+  if (m.email && email && m.email !== email) {
+    m.uploaded = {};
+    m.miss = {};
+    m.lastRemote = '';
+    m.dirtyAt = 0;
+    m.status = 'idle';
+  }
+  m.email = email;
+  cloudMetaWrite();
+  return _cloudSession;
+}
+function cloudDropSession() {
+  _cloudSession = null;
+  cloudLsDel(CLOUD_SESSION_KEY);
+}
+/* 만료 직전이면 refresh_token 으로 조용히 갱신한다. 실패하면 로그인 해제. */
+async function cloudToken() {
+  var s = cloudSessionRead();
+  if (!s) return '';
+  if (s.expires_at && s.expires_at - 60000 > Date.now()) return s.access_token;
+  if (!s.refresh_token) { cloudDropSession(); return ''; }
+  try {
+    var r = await cloudFetch('/auth/v1/token?grant_type=refresh_token',
+      { method: 'POST', body: { refresh_token: s.refresh_token } });
+    if (!r.ok) { cloudDropSession(); return ''; }
+    var next = cloudAdoptSession(r.body);
+    return next ? next.access_token : '';
+  } catch (e) {
+    /* 오프라인 등 — 만료된 토큰이라도 있으면 그대로 시도해 본다 */
+    return s.access_token;
+  }
+}
+
+/* ------------------------------ 메타(동기화 상태) ------------------------------ */
+function cloudMetaRead() {
+  if (_cloudMeta) return _cloudMeta;
+  var raw = cloudLsGet(CLOUD_META_KEY);
+  var m = null;
+  if (raw) { try { m = JSON.parse(raw); } catch (e) { m = null; } }
+  if (!m || typeof m !== 'object') m = {};
+  if (!m.uploaded || typeof m.uploaded !== 'object') m.uploaded = {};
+  if (!m.miss || typeof m.miss !== 'object') m.miss = {};
+  if (typeof m.lastRemote !== 'string') m.lastRemote = '';
+  if (typeof m.status !== 'string') m.status = 'idle';
+  if (typeof m.dirtyAt !== 'number') m.dirtyAt = 0;
+  if (typeof m.email !== 'string') m.email = '';
+  _cloudMeta = m;
+  return _cloudMeta;
+}
+function cloudMetaWrite() {
+  var m = cloudMetaRead();
+  cloudLsSet(CLOUD_META_KEY, JSON.stringify(m));
+}
+function cloudStatus() {
+  return cloudMetaRead().status || 'idle';
+}
+function cloudSetStatus(st, msg) {
+  var m = cloudMetaRead();
+  m.status = st;
+  m.message = msg || '';
+  cloudMetaWrite();
+  cloudUpdateBadge();
+}
+function cloudStatusText() {
+  var st = cloudStatus();
+  if (st === 'syncing') return '동기화 중...';
+  if (st === 'synced') return '방금 동기화됨';
+  if (st === 'pending') return '동기화 대기 중';
+  if (st === 'setup') return '클라우드 설정 대기 중';
+  if (st === 'conflict') return '다른 기기 기록과 다름';
+  if (st === 'error') return '동기화 실패';
+  if (st === 'offline') return '오프라인 · 로컬 저장';
+  return '로그인됨';
+}
+function cloudStatusHint() {
+  var st = cloudStatus();
+  if (st === 'setup') return 'Supabase SQL Editor에서 supabase-setup.sql을 한 번 실행하면 클라우드 저장이 켜져요. 그때까지는 이 기기에만 저장됩니다.';
+  if (st === 'error') return '동기화하지 못했어요. 인터넷 연결을 확인하고 [지금 동기화]를 눌러 주세요. 기록은 이 기기에 그대로 있습니다.';
+  if (st === 'conflict') return '다른 기기에서 기록이 바뀌었어요. 덮어쓰지 않으려고 멈춰 뒀습니다. 아래에서 어느 쪽을 남길지 골라 주세요.';
+  if (st === 'offline') return '지금은 오프라인이라 이 기기에만 저장하고 있어요. 연결되면 자동으로 올라갑니다.';
+  if (st === 'syncing') return '이 계정의 기록·사진을 주고받는 중이에요.';
+  if (st === 'pending') return '바뀐 기록을 곧 올립니다.';
+  if (st === 'synced') return '이 계정으로 로그인한 다른 기기에서도 같은 기록을 볼 수 있어요.';
+  return '이 브라우저의 기록을 이 계정에 저장합니다.';
+}
+
+/* ------------------------------ HTTP ------------------------------ */
+async function cloudFetch(path, opts) {
+  opts = opts || {};
+  var headers = { apikey: CLOUD_KEY };
+  if (opts.token) headers.Authorization = 'Bearer ' + opts.token;
+  var init = { method: opts.method || 'GET', headers: headers };
+  if (opts.rawBody !== undefined) {
+    init.body = opts.rawBody;
+    if (!headers['Content-Type'] && opts.contentType) headers['Content-Type'] = opts.contentType;
+  } else if (opts.body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(opts.body);
+  }
+  if (opts.headers) {
+    Object.keys(opts.headers).forEach(function (k) { headers[k] = opts.headers[k]; });
+  }
+  var ctl = null, timer = null;
+  if (typeof AbortController !== 'undefined') {
+    try {
+      ctl = new AbortController();
+      init.signal = ctl.signal;
+      timer = setTimeout(function () { try { ctl.abort(); } catch (e) { /* ignore */ } },
+        opts.timeout || 20000);
+    } catch (e) { ctl = null; }
+  }
+  try {
+    var res = await fetch(CLOUD_URL + path, init);
+    if (opts.binary) {
+      var blob = null;
+      if (res.ok) { try { blob = await res.blob(); } catch (e) { blob = null; } }
+      return { ok: res.ok, status: res.status, blob: blob, body: null };
+    }
+    var text = '';
+    try { text = await res.text(); } catch (e) { text = ''; }
+    var body = null;
+    if (text) { try { body = JSON.parse(text); } catch (e2) { body = text; } }
+    return { ok: res.ok, status: res.status, body: body };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+function cloudErrorInfo(r) {
+  var b = (r && r.body) || {};
+  if (typeof b === 'string') return { code: '', msg: b };
+  var code = b.error_code || b.code || '';
+  var msg = b.msg || b.message || b.error_description || b.error || '';
+  if (!msg && r && r.status) msg = 'HTTP ' + r.status;
+  return { code: String(code || ''), msg: String(msg || '') };
+}
+function cloudErr(r) {
+  var t = cloudErrorInfo(r);
+  var e = new Error(t.msg || ('HTTP ' + (r && r.status)));
+  e.code = t.code;
+  e.status = r && r.status;
+  return e;
+}
+/* 테이블·버킷이 아직 없는 상태(설정 대기)인가 */
+function cloudIsSetupMissing(r) {
+  if (!r) return false;
+  var t = cloudErrorInfo(r);
+  if (r.status === 404) return true;
+  return t.code === 'PGRST205' || t.code === '42P01' || t.code === 'NoSuchBucket' ||
+    /schema cache|does not exist|Bucket not found|relation .* not found/i.test(t.msg);
+}
+
+/* ------------------------------ Auth ------------------------------ */
+async function cloudSignUp(email, password) {
+  var r = await cloudFetch('/auth/v1/signup', { method: 'POST', body: { email: email, password: password } });
+  if (!r.ok) throw cloudErr(r);
+  var b = r.body || {};
+  if (b.access_token && b.refresh_token) {
+    cloudAdoptSession(b);
+    return { session: true };
+  }
+  var u = b.user || b;
+  return {
+    session: false,
+    exists: !!(u && u.identities && u.identities.length === 0)
+  };
+}
+async function cloudSignIn(email, password) {
+  var r = await cloudFetch('/auth/v1/token?grant_type=password',
+    { method: 'POST', body: { email: email, password: password } });
+  if (!r.ok) throw cloudErr(r);
+  cloudAdoptSession(r.body);
+  return r.body;
+}
+async function cloudSignOut() {
+  var s = cloudSessionRead();
+  if (s) {
+    try { await cloudFetch('/auth/v1/logout', { method: 'POST', token: s.access_token }); } catch (e) { /* ignore */ }
+  }
+  cloudDropSession();
+  var m = cloudMetaRead();
+  m.status = 'idle';
+  m.lastRemote = '';
+  m.dirtyAt = 0;
+  cloudMetaWrite();
+  cloudUpdateBadge();
+}
+/* 비밀번호 재설정 메일 — 링크를 누르면 이 앱으로 돌아온다(PASSWORD_RECOVERY) */
+async function cloudSendReset(email) {
+  var r = await cloudFetch('/auth/v1/recover?redirect_to=' + encodeURIComponent(cloudRedirect()),
+    { method: 'POST', body: { email: email } });
+  if (!r.ok) throw cloudErr(r);
+  return true;
+}
+/* 이메일 링크(매직링크) — 비밀번호 없이 로그인. 가입 여부도 이 메일로 확인된다. */
+async function cloudSendOtp(email) {
+  var r = await cloudFetch('/auth/v1/otp?redirect_to=' + encodeURIComponent(cloudRedirect()),
+    { method: 'POST', body: { email: email, create_user: true } });
+  if (!r.ok) throw cloudErr(r);
+  return true;
+}
+async function cloudResendSignup(email) {
+  var r = await cloudFetch('/auth/v1/resend?redirect_to=' + encodeURIComponent(cloudRedirect()),
+    { method: 'POST', body: { type: 'signup', email: email } });
+  if (!r.ok) throw cloudErr(r);
+  return true;
+}
+async function cloudUpdatePassword(password) {
+  var tok = await cloudToken();
+  if (!tok) throw new Error('로그인이 필요해요.');
+  var r = await cloudFetch('/auth/v1/user', { method: 'PUT', token: tok, body: { password: password } });
+  if (!r.ok) throw cloudErr(r);
+  return r.body;
+}
+
+/* ------------------------------ 데이터 주고받기 ------------------------------ */
+/* 클라우드에 올릴 기록 — 사진 바이너리·API 키는 뺀다 */
+function cloudPayload() {
+  var st = state || {};
+  var src = st.settings || {};
+  var settings = {};
+  Object.keys(src).forEach(function (k) {
+    if (CLOUD_SECRETS.indexOf(k) >= 0) return;
+    settings[k] = src[k];
+  });
+  return {
+    app: 'sake-note',
+    version: (typeof APP_VERSION === 'string' ? APP_VERSION : ''),
+    savedAt: new Date().toISOString(),
+    settings: settings,
+    venues: (st.venues || []).map(function (v) { return JSON.parse(JSON.stringify(v)); }),
+    visits: (st.visits || []).map(function (v) {
+      var o = {};
+      Object.keys(v).forEach(function (k) { o[k] = v[k]; });
+      o.photos = (v.photos || []).map(cloudPhotoRefOnly);
+      return o;
+    }),
+    sakes: (st.sakes || []).map(function (s) {
+      var o = {};
+      Object.keys(s).forEach(function (k) { o[k] = s[k]; });
+      if (s.photo) o.photo = cloudPhotoRefOnly(s.photo);
+      return o;
+    })
+  };
+}
+/* 사진 한 장의 '참조만' — 바이트는 Storage 로, 기록에는 id 참조만 */
+function cloudPhotoRefOnly(p) {
+  var q = {};
+  if (p == null) return q;
+  if (typeof p === 'string') {
+    q.src = p.indexOf('data:image/') === 0 ? '' : p;
+    return q;
+  }
+  Object.keys(p).forEach(function (k) { if (k !== 'src') q[k] = p[k]; });
+  var s = p.src || '';
+  if (s.indexOf('data:image/') === 0) q.src = p.id ? 'idb:' + p.id : '';
+  else q.src = s;
+  return q;
+}
+/* 기록 안의 사진 객체를 모두 모은다(중복 id 제거) */
+function cloudPhotoRefs() {
+  var seen = {}, out = [];
+  function add(ph) {
+    if (!ph) return;
+    var obj = (typeof ph === 'string') ? { src: ph } : ph;
+    var id = obj.id || '';
+    if (!id) return;
+    if (obj.sample) return;
+    if (seen[id]) return;
+    seen[id] = 1;
+    out.push(obj);
+  }
+  (state.visits || []).forEach(function (v) { (v.photos || []).forEach(add); });
+  (state.sakes || []).forEach(function (s) { if (s.photo) add(s.photo); });
+  return out;
+}
+/* 사진 한 장의 data URL — 세션 메모리(IndexedDB 에서 올라온 값) 우선 */
+function cloudPhotoData(p) {
+  if (!p) return '';
+  var id = p.id || '';
+  if (id && typeof PHOTO_MEM !== 'undefined' && PHOTO_MEM[id]) return PHOTO_MEM[id];
+  var s = (typeof p === 'string') ? p : (p.src || '');
+  if (typeof s === 'string' && s.indexOf('data:image/') === 0) return s;
+  return '';
+}
+function cloudPhotoPath(id) {
+  var u = cloudUser();
+  return (u && u.id ? u.id : 'me') + '/' + id + '.jpg';
+}
+function cloudDataUrlBlob(dataUrl) {
+  return new Promise(function (resolve, reject) {
+    try {
+      var txt = String(dataUrl);
+      var ci = txt.indexOf(',');
+      if (ci < 0) throw new Error('bad data url');
+      var head = txt.slice(0, ci), bin = atob(txt.slice(ci + 1));
+      var mime = (head.match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], { type: mime }));
+    } catch (e) { reject(e); }
+  });
+}
+function cloudBlobDataUrl(blob) {
+  return new Promise(function (resolve, reject) {
+    try {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(fr.result); };
+      fr.onerror = function () { reject(fr.error || new Error('read-fail')); };
+      fr.readAsDataURL(blob);
+    } catch (e) { reject(e); }
+  });
+}
+/* 사진 올리기 — 이 기기에 바이트가 있고 아직 안 올린 것만 */
+async function cloudUploadPhotos(tok) {
+  var list = cloudPhotoRefs();
+  var m = cloudMetaRead();
+  var todo = list.filter(function (p) { return p.id && !m.uploaded[p.id]; });
+  var done = 0;
+  for (var i = 0; i < todo.length; i++) {
+    var p = todo[i];
+    var data = cloudPhotoData(p);
+    if (!data) { m.uploaded[p.id] = 'skip'; continue; }
+    var size = Math.round(data.length * 0.75);
+    if (size > CLOUD_PHOTO_MAX) { m.uploaded[p.id] = 'big'; continue; }
+    try {
+      var blob = await cloudDataUrlBlob(data);
+      var r = await cloudFetch('/storage/v1/object/' + CLOUD_BUCKET + '/' + cloudPhotoPath(p.id), {
+        method: 'POST', token: tok, rawBody: blob,
+        contentType: blob.type || 'image/jpeg', headers: { 'x-upsert': 'true' }
+      });
+      if (!r.ok) {
+        if (cloudIsSetupMissing(r)) { m.setup = 'photo'; m['photoError'] = cloudErrorInfo(r).msg; cloudMetaWrite(); return done; }
+        m['photoError'] = cloudErrorInfo(r).msg;
+        continue;
+      }
+      m.uploaded[p.id] = 1;
+      delete m.miss[p.id];
+      done++;
+    } catch (e) {
+      m['photoError'] = (e && e.message) || 'upload-fail';
+      break;
+    }
+  }
+  cloudMetaWrite();
+  return done;
+}
+/* 사진 내려받기 — 이 기기에 없는 사진을 Storage 에서 받아 IndexedDB 에 캐시 */
+async function cloudDownloadPhotos(tok) {
+  var list = cloudPhotoRefs();
+  var m = cloudMetaRead();
+  var todo = list.filter(function (p) {
+    if (!p.id) return false;
+    if (typeof PHOTO_MEM !== 'undefined' && PHOTO_MEM[p.id]) return false;
+    var src = p.src || '';
+    if (src.indexOf('seed:') === 0) return false;
+    if (m.miss[p.id]) return false;
+    return true;
+  });
+  var got = 0;
+  for (var i = 0; i < todo.length; i++) {
+    var p = todo[i];
+    try {
+      var r = await cloudFetch('/storage/v1/object/authenticated/' + CLOUD_BUCKET + '/' +
+        cloudPhotoPath(p.id), { token: tok, binary: true });
+      if (!r.ok || !r.blob) {
+        if (r.status === 400 || r.status === 404) m.miss[p.id] = 1;
+        continue;
+      }
+      var data = await cloudBlobDataUrl(r.blob);
+      var ref = await photoStore(p.id, data);
+      if (ref) { p.src = ref; got++; }
+    } catch (e) { /* 한 장 실패는 넘어간다 */ }
+  }
+  cloudMetaWrite();
+  if (got) {
+    _cloudSuppress = true;
+    try { saveState(); } finally { _cloudSuppress = false; }
+    if (typeof render === 'function') render();
+    if (typeof applyI18n === 'function') applyI18n();
+  }
+  return got;
+}
+/* 클라우드 기록 → 이 기기 */
+function cloudApplyRemote(data) {
+  if (!data || !data.venues || !data.visits || !data.sakes) throw new Error('형식이 맞지 않는 기록이에요');
+  var keep = {};
+  var ls = (state && state.settings) ? state.settings : {};
+  CLOUD_SECRETS.forEach(function (k) { if (ls[k] !== undefined) keep[k] = ls[k]; });
+  var next = normalizeState({
+    version: 1,
+    settings: JSON.parse(JSON.stringify(data.settings || {})),
+    venues: data.venues,
+    visits: data.visits,
+    sakes: data.sakes
+  });
+  Object.keys(keep).forEach(function (k) { next.settings[k] = keep[k]; });
+  state = next;
+  _cloudSuppress = true;
+  try { saveState(); } finally { _cloudSuppress = false; }
+  if (typeof render === 'function') render();
+  if (typeof applyI18n === 'function') applyI18n();
+}
+
+/* ------------------------------ 동기화 ------------------------------ */
+function cloudReady() {
+  return cloudCfgOk() && cloudSignedIn();
+}
+function cloudMarkDirty() {
+  if (_cloudSuppress) return;
+  if (!cloudReady()) return;
+  var m = cloudMetaRead();
+  m.dirtyAt = Date.now();
+  if (m.status !== 'setup' && m.status !== 'conflict') m.status = 'pending';
+  cloudMetaWrite();
+  cloudUpdateBadge();
+  cloudSchedule(1400);
+}
+function cloudSchedule(ms) {
+  if (typeof setTimeout === 'undefined') return;
+  if (_cloudTimer) clearTimeout(_cloudTimer);
+  _cloudTimer = setTimeout(function () {
+    _cloudTimer = null;
+    cloudSync();
+  }, ms || 1400);
+}
+/* 서버에 있는 행의 updated_at 만 읽는다 */
+async function cloudRemoteMeta(tok) {
+  var r = await cloudFetch('/rest/v1/' + CLOUD_TABLE + '?select=updated_at&limit=1', { token: tok });
+  if (!r.ok) return { ok: false, missing: cloudIsSetupMissing(r), error: cloudErrorInfo(r).msg };
+  var row = Array.isArray(r.body) ? r.body[0] : null;
+  return { ok: true, updated: row ? String(row.updated_at || '') : '' };
+}
+async function cloudRemoteData(tok) {
+  var r = await cloudFetch('/rest/v1/' + CLOUD_TABLE + '?select=data,updated_at&limit=1', { token: tok });
+  if (!r.ok) return { ok: false, missing: cloudIsSetupMissing(r), error: cloudErrorInfo(r).msg };
+  var row = Array.isArray(r.body) ? r.body[0] : null;
+  if (!row) return { ok: true, empty: true, updated: '', data: null };
+  return { ok: true, empty: false, updated: String(row.updated_at || ''), data: row.data };
+}
+async function cloudPush(force) {
+  if (!cloudReady() || _cloudBusy) return false;
+  _cloudBusy = true;
+  var startedDirty = cloudMetaRead().dirtyAt;
+  cloudSetStatus('syncing');
+  if (typeof cloudRefreshSettings === 'function') cloudRefreshSettings();
+  try {
+    var tok = await cloudToken();
+    if (!tok) { cloudSetStatus('error', '다시 로그인해 주세요.'); return false; }
+    await cloudUploadPhotos(tok);
+    var r = await cloudFetch('/rest/v1/' + CLOUD_TABLE + '?on_conflict=user_id', {
+      method: 'POST', token: tok,
+      headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+      body: [{ user_id: cloudUser().id, data: cloudPayload() }]
+    });
+    if (!r.ok) {
+      if (cloudIsSetupMissing(r)) { cloudSetStatus('setup'); return false; }
+      cloudSetStatus('error', cloudErrorInfo(r).msg);
+      return false;
+    }
+    var row = Array.isArray(r.body) ? r.body[0] : (r.body || {});
+    var m = cloudMetaRead();
+    m.lastRemote = String((row && row.updated_at) || '');
+    m.email = cloudEmail();
+    /* 올리는 동안 또 저장했으면 그 변경은 아직 안 올라간 것이다 — 다시 예약 */
+    if (m.dirtyAt === startedDirty) {
+      m.dirtyAt = 0;
+      cloudMetaWrite();
+      cloudSetStatus('synced');
+    } else {
+      cloudMetaWrite();
+      cloudSetStatus('pending');
+      cloudSchedule(600);
+    }
+    if (typeof cloudRefreshSettings === 'function') cloudRefreshSettings();
+    return true;
+  } catch (e) {
+    var offline = /failed to fetch|networkerror|load failed|abort/i.test((e && e.message) || '');
+    cloudSetStatus(offline ? 'offline' : 'error', (e && e.message) || '');
+    if (typeof cloudRefreshSettings === 'function') cloudRefreshSettings();
+    return false;
+  } finally {
+    _cloudBusy = false;
+  }
+}
+async function cloudPull(force) {
+  if (!cloudReady() || _cloudBusy) return false;
+  _cloudBusy = true;
+  cloudSetStatus('syncing');
+  if (typeof cloudRefreshSettings === 'function') cloudRefreshSettings();
+  try {
+    var tok = await cloudToken();
+    if (!tok) { cloudSetStatus('error', '다시 로그인해 주세요.'); return false; }
+    var r = await cloudRemoteData(tok);
+    if (!r.ok) {
+      cloudSetStatus(r.missing ? 'setup' : 'error', r.error || '');
+      return false;
+    }
+    if (r.empty) { cloudSetStatus('idle'); return false; }
+    cloudApplyRemote(r.data);
+    var m = cloudMetaRead();
+    m.lastRemote = r.updated;
+    m.dirtyAt = 0;
+    m.email = cloudEmail();
+    cloudMetaWrite();
+    cloudSetStatus('synced');
+    await cloudDownloadPhotos(tok);
+    if (typeof cloudRefreshSettings === 'function') cloudRefreshSettings();
+    return true;
+  } catch (e) {
+    var offline = /failed to fetch|networkerror|load failed|abort/i.test((e && e.message) || '');
+    cloudSetStatus(offline ? 'offline' : 'error', (e && e.message) || '');
+    return false;
+  } finally {
+    _cloudBusy = false;
+  }
+}
+/* 지금 상태를 보고 올릴지/내릴지/멈출지 정한다. 강제 덮어쓰기는 하지 않는다. */
+async function cloudSync(silent) {
+  if (!cloudReady()) return false;
+  if (_cloudBusy) return false;
+  var m = cloudMetaRead();
+  var token = await cloudToken();
+  if (!token) { cloudUpdateBadge(); return false; }
+  _cloudBusy = true;
+  var remote;
+  try {
+    remote = await cloudRemoteMeta(token);
+  } finally {
+    _cloudBusy = false;
+  }
+  if (!remote.ok) {
+    if (remote.missing) { cloudSetStatus('setup'); cloudRefreshSettings(); return false; }
+    cloudSetStatus('error', remote.error || '');
+    cloudRefreshSettings();
+    return false;
+  }
+  if (!remote.updated) {
+    if (m.dirtyAt || cloudLocalHasRecords()) return cloudPush();
+    cloudSetStatus('idle');
+    cloudRefreshSettings();
+    return true;
+  }
+  if (remote.updated === m.lastRemote) {
+    if (m.dirtyAt) return cloudPush();
+    cloudSetStatus('synced');
+    cloudRefreshSettings();
+    return true;
+  }
+  if (m.dirtyAt) {
+    cloudSetStatus('conflict');
+    cloudRefreshSettings();
+    if (!silent) toast('다른 기기에서 기록이 바뀌었어요. 설정에서 어느 쪽을 남길지 골라 주세요.');
+    return false;
+  }
+  var pulled = await cloudPull();
+  if (pulled && !silent) toast('다른 기기의 기록을 불러왔어요.');
+  return pulled;
+}
+
+/* ------------------------------ 화면: 헤더 배지 ------------------------------ */
+function cloudUpdateBadge() {
+  var el = null;
+  try { el = document.getElementById('cloudBadge'); } catch (e) { el = null; }
+  if (!el || !el.classList) return;
+  var on = cloudSignedIn();
+  el.classList[on ? 'add' : 'remove']('on');
+  var busy = cloudStatus() === 'syncing';
+  el.classList[busy ? 'add' : 'remove']('busy');
+  try {
+    el.setAttribute('aria-label', on ? ('클라우드 계정 · ' + (cloudEmail() || '로그인됨')) : '클라우드 계정');
+  } catch (e) { /* ignore */ }
+}
+
+/* ------------------------------ 화면: 설정 카드 ------------------------------ */
+function cloudSettingsHtml() {
+  var h = '';
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">클라우드 · 계정</div>';
+  h += '<div class="card" style="margin-bottom:14px">';
+  if (!cloudCfgOk()) {
+    h += '<p class="hint" style="margin:0">이 브라우저에서는 클라우드 저장을 쓸 수 없어요. 기록은 이 기기에만 저장됩니다.</p>';
+    h += '</div>';
+    return h;
+  }
+  if (!cloudSignedIn()) {
+    h += '<p class="hint" style="margin:0 0 9px">이메일과 비밀번호만으로 가입·로그인합니다. 이름·전화번호는 묻지 않아요.</p>';
+    h += '<button class="btn primary block" data-act="cloud-auth">로그인 · 회원가입</button>';
+    h += '<div class="row" style="gap:7px;margin-top:7px">' +
+      '<button class="btn ghost" style="flex:1" data-act="cloud-forgot">비밀번호 찾기</button>' +
+      '<button class="btn ghost" style="flex:1" data-act="cloud-otp">이메일로 로그인</button></div>';
+    h += '<p class="hint" style="margin:9px 2px 0">로그인하지 않아도 앱은 그대로 쓸 수 있고, 기록은 이 브라우저에 저장됩니다.</p>';
+    h += '</div>';
+    return h;
+  }
+  var st = cloudStatus();
+  h += '<div class="cloudState"><span class="dot' + (st === 'synced' ? ' on' : '') + '"></span>' +
+    '<span class="lbl">' + esc(cloudEmail() || '로그인됨') + '</span>' +
+    '<span class="cloudpill">' + esc(cloudStatusText()) + '</span></div>';
+  h += '<p class="hint" style="margin:9px 2px 0">' + esc(cloudStatusHint()) + '</p>';
+  h += '<div class="row" style="gap:7px;margin-top:9px">' +
+    '<button class="btn" style="flex:1" data-act="cloud-sync">지금 동기화</button>' +
+    '<button class="btn ghost" style="flex:1" data-act="cloud-signout">로그아웃</button></div>';
+  h += '<div class="sep"></div>';
+  h += '<div class="row" style="gap:7px">' +
+    '<button class="btn ghost" style="flex:1" data-act="cloud-upload-local">이 기기 기록 올리기</button>' +
+    '<button class="btn ghost" style="flex:1" data-act="cloud-pull">클라우드에서 불러오기</button></div>';
+  h += '<button class="btn ghost block sm" style="margin-top:7px" data-act="cloud-forgot">비밀번호 재설정 메일</button>';
+  h += '</div>';
+  return h;
+}
+function cloudRefreshSettings() {
+  if (typeof document === 'undefined') return;
+  var sheet = document.querySelector('.sheet');
+  if (!sheet) { cloudUpdateBadge(); return; }
+  var hasCloud = sheet.querySelector('.cloudState') || sheet.querySelector('[data-act="cloud-auth"]');
+  if (!hasCloud) { cloudUpdateBadge(); return; }
+  if (typeof openSettings === 'function') openSettings();
+  cloudUpdateBadge();
+}
+
+/* ------------------------------ 화면: 로그인 · 회원가입 ------------------------------ */
+function cloudMsgHtml() {
+  if (!_cloudMsg) return '';
+  var cls = _cloudMsg.kind === 'ok' ? 'cloudmsg ok' : 'cloudmsg err';
+  return '<div class="' + cls + '" id="cloudMsg">' + esc(_cloudMsg.text) + '</div>';
+}
+function cloudAuthSheet(mode) {
+  _cloudTab = (mode === 'up') ? 'up' : 'in';
+  var up = _cloudTab === 'up';
+  var h = sheetHead(up ? '회원가입' : '로그인');
+  h += '<div class="sheetbody">';
+  h += '<div class="seg" role="group" style="margin-bottom:12px">' +
+    '<button class="segbtn' + (up ? '' : ' on') + '" data-act="cloud-tab" data-v="in">로그인</button>' +
+    '<button class="segbtn' + (up ? ' on' : '') + '" data-act="cloud-tab" data-v="up">회원가입</button></div>';
+  h += '<div class="card">';
+  h += '<div class="field"><label>이메일</label>' +
+    '<input class="input" id="cloudEmail" data-cloud="email" type="email" inputmode="email" ' +
+    'autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" value="' +
+    esc(_cloudForm.email) + '"></div>';
+  h += '<div class="field"><label>비밀번호</label>' +
+    '<input class="input" id="cloudPw" data-cloud="password" type="password" ' +
+    'autocomplete="' + (up ? 'new-password' : 'current-password') + '" ' +
+    'placeholder="6자 이상" value="' + esc(_cloudForm.password) + '"></div>';
+  h += cloudMsgHtml();
+  h += '<button class="btn primary block" data-act="cloud-submit" style="margin-top:4px">' +
+    (up ? '가입하기' : '로그인') + '</button>';
+  if (up) {
+    h += '<p class="hint" style="margin:9px 2px 0">가입하면 확인 메일이 가요. 메일의 링크를 누르면 바로 로그인됩니다. 받는 정보는 이메일과 비밀번호뿐입니다.</p>';
+  } else {
+    h += '<p class="hint" style="margin:9px 2px 0">로그인하지 않아도 앱은 그대로 쓸 수 있어요. 기록은 이 브라우저에 저장됩니다.</p>';
+  }
+  h += '</div>';
+  h += '<div class="row" style="gap:7px;margin-top:9px">' +
+    '<button class="btn ghost" style="flex:1" data-act="cloud-forgot">비밀번호 찾기</button>' +
+    '<button class="btn ghost" style="flex:1" data-act="cloud-otp">이메일로 로그인</button></div>';
+  h += '<p class="hint" style="margin:10px 2px 0">아이디(이메일)를 잊었으면 [이메일로 로그인]에 주소를 넣어 확인할 수 있어요. 비밀번호는 [비밀번호 찾기]로 다시 정합니다.</p>';
+  h += '</div>';
+  openSheet(h);
+  applyI18n();
+  cloudFocus('cloudEmail');
+}
+function cloudFocus(id) {
+  if (typeof setTimeout === 'undefined') return;
+  setTimeout(function () {
+    try {
+      var el = document.getElementById(id);
+      if (el && el.focus) el.focus();
+    } catch (e) { /* ignore */ }
+  }, 60);
+}
+/* 비밀번호 찾기 · 매직링크 · 확인 메일 다시 받기 — 이메일 한 칸 */
+function cloudEmailSheet(kind) {
+  if (!_cloudForm.email && cloudEmail()) _cloudForm.email = cloudEmail();
+  var titles = { forgot: '비밀번호 찾기', otp: '이메일로 로그인', resend: '확인 메일 다시 받기' };
+  var hints = {
+    forgot: '가입한 이메일로 새 비밀번호를 정하는 링크를 보냅니다.',
+    otp: '이메일로 로그인 링크를 보냅니다. 비밀번호 없이 바로 들어갈 수 있어요.',
+    resend: '가입 확인 메일을 다시 보냅니다.'
+  };
+  var labels = { forgot: '재설정 링크 보내기', otp: '로그인 링크 보내기', resend: '확인 메일 보내기' };
+  var h = sheetHead(titles[kind] || '이메일');
+  h += '<div class="sheetbody"><div class="card">';
+  h += '<div class="field"><label>이메일</label>' +
+    '<input class="input" id="cloudEmail" data-cloud="email" type="email" inputmode="email" ' +
+    'autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" value="' +
+    esc(_cloudForm.email) + '"></div>';
+  h += '<p class="hint" style="margin:0 2px 9px">' + esc(hints[kind] || '') + '</p>';
+  h += cloudMsgHtml();
+  h += '<button class="btn primary block" data-act="cloud-email-send" data-v="' + esc(kind) + '">' +
+    esc(labels[kind] || '보내기') + '</button>';
+  h += '</div></div>';
+  openSheet(h);
+  applyI18n();
+  cloudFocus('cloudEmail');
+}
+/* 새 비밀번호 — 재설정 링크로 돌아왔을 때 자동으로 연다 */
+function cloudResetSheet() {
+  var h = sheetHead('새 비밀번호');
+  h += '<div class="sheetbody"><div class="card">';
+  h += '<p class="hint" style="margin:0 2px 9px">' + esc(cloudEmail() || '') +
+    ' 계정의 새 비밀번호를 정해 주세요.</p>';
+  h += '<div class="field"><label>새 비밀번호</label>' +
+    '<input class="input" id="cloudPw" data-cloud="password" type="password" autocomplete="new-password" ' +
+    'placeholder="6자 이상" value=""></div>';
+  h += '<div class="field"><label>새 비밀번호 확인</label>' +
+    '<input class="input" id="cloudPw2" data-cloud="password2" type="password" autocomplete="new-password" ' +
+    'placeholder="한 번 더" value=""></div>';
+  h += cloudMsgHtml();
+  h += '<button class="btn primary block" data-act="cloud-reset-save">비밀번호 바꾸기</button>';
+  h += '</div></div>';
+  openSheet(h);
+  applyI18n();
+  cloudFocus('cloudPw');
+}
+
+/* ------------------------------ 동작 ------------------------------ */
+function cloudNotice(ok, text) {
+  _cloudMsg = { kind: ok ? 'ok' : 'error', text: text };
+}
+async function cloudDoAuth() {
+  if (_cloudBusy) return;
+  var email = String(_cloudForm.email || '').trim();
+  var pw = String(_cloudForm.password || '');
+  if (!cloudIsEmail(email)) { cloudNotice(false, '이메일 주소를 다시 확인해 주세요.'); cloudAuthSheet(_cloudTab); return; }
+  if (pw.length < 6) { cloudNotice(false, '비밀번호는 6자 이상으로 정해 주세요.'); cloudAuthSheet(_cloudTab); return; }
+  _cloudBusy = true;
+  cloudNotice(false, '');
+  _cloudMsg = { kind: 'ok', text: '처리 중...' };
+  cloudAuthSheet(_cloudTab);
+  try {
+    if (_cloudTab === 'up') {
+      var res = await cloudSignUp(email, pw);
+      if (res.session) {
+        _cloudMsg = null;
+        closeSheetSilent();
+        toast('가입 완료 · 클라우드에 저장합니다.');
+        await cloudAfterLogin(true);
+      } else {
+        _cloudMsg = {
+          kind: 'ok',
+          text: res.exists
+            ? '이미 가입된 이메일이에요. 로그인하거나 [이메일로 로그인]을 써 주세요.'
+            : '확인 메일을 보냈어요. 메일의 링크를 누르면 로그인됩니다.'
+        };
+        _cloudLastEmail = email;
+        cloudEmailSentSheet('확인 메일을 보냈어요.', email, 'signup');
+      }
+    } else {
+      await cloudSignIn(email, pw);
+      _cloudMsg = null;
+      _cloudForm.password = '';
+      closeSheetSilent();
+      toast('로그인했어요 · ' + cloudEmail());
+      await cloudAfterLogin(true);
+    }
+  } catch (e) {
+    _cloudMsg = { kind: 'error', text: cloudAuthFailMessage(e) };
+    cloudAuthSheet(_cloudTab);
+  } finally {
+    _cloudBusy = false;
+    cloudUpdateBadge();
+  }
+}
+function closeSheetSilent() {
+  try { closeSheet(); } catch (e) { /* ignore */ }
+}
+var _cloudLastEmail = '';
+/* '메일을 보냈어요' 안내 화면 */
+function cloudEmailSentSheet(title, email, kind) {
+  _cloudLastEmail = email || _cloudLastEmail;
+  var h = sheetHead(title);
+  h += '<div class="sheetbody"><div class="card">';
+  h += '<p class="cloudsent">' + esc(email || '') + '</p>';
+  h += '<p class="hint" style="margin:0 2px 10px">' + esc(
+    kind === 'otp' ? '메일의 링크를 누르면 비밀번호 없이 로그인됩니다. 링크는 한 번만 쓸 수 있어요.'
+      : kind === 'forgot' ? '메일의 링크를 누르면 새 비밀번호를 정하는 화면이 열립니다.'
+        : '메일의 링크를 누르면 가입이 확인되고 로그인됩니다.') + '</p>';
+  h += '<p class="hint" style="margin:0 2px 10px">메일이 안 보이면 스팸함도 확인해 주세요. 같은 메일을 너무 자주 보내면 잠시 제한될 수 있어요.</p>';
+  h += '<button class="btn ghost block" data-act="cloud-close">닫기</button>';
+  h += '</div></div>';
+  openSheet(h);
+  applyI18n();
+}
+async function cloudDoEmailSend(kind) {
+  var email = String(_cloudForm.email || '').trim();
+  if (!cloudIsEmail(email)) { cloudNotice(false, '이메일 주소를 다시 확인해 주세요.'); cloudEmailSheet(kind); return; }
+  _cloudMsg = { kind: 'ok', text: '처리 중...' };
+  cloudEmailSheet(kind);
+  try {
+    if (kind === 'forgot') await cloudSendReset(email);
+    else if (kind === 'otp') await cloudSendOtp(email);
+    else await cloudResendSignup(email);
+    _cloudMsg = null;
+    cloudEmailSentSheet(kind === 'forgot' ? '재설정 메일을 보냈어요'
+      : kind === 'otp' ? '로그인 링크를 보냈어요' : '확인 메일을 다시 보냈어요', email, kind);
+  } catch (e) {
+    _cloudMsg = { kind: 'error', text: cloudAuthFailMessage(e) };
+    cloudEmailSheet(kind);
+  }
+}
+async function cloudDoResetSave() {
+  var pw = String(_cloudForm.password || '');
+  var pw2 = String(_cloudForm.password2 || '');
+  if (pw.length < 6) { cloudNotice(false, '비밀번호는 6자 이상으로 정해 주세요.'); cloudResetSheet(); return; }
+  if (pw !== pw2) { cloudNotice(false, '두 비밀번호가 서로 달라요.'); cloudResetSheet(); return; }
+  _cloudMsg = { kind: 'ok', text: '저장 중...' };
+  cloudResetSheet();
+  try {
+    await cloudUpdatePassword(pw);
+    _cloudMsg = null;
+    _cloudForm.password = '';
+    _cloudForm.password2 = '';
+    closeSheetSilent();
+    toast('비밀번호를 바꿨어요 · 로그인됐습니다.');
+    await cloudAfterLogin(true);
+  } catch (e) {
+    _cloudMsg = { kind: 'error', text: cloudAuthFailMessage(e) };
+    cloudResetSheet();
+  }
+}
+function cloudAuthFailMessage(e) {
+  var c = (e && e.code) || '';
+  var msg = (e && e.message) || '';
+  if (c === 'invalid_credentials') return '이메일 또는 비밀번호가 맞지 않아요.';
+  if (c === 'email_not_confirmed') return '이메일 확인이 아직 안 됐어요. 받은 메일의 링크를 누른 뒤 다시 로그인해 주세요.';
+  if (c === 'user_already_exists' || c === 'email_exists') return '이미 가입된 이메일이에요. 로그인하거나 비밀번호 찾기를 써 주세요.';
+  if (c === 'weak_password') return '비밀번호가 너무 짧아요. 6자 이상으로 정해 주세요.';
+  if (c === 'over_email_send_rate_limit' || /rate limit/i.test(msg)) return '메일을 너무 자주 보냈어요. 조금 뒤에 다시 시도해 주세요.';
+  if (c === 'validation_failed') return '이메일 주소를 다시 확인해 주세요.';
+  if (c === 'signup_disabled') return '지금은 새 가입을 받지 않아요.';
+  if (!e || !e.status) return '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.';
+  return '요청을 처리하지 못했어요: ' + (msg || '알 수 없는 오류');
+}
+
+/* 로그인 직후: 클라우드에 기록이 있으면 어느 쪽을 쓸지 묻고, 없으면 이 기기 기록을 올린다 */
+async function cloudAfterLogin(showSettings) {
+  cloudUpdateBadge();
+  var tok = await cloudToken();
+  if (!tok) return;
+  var r = await cloudRemoteData(tok);
+  if (!r.ok) {
+    if (r.missing) { cloudSetStatus('setup'); }
+    else cloudSetStatus('error', r.error || '');
+    if (showSettings) openSettings(); else cloudRefreshSettings();
+    return;
+  }
+  var localHas = cloudLocalHasRecords();
+  if (r.empty) {
+    if (localHas) {
+      await cloudPush();
+      toast('이 기기의 기록을 계정에 올렸어요.');
+    } else {
+      cloudSetStatus('idle');
+    }
+    if (showSettings) openSettings(); else cloudRefreshSettings();
+    return;
+  }
+  var m = cloudMetaRead();
+  m.email = cloudEmail();
+  cloudMetaWrite();
+  if (!localHas) {
+    await cloudPull();
+    toast('계정의 기록을 불러왔어요.');
+    if (showSettings) openSettings(); else cloudRefreshSettings();
+    return;
+  }
+  /* 양쪽에 기록이 있다 — 덮어쓰지 않고 고르게 한다 */
+  m.lastRemote = r.updated;
+  cloudMetaWrite();
+  cloudSetStatus('idle');
+  cloudConflictSheet(r.updated, !showSettings);
+}
+function cloudLocalHasRecords() {
+  if (!state) return false;
+  var real = (state.venues || []).filter(function (v) { return !v.sample; }).length +
+    (state.visits || []).filter(function (v) { return !v.sample; }).length;
+  return real > 0;
+}
+/* 클라우드 기록과 이 기기 기록이 다를 때 — 한쪽을 고르게 한다 */
+function cloudConflictSheet(remoteUpdated, fromMismatch) {
+  var h = sheetHead('어느 기록을 쓸까요?');
+  h += '<div class="sheetbody"><div class="card">';
+  h += '<p class="hint" style="margin:0 2px 10px">' + esc(
+    fromMismatch
+      ? '다른 기기에서 바뀐 기록이 있어요. 어느 쪽을 남길지 골라 주세요.'
+      : '이 계정의 클라우드 기록과 이 기기의 기록이 모두 있습니다. 어느 쪽을 쓸지 골라 주세요.') + '</p>';
+  h += '<p class="hint" style="margin:0 2px 10px">이 기기: 방문 ' + (state.visits || []).length + '건 · 주류 ' +
+    (state.sakes || []).length + '병<br>' +
+    (remoteUpdated ? '클라우드: ' + esc(fmtDot(String(remoteUpdated).slice(0, 10))) + '에 저장됨' : '') + '</p>';
+  h += '<button class="btn primary block" data-act="cloud-take-remote">클라우드 기록 불러오기</button>';
+  h += '<button class="btn block" data-act="cloud-take-local" style="margin-top:7px">이 기기 기록 올리기</button>';
+  h += '<button class="btn ghost block" data-act="cloud-close" style="margin-top:7px">나중에</button>';
+  h += '<p class="hint" style="margin:10px 2px 0">고르기 전에는 어느 쪽도 지우지 않아요.</p>';
+  h += '</div></div>';
+  openSheet(h);
+  applyI18n();
+}
+
+/* ------------------------------ 링크로 돌아왔을 때 ------------------------------ */
+/* Supabase 는 메일 링크를 누르면 #access_token=...&refresh_token=...&type=... 로 돌려보낸다 */
+function cloudParseAuthHash(hash) {
+  var out = { type: '', access: '', refresh: '', error: '', desc: '' };
+  var s = String(hash || '');
+  if (s.charAt(0) === '#') s = s.slice(1);
+  if (!s) return out;
+  s.split('&').forEach(function (pair) {
+    var i = pair.indexOf('=');
+    if (i < 0) return;
+    var k = decodeURIComponent(pair.slice(0, i));
+    var v = decodeURIComponent(pair.slice(i + 1).replace(/\+/g, ' '));
+    if (k === 'access_token') out.access = v;
+    else if (k === 'refresh_token') out.refresh = v;
+    else if (k === 'type') out.type = v;
+    else if (k === 'error') out.error = v;
+    else if (k === 'error_description') out.desc = v;
+  });
+  return out;
+}
+async function cloudHandleHash() {
+  if (typeof window === 'undefined' || !window.location) return false;
+  var hash = '';
+  try { hash = window.location.hash || ''; } catch (e) { return false; }
+  if (!hash || hash.length < 10) return false;
+  var p = cloudParseAuthHash(hash);
+  if (!p.access || !p.refresh) {
+    if (p.error || p.desc) {
+      toast('링크를 열지 못했어요: ' + (p.desc || p.error));
+      cloudClearHash();
+      return true;
+    }
+    return false;
+  }
+  cloudAdoptSession({ access_token: p.access, refresh_token: p.refresh, expires_in: 0 });
+  /* expires_in 이 없는 링크라 만료 시각을 알 수 없다 — 바로 refresh 해 둔다 */
+  await cloudToken();
+  cloudClearHash();
+  cloudUpdateBadge();
+  if (p.type === 'recovery') {
+    cloudResetSheet();
+    return true;
+  }
+  toast('로그인했어요 · ' + (cloudEmail() || ''));
+  await cloudAfterLogin(false);
+  return true;
+}
+function cloudClearHash() {
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+/* ------------------------------ 이벤트 · 초기화 ------------------------------ */
+function cloudOnClick(e) {
+  var el = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!el) return;
+  var act = el.getAttribute('data-act');
+  var v = el.getAttribute('data-v');
+  if (act.indexOf('cloud') !== 0 && act !== 'account') return;
+  switch (act) {
+    case 'account':
+      if (cloudSignedIn()) openSettings();
+      else cloudAuthSheet('in');
+      break;
+    case 'cloud-auth': _cloudMsg = null; _cloudForm.password = ''; cloudAuthSheet('in'); break;
+    case 'cloud-tab': _cloudMsg = null; cloudAuthSheet(v); break;
+    case 'cloud-submit': cloudDoAuth(); break;
+    case 'cloud-forgot': _cloudMsg = null; cloudEmailSheet('forgot'); break;
+    case 'cloud-otp': _cloudMsg = null; cloudEmailSheet('otp'); break;
+    case 'cloud-email-send': cloudDoEmailSend(v || 'otp'); break;
+    case 'cloud-reset-save': cloudDoResetSave(); break;
+    case 'cloud-close': closeSheet(); break;
+    case 'cloud-sync':
+      toast('동기화하는 중이에요.');
+      cloudSync().then(function (ok) {
+        if (ok) toast('동기화했어요.');
+        else if (cloudStatus() === 'setup') toast('클라우드 설정 대기 중이에요. SQL을 먼저 실행해 주세요.');
+        else if (cloudStatus() === 'conflict') toast('어느 기록을 남길지 골라 주세요.');
+        else toast('동기화하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      });
+      break;
+    case 'cloud-signout':
+      cloudSignOut().then(function () {
+        toast('로그아웃했어요. 기록은 이 기기에 그대로 있어요.');
+        cloudRefreshSettings();
+      });
+      break;
+    case 'cloud-upload-local':
+      confirmSheet('이 기기 기록 올리기', '클라우드에 있는 이 계정의 기록을 이 기기 기록으로 바꿉니다.', '올리기', false, function () {
+        closeSheet();
+        cloudPush().then(function (ok) {
+          toast(ok ? '이 기기 기록을 계정에 올렸어요.' : '올리지 못했어요. 잠시 후 다시 시도해 주세요.');
+          cloudRefreshSettings();
+        });
+      });
+      break;
+    case 'cloud-pull':
+      confirmSheet('클라우드에서 불러오기', '이 기기의 기록을 계정에 저장된 기록으로 바꿉니다. 아직 올리지 않은 이 기기의 변경은 사라져요.', '불러오기', false, function () {
+        closeSheet();
+        cloudPull().then(function (ok) {
+          toast(ok ? '계정의 기록을 불러왔어요.' : '불러올 기록이 없거나 실패했어요.');
+          cloudRefreshSettings();
+        });
+      });
+      break;
+    case 'cloud-take-remote':
+      closeSheet();
+      cloudPull().then(function (ok) {
+        toast(ok ? '클라우드 기록을 불러왔어요.' : '불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+        cloudRefreshSettings();
+      });
+      break;
+    case 'cloud-take-local':
+      closeSheet();
+      cloudPush().then(function (ok) {
+        toast(ok ? '이 기기 기록을 올렸어요.' : '올리지 못했어요. 잠시 후 다시 시도해 주세요.');
+        cloudRefreshSettings();
+      });
+      break;
+  }
+}
+/* 입력값은 화면을 다시 그려도 남게 여기에 모아 둔다 */
+function cloudOnInput(e) {
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var key = t.getAttribute('data-cloud');
+  if (!key) return;
+  _cloudForm[key] = t.value;
+}
+function cloudOnKey(e) {
+  var t = e.target;
+  if (!t || !t.getAttribute || !t.getAttribute('data-cloud')) return;
+  if (e.key !== 'Enter') return;
+  var act = document.querySelector('.sheet [data-act="cloud-submit"], .sheet [data-act="cloud-email-send"], .sheet [data-act="cloud-reset-save"]');
+  if (act && act.click) act.click();
+}
+function cloudInit() {
+  if (_cloudBoot) return;
+  _cloudBoot = true;
+  if (typeof document === 'undefined' || !document.addEventListener) return;
+  document.addEventListener('click', cloudOnClick);
+  document.addEventListener('input', cloudOnInput);
+  document.addEventListener('keydown', cloudOnKey);
+  cloudMetaRead();
+  cloudUpdateBadge();
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('online', function () {
+      if (cloudReady() && cloudMetaRead().dirtyAt) cloudSync(true);
+    });
+  }
+  /* 메일 링크로 돌아온 경우 — 재설정이면 새 비밀번호 화면을 바로 연다 */
+  cloudHandleHash().then(function (handled) {
+    if (handled) return;
+    if (!cloudReady()) return;
+    var m = cloudMetaRead();
+    m.email = cloudEmail();
+    cloudMetaWrite();
+    cloudUpdateBadge();
+    if (typeof setTimeout !== 'undefined') setTimeout(function () { cloudSync(true); }, 1200);
+  }).catch(function () { /* ignore */ });
+}
+
+/* ------------------------------ 저장 훅 ------------------------------ */
+/* 앱이 기록을 저장할 때마다(saveState) 클라우드에도 곧 반영한다(1.4초 디바운스). */
+if (typeof saveState === 'function') {
+  var _cloudSaveState = saveState;
+  saveState = function () {
+    var ok = _cloudSaveState.apply(null, arguments);
+    if (ok) {
+      try { cloudMarkDirty(); } catch (e) { /* 동기화 표시 실패는 저장을 막지 않는다 */ }
+    }
+    return ok;
+  };
+}
+
+if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cloudInit);
+  else cloudInit();
+}
+
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.cloudPayload = cloudPayload;
+  __TEST__.cloudPhotoRefOnly = cloudPhotoRefOnly;
+  __TEST__.cloudIsEmail = cloudIsEmail;
+  __TEST__.cloudParseAuthHash = cloudParseAuthHash;
+  __TEST__.cloudStatusText = cloudStatusText;
+  __TEST__.cloudSettingsHtml = cloudSettingsHtml;
+  __TEST__.cloudRedirect = cloudRedirect;
+  __TEST__.cloudAuthFailMessage = cloudAuthFailMessage;
 }
 
 
