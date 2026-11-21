@@ -7313,7 +7313,8 @@ function cloudIsSetupMissing(r) {
 
 /* ------------------------------ Auth ------------------------------ */
 async function cloudSignUp(email, password) {
-  var r = await cloudFetch('/auth/v1/signup', { method: 'POST', body: { email: email, password: password } });
+  var r = await cloudFetch('/auth/v1/signup?redirect_to=' + encodeURIComponent(cloudRedirect()),
+    { method: 'POST', body: { email: email, password: password } });
   if (!r.ok) throw cloudErr(r);
   var b = r.body || {};
   if (b.access_token && b.refresh_token) {
