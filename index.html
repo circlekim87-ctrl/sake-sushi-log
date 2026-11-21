@@ -6093,6 +6093,15 @@ function noteViewChips() {
   }).join('');
 }
 
+/* 등급·종류 칩 순서: 주종 순서 → 그 주종의 종류 순서 */
+function _styleRank(g) {
+  for (var ci = 0; ci < CAT_LIST.length; ci++) {
+    var si = CAT_LIST[ci].styles.indexOf(g);
+    if (si >= 0) return ci * 100 + si;
+  }
+  return 900;
+}
+
 /* 등급·종류 칩 — 지금 고른 주종(과 검색어) 안에서 실제로 있는 값만 */
 function gradeChips() {
   var base = state.sakes.filter(function (s) { return ui.noteCat === 'all' || catIdOf(s) === ui.noteCat; });
@@ -6103,12 +6112,7 @@ function gradeChips() {
     present[g] = (present[g] || 0) + 1;
   });
   order.sort(function (a, b) {
-    var ra = state.sakes.length, rb = state.sakes.length;
-    CAT_LIST.forEach(function (c) {
-      var ia = c.styles.indexOf(a), ib = c.styles.indexOf(b);
-      if (ia >= 0 && ia < ra) ra = ia;
-      if (ib >= 0 && ib < rb) rb = ib;
-    });
+    var ra = _styleRank(a), rb = _styleRank(b);
     if (ra !== rb) return ra - rb;
     return a.localeCompare(b, 'ko');
   });
