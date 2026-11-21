@@ -375,6 +375,65 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
   -webkit-box-orient:vertical;overflow:hidden}
 .sakelinks{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px}
 .sakelinks .linkchip{margin-top:0}
+
+/* --- 0.6.0: 주종 분류(사케 · 와인 · 전통주 · 위스키) --- */
+.catcards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 10px}
+.csum{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 9px;border:1px solid var(--line);
+  border-radius:12px;background:var(--card);text-align:left;box-shadow:var(--shadow);transition:.15s;min-width:0}
+.csum .csumName{font-size:11.5px;font-weight:700;letter-spacing:-.03em;white-space:nowrap}
+.csum .csumN{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.csum.on{border-color:var(--navy);background:var(--navy)}
+.csum.on .csumName{color:#F8F5EC}
+.csum.on .csumN{color:rgba(248,245,236,.72)}
+.csum.off{opacity:.55}
+.csum:active{transform:scale(.98)}
+@media (max-width:360px){.csum{padding:7px 6px}.csum .csumName{font-size:10.5px}}
+.catsec{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;
+  box-shadow:var(--shadow);overflow:hidden}
+.cathead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;padding:12px 13px;text-align:left;
+  background:linear-gradient(180deg,rgba(165,133,79,.12),rgba(165,133,79,0))}
+.cathead .catname{font-size:16.5px;font-weight:750;letter-spacing:-.03em}
+.cathead .catmeta{font-size:10.5px;color:var(--muted);background:#F5F3EC;border-radius:6px;padding:2px 6px;
+  white-space:nowrap}
+.cathead .catchev{margin-left:auto;color:#C8C3B6;display:flex;transform:rotate(90deg);transition:transform .16s}
+.catsec.closed .cathead .catchev{transform:none}
+.catbody{padding:8px 8px 2px}
+.catbody .bsec{box-shadow:none;border-color:var(--line2);margin-bottom:8px}
+.catpick{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:11px;
+  background:rgba(255,255,255,.65);margin-bottom:10px}
+.catbtn{flex:1;border:0;background:none;font-family:inherit;font-size:12px;font-weight:650;color:var(--ink2);
+  padding:7px 3px;border-radius:8px;letter-spacing:-.03em;min-width:0}
+.catbtn.on{background:var(--navy);color:#F8F5EC;box-shadow:0 1px 2px rgba(27,36,48,.18)}
+.catbtn:active{transform:scale(.97)}
+.badge.catb{background:#EFEBE0;color:#4C5560}
+.badge.catb-wine{background:#F7E9EA;color:#8E3B47}
+.badge.catb-traditional{background:#EAF0E6;color:#4F6B45}
+.badge.catb-whisky{background:#F8EEDD;color:#8A5A22}
+.catline{margin-bottom:5px}
+
+/* --- 0.6.0: 업장 상세 — 날짜별 방문 타임라인 --- */
+.vtlhead{font-size:10.5px;letter-spacing:.1em;font-weight:700;color:var(--muted);margin:16px 2px 8px}
+.vtl{position:relative;padding-left:14px}
+.vtl:before{content:"";position:absolute;left:4px;top:6px;bottom:10px;width:1px;background:var(--line)}
+.vday{position:relative;margin-bottom:12px}
+.vday:before{content:"";position:absolute;left:-13px;top:9px;width:7px;height:7px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 0 3px #F7F4EC}
+.vdayhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;text-align:left;padding:2px 0 6px}
+.vdayhead .vdaydate{font-size:14.5px;font-weight:700;letter-spacing:-.02em}
+.vdayhead .vdaytime{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.vdayhead .vdaychev{margin-left:auto;color:#C8C3B6;display:flex}
+.vdaybody{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 11px;
+  box-shadow:var(--shadow)}
+.vsec + .vsec{margin-top:11px;padding-top:10px;border-top:1px solid var(--line2)}
+.vseclabel{font-size:10.5px;letter-spacing:.08em;font-weight:700;color:var(--muted);margin-bottom:6px}
+.vempty{font-size:11.5px;color:var(--muted)}
+.vnote{font-size:12px;line-height:1.5;color:var(--ink2);margin-top:8px;white-space:pre-wrap;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.vstrip{grid-template-columns:repeat(4,1fr);margin-top:0}
+.vdlist{display:flex;flex-direction:column;gap:6px}
+.vdlist .srow{padding:8px 10px}
+.vdlist .srow .sn b{white-space:normal;display:block}
+.sdline{display:block;margin-bottom:2px;line-height:1}
 </style>
 </head>
 <body>
@@ -417,7 +476,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
           <path d="M10 3h4v3.4l1.7 2.3c.2.3.3.7.3 1.1V19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-9.2c0-.4.1-.8.3-1.1L10 6.4V3Z"/>
           <path d="M9 13.5h6"/>
         </svg>
-        <span>사케 목록</span>
+        <span>주류 목록</span>
       </button>
       <button class="tab rec" data-tab="record">
         <span class="recicon">
@@ -1583,8 +1642,349 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
   "최신순 전체": {
     "en": "All, newest first",
     "ja": "最新順ですべて"
+  },
+  "사케": {
+    "en": "Sake",
+    "ja": "日本酒"
+  },
+  "와인": {
+    "en": "Wine",
+    "ja": "ワイン"
+  },
+  "전통주": {
+    "en": "Traditional liquor",
+    "ja": "韓国伝統酒"
+  },
+  "위스키": {
+    "en": "Whisky",
+    "ja": "ウイスキー"
+  },
+  "주류 분류": {
+    "en": "Drink type",
+    "ja": "酒の種類"
+  },
+  "분류별": {
+    "en": "By type",
+    "ja": "分類別"
+  },
+  "주류 목록": {
+    "en": "Drink list",
+    "ja": "酒リスト"
+  },
+  "주류 추가": {
+    "en": "Add drink",
+    "ja": "酒を追加"
+  },
+  "+ 주류": {
+    "en": "+ Drink",
+    "ja": "＋酒"
+  },
+  "+ 주류 직접 추가": {
+    "en": "+ Add drink manually",
+    "ja": "＋酒を手入力"
+  },
+  "+ 이 방문에 주류 추가": {
+    "en": "+ Add drink to this visit",
+    "ja": "＋この訪問に酒を追加"
+  },
+  "주류 기록": {
+    "en": "Drink entries",
+    "ja": "酒の記録"
+  },
+  "주류 라벨": {
+    "en": "Drink label",
+    "ja": "酒ラベル"
+  },
+  "주류 라벨 ✓": {
+    "en": "Drink label ✓",
+    "ja": "酒ラベル ✓"
+  },
+  "마신 주류 {n}병": {
+    "en": "{n} bottles tasted",
+    "ja": "飲んだ酒 {n}本"
+  },
+  "이름 없는 주류": {
+    "en": "Untitled drink",
+    "ja": "名前のない酒"
+  },
+  "주류 수정": {
+    "en": "Edit drink",
+    "ja": "酒を編集"
+  },
+  "주류 추가하기": {
+    "en": "Add a drink",
+    "ja": "酒を追加"
+  },
+  "마신 술, 분류와 시음 메모": {
+    "en": "Drinks I've had — type and tasting notes",
+    "ja": "飲んだ酒、分類とテイスティングメモ"
+  },
+  "사진과 주류로 남긴 다이닝 타임라인": {
+    "en": "A dining timeline in photos and drinks",
+    "ja": "写真と酒で残すダイニングの記録"
+  },
+  "이름 · 생산자 · 메모 검색": {
+    "en": "Search name, producer, note",
+    "ja": "名前・生産者・メモを検索"
+  },
+  "해당하는 주류가 없어요": {
+    "en": "No matching drinks",
+    "ja": "該当する酒がありません"
+  },
+  "검색어나 분류·등급 필터를 바꿔 보세요.": {
+    "en": "Try a different search, type or grade filter.",
+    "ja": "検索語や分類・等級フィルターを変えてみてください。"
+  },
+  "주류 기록 삭제": {
+    "en": "Delete drink entry",
+    "ja": "酒の記録を削除"
+  },
+  "이 주류 기록을 지웁니다. 방문 사진은 그대로 남아요.": {
+    "en": "This drink entry will be deleted. The visit photos stay.",
+    "ja": "この酒の記録を削除します。訪問の写真はそのまま残ります。"
+  },
+  "이 방문과 연결된 주류 기록도 함께 지워집니다. 되돌릴 수 없어요.": {
+    "en": "Drink entries linked to this visit will be deleted too. This can't be undone.",
+    "ja": "この訪問につながる酒の記録も一緒に削除されます。元に戻せません。"
+  },
+  "모든 방문·사진·주류 기록을 지웁니다. 되돌릴 수 없어요. 백업을 먼저 받아 두세요.": {
+    "en": "All visits, photos and drink entries will be deleted. This can't be undone. Back up first.",
+    "ja": "すべての訪問・写真・酒の記録を削除します。元に戻せません。先にバックアップしてください。"
+  },
+  "기록된 주류가 없어요.": {
+    "en": "No drinks recorded yet.",
+    "ja": "記録された酒はありません。"
+  },
+  "와인 이름": {
+    "en": "Wine name",
+    "ja": "ワインの名前"
+  },
+  "전통주 이름": {
+    "en": "Traditional liquor name",
+    "ja": "伝統酒の名前"
+  },
+  "위스키 이름": {
+    "en": "Whisky name",
+    "ja": "ウイスキーの名前"
+  },
+  "생산자": {
+    "en": "Producer",
+    "ja": "生産者"
+  },
+  "증류소": {
+    "en": "Distillery",
+    "ja": "蒸留所"
+  },
+  "종류": {
+    "en": "Type",
+    "ja": "種類"
+  },
+  "빈티지": {
+    "en": "Vintage",
+    "ja": "ヴィンテージ"
+  },
+  "품종": {
+    "en": "Grape variety",
+    "ja": "品種"
+  },
+  "원료": {
+    "en": "Ingredients",
+    "ja": "原料"
+  },
+  "숙성연수": {
+    "en": "Age",
+    "ja": "熟成年数"
+  },
+  "캐스크": {
+    "en": "Cask",
+    "ja": "カスク"
+  },
+  "{n}년": {
+    "en": "{n} years",
+    "ja": "{n}年"
+  },
+  "레드": {
+    "en": "Red",
+    "ja": "赤ワイン"
+  },
+  "화이트": {
+    "en": "White",
+    "ja": "白ワイン"
+  },
+  "로제": {
+    "en": "Rosé",
+    "ja": "ロゼ"
+  },
+  "스파클링": {
+    "en": "Sparkling",
+    "ja": "スパークリング"
+  },
+  "디저트": {
+    "en": "Dessert",
+    "ja": "デザート"
+  },
+  "주정강화": {
+    "en": "Fortified",
+    "ja": "酒精強化"
+  },
+  "탁주": {
+    "en": "Rice wine (takju)",
+    "ja": "濁酒"
+  },
+  "약주": {
+    "en": "Yakju",
+    "ja": "薬酒"
+  },
+  "청주": {
+    "en": "Cheongju",
+    "ja": "清酒"
+  },
+  "증류주": {
+    "en": "Distilled",
+    "ja": "蒸留酒"
+  },
+  "과실주": {
+    "en": "Fruit wine",
+    "ja": "果実酒"
+  },
+  "싱글몰트": {
+    "en": "Single malt",
+    "ja": "シングルモルト"
+  },
+  "블렌디드": {
+    "en": "Blended",
+    "ja": "ブレンデッド"
+  },
+  "블렌디드 몰트": {
+    "en": "Blended malt",
+    "ja": "ブレンデッドモルト"
+  },
+  "버번": {
+    "en": "Bourbon",
+    "ja": "バーボン"
+  },
+  "라이": {
+    "en": "Rye",
+    "ja": "ライ"
+  },
+  "예) 오카자키 슈조": {
+    "en": "e.g. Okazaki Shuzo",
+    "ja": "例）岡崎酒造"
+  },
+  "예) 부르고뉴 피노 누아": {
+    "en": "e.g. Burgundy Pinot Noir",
+    "ja": "例）ブルゴーニュ ピノ・ノワール"
+  },
+  "예) 도멘 루이 자도": {
+    "en": "e.g. Domaine Louis Jadot",
+    "ja": "例）ドメーヌ・ルイ・ジャド"
+  },
+  "예) 이강주": {
+    "en": "e.g. Igangju",
+    "ja": "例）イガンジュ"
+  },
+  "예) 전주 이강주": {
+    "en": "e.g. Jeonju Igangju",
+    "ja": "例）全州イガンジュ"
+  },
+  "예) 찹쌀 · 누룩": {
+    "en": "e.g. glutinous rice, nuruk",
+    "ja": "例）もち米・麹"
+  },
+  "예) 발베니 12년 더블우드": {
+    "en": "e.g. Balvenie 12 DoubleWood",
+    "ja": "例）バルヴェニー12年ダブルウッド"
+  },
+  "예) 발베니": {
+    "en": "e.g. Balvenie",
+    "ja": "例）バルヴェニー"
+  },
+  "예) 셰리 캐스크": {
+    "en": "e.g. sherry cask",
+    "ja": "例）シェリーカスク"
+  },
+  "예) 피노 누아": {
+    "en": "e.g. Pinot Noir",
+    "ja": "例）ピノ・ノワール"
+  },
+  "AI 주류 라벨 인식": {
+    "en": "AI drink label reading",
+    "ja": "AI酒ラベル認識"
+  },
+  "주류 라벨이 찍힌 사진 1장을 고르면 사케·와인·전통주·위스키를 알아보고 이름·종류·생산자를 AI가 채워요. 키가 없으면 사진만 연결됩니다.": {
+    "en": "Choose one photo of a drink label and AI tells sake, wine, traditional liquor and whisky apart and fills in the name, type and producer. Without a key, the photo is only linked.",
+    "ja": "酒のラベルを撮った写真を1枚選ぶと、日本酒・ワイン・伝統酒・ウイスキーを見分けて名前・種類・生産者をAIが入力します。キーがない場合は写真だけをひも付けます。"
+  },
+  "주류 라벨이 찍힌 사진 1장을 고르면 사케·와인·전통주·위스키를 알아보고 이름·종류·생산자를 AI가 채워요. 고르는 즉시 읽습니다.": {
+    "en": "Choose one photo of a drink label and AI tells sake, wine, traditional liquor and whisky apart and fills in the name, type and producer — it reads as soon as you pick.",
+    "ja": "酒のラベルを撮った写真を1枚選ぶと、日本酒・ワイン・伝統酒・ウイスキーを見分けて名前・種類・生産者をAIが入力します。選ぶとすぐに読み取ります。"
+  },
+  "위 사진 목록에서 주류 라벨을 누르면 그 사진이 주류 기록으로 연결돼요.": {
+    "en": "Tap Drink label on a photo above to link that photo to a drink entry.",
+    "ja": "上の写真で「酒ラベル」を押すと、その写真が酒の記録につながります。"
+  },
+  "사진을 먼저 고르면 라벨 사진을 주류 기록으로 연결할 수 있어요.": {
+    "en": "Choose photos first, then you can link a label photo to a drink entry.",
+    "ja": "先に写真を選ぶと、ラベル写真を酒の記録につなげられます。"
+  },
+  "샘플 사진 4장 · 라벨 1장이 주류 폼에 연결됐어요.": {
+    "en": "4 sample photos and 1 label were linked to the drink form.",
+    "ja": "サンプル写真4枚とラベル1枚を酒フォームにつなげました。"
+  },
+  "저장 용량 {a}KB · 방문 {b}건 · 주류 {c}병": {
+    "en": "Storage {a}KB · {b} visits · {c} drinks",
+    "ja": "保存容量{a}KB・訪問{b}件・酒{c}本"
+  },
+  "가져왔어요 · 방문 {a}건, 주류 {b}병": {
+    "en": "Imported · {a} visits, {b} drinks",
+    "ja": "読み込みました・訪問{a}件、酒{b}本"
+  },
+  "이름을 입력해 주세요.": {
+    "en": "Please enter a name.",
+    "ja": "名前を入力してください。"
+  },
+  "정미보합": {
+    "en": "Polishing ratio",
+    "ja": "精米歩合"
+  },
+  "도수": {
+    "en": "ABV",
+    "ja": "度数"
+  },
+  "그날 먹은 음식": {
+    "en": "Food that day",
+    "ja": "その日に食べた料理"
+  },
+  "사진으로 남긴 음식이 없어요.": {
+    "en": "No food photos for this visit.",
+    "ja": "この訪問の料理写真はありません。"
+  },
+  "이 방문에 남긴 주류가 없어요.": {
+    "en": "No drinks recorded for this visit.",
+    "ja": "この訪問に記録された酒はありません。"
+  },
+  "사진 {n}장 · 눌러서 크게 보기": {
+    "en": "{n} photos · tap to enlarge",
+    "ja": "写真{n}枚・タップで拡大"
+  },
+  "날짜별 기록 · 최신순": {
+    "en": "By date · newest first",
+    "ja": "日付ごとの記録・新しい順"
+  },
+  "아직 방문 기록이 없어요.": {
+    "en": "No visits recorded yet.",
+    "ja": "まだ訪問の記録がありません。"
+  },
+  "이 업장만 모아 보기": {
+    "en": "Show only this venue",
+    "ja": "この店舗だけ表示"
+  },
+  "이 업장의 방문": {
+    "en": "Visits at this venue",
+    "ja": "この店舗の訪問"
   }
-}</script>
+}
+</script>
 <script>
 'use strict';
 /* =====================================================================
@@ -1594,7 +1994,7 @@ input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left}
 
 /* ------------------------------ utils ------------------------------ */
 var DB_KEY = 'sakeSushiLog.demo.v1';
-var APP_VERSION = '0.5.0';
+var APP_VERSION = '0.6.0';
 
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -1785,10 +2185,13 @@ function seedState() {
       { id: 's5', visitId: 't1', name: '덴슈 욘와리코부 카이료신코우 45%', brewery: '텐주 슈조', grade: '준마이다이긴죠', polish: 45, rice: '카이료신코우', hiire: 'hiire', abv: 16, rating: 4.5, memo: '배 향이 훅 올라오고 옵은 단맛이 퍼졌다.', photo: '', sample: true },
       { id: 's6', visitId: 't1', name: '지콘 핫탄니시키 히이레', brewery: '', grade: '준마이', polish: null, rice: '핫탄니시키', hiire: 'hiire', abv: null, rating: 4, memo: '스시 후반부에서 산미가 살아났다.', photo: '', sample: true },
       { id: 's7', visitId: 't1', name: '고쿠류 2025', brewery: '고쿠류 슈조', grade: '', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '깔끔한 마무리. 마지막 네타까지 부담이 없었다.', photo: 'seed:ph06', sample: true },
-      { id: 's8', visitId: 't1', name: '바라 마송 레 마르간', brewery: '바라 마송 · 샹파뉴', grade: '샴페인', polish: null, rice: '샤르도네 100%', hiire: '', abv: 12, rating: 4.5, memo: '블랑 드 블랑 브뤼 나뛰르, 도자주 0g/L.', photo: '', sample: true },
+      { id: 's8', category: 'wine', visitId: 't1', name: '바라 마송 레 마르간', brewery: '바라 마송 · 샹파뉴', grade: '샴페인', vintage: null, polish: null, rice: '샤르도네 100%', hiire: '', abv: 12, rating: 4.5, memo: '블랑 드 블랑 브뤼 나뛰르, 도자주 0g/L.', photo: '', sample: true },
       { id: 's9', visitId: 't0', name: '고쿠류 야마다니시키 50', brewery: '고쿠류 슈조', grade: '준마이다이긴죠', polish: 50, rice: '야마다니시키', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 코스 중반에 술술 넘어갔다.', photo: '', sample: true },
       { id: 's10', visitId: 't2', name: '아카부 몬스터', brewery: '아카부 슈조', grade: '준마이', polish: null, rice: '', hiire: '', abv: null, rating: 4.5, memo: '(샘플) 기름진 안주에 붙는 산미.', photo: '', sample: true },
-      { id: 's11', visitId: 't3', name: '고쿠류 이치고', brewery: '고쿠류 슈조', grade: '혼조조', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 쯔마미 곁에 데워서.', photo: '', sample: true }
+      { id: 's11', visitId: 't3', name: '고쿠류 이치고', brewery: '고쿠류 슈조', grade: '혼조조', polish: null, rice: '', hiire: 'hiire', abv: null, rating: 4, memo: '(샘플) 쯔마미 곁에 데워서.', photo: '', sample: true },
+      { id: 's12', category: 'wine', visitId: 't2', name: '부르고뉴 피노 누아', brewery: '도멘 루이 자도', grade: '레드', vintage: 2020, polish: null, rice: '피노 누아', hiire: '', abv: 13, rating: 4.5, memo: '(샘플) 체리 향에 산미가 산뜻하다. 콜키지로 가져가 스시와 함께.', photo: '', sample: true },
+      { id: 's13', category: 'traditional', visitId: 't3', name: '이강주 25도', brewery: '전주 이강주', grade: '증류주', vintage: null, polish: null, rice: '찹쌀 · 누룩', hiire: '', abv: 25, rating: 4, memo: '(샘플) 달콤한 배 향. 쯔마미 끝에 디저트처럼.', photo: '', sample: true },
+      { id: 's14', category: 'whisky', visitId: 't3', name: '발베니 12년 더블우드', brewery: '발베니', grade: '싱글몰트', age: 12, cask: '셰리 캐스크', polish: null, rice: '', hiire: '', abv: 40, rating: 4.5, memo: '(샘플) 꿀·바닐라에 긴 여운. 마무리 한 잔.', photo: '', sample: true }
     ]
   };
 }
@@ -1804,9 +2207,16 @@ function loadState() {
       if (s && s.venues && s.visits && s.sakes) return normalizeState(s);
     }
   } catch (e) { /* ignore */ }
-  return seedState();
+  return normalizeState(seedState());
 }
 function normalizeState(s) {
+  s.sakes = s.sakes || [];
+  s.sakes.forEach(function (x) {
+    if (!x.category) x.category = 'sake';
+    ['vintage', 'age', 'cask'].forEach(function (k) {
+      if (x[k] == null) x[k] = (k === 'cask') ? '' : null;
+    });
+  });
   s.venues = s.venues || [];
   s.visits = s.visits || [];
   s.sakes = s.sakes || [];
@@ -2113,7 +2523,7 @@ function statsBlock(visits) {
   return '<div class="stats">' +
     '<div><b>' + Object.keys(seen).length + '</b><span>업장</span></div>' +
     '<div><b>' + visits.length + '</b><span>방문</span></div>' +
-    '<div><b>' + state.sakes.length + '</b><span>사케 기록</span></div></div>';
+    '<div><b>' + state.sakes.length + '</b><span>주류 기록</span></div></div>';
 }
 function venueChips(visits) {
   var counts = {};
@@ -2158,7 +2568,7 @@ function viewVenues() {
   var visits = sortedVisits();
   var list = ui.venueFilter === 'all' ? visits : visits.filter(function (v) { return v.venueId === ui.venueFilter; });
   var h = '<div class="view">';
-  h += '<div class="vh"><div><h2>업장별 기록</h2><p>사진과 사케로 남긴 다이닝 타임라인</p></div>' +
+  h += '<div class="vh"><div><h2>업장별 기록</h2><p>사진과 주류로 남긴 다이닝 타임라인</p></div>' +
     '<button class="btn sm ghost" data-act="go-record">+ 기록</button></div>';
   h += statsBlock(visits);
   h += venueTotalsBlock();
@@ -2250,8 +2660,8 @@ function noteListHtml() {
 }
 function viewNotes() {
   var h = '<div class="view">';
-  h += '<div class="vh"><div><h2>사케 목록</h2><p>마신 술, 등급과 시음 메모</p></div>' +
-    '<button class="btn sm ghost" data-act="add-sake">+ 사케</button></div>';
+  h += '<div class="vh"><div><h2>주류 목록</h2><p>마신 술, 분류와 시음 메모</p></div>' +
+    '<button class="btn sm ghost" data-act="add-sake">+ 주류</button></div>';
   h += '<div class="search">' + ICON.search +
     '<input id="noteSearch" type="search" placeholder="이름 · 양조장 · 메모 검색" value="' + esc(ui.noteQuery) + '" data-input="note-search"></div>';
   h += '<div class="seg nseg" role="group">' + noteViewChips() + '</div>';
@@ -2285,7 +2695,7 @@ function photoRows(rec) {
       '<div class="phinfo"><b>' + (p.taken ? fmtDot(p.taken.slice(0, 10)) + ' ' + hm(p.taken) : '촬영일 없음') + '</b>' +
       (p.gps ? p.gps.lat.toFixed(4) + ', ' + p.gps.lng.toFixed(4) : '위치 정보 없음') + '</div>' +
       '<button class="toggle' + (p.isLabel ? ' on' : '') + '" data-act="rec-label" data-id="' + p.id + '">' +
-      (p.isLabel ? '사케 라벨 ✓' : '사케 라벨') + '</button>' +
+      (p.isLabel ? '주류 라벨 ✓' : '주류 라벨') + '</button>' +
       '<button class="iconbtn" style="width:28px;height:28px;flex:0 0 28px;border:0;background:none;color:#B9B4A8" data-act="rec-photo-del" data-id="' + p.id + '" aria-label="사진 빼기">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>';
@@ -2414,14 +2824,14 @@ function viewRecord() {
   h += '</section>';
 
   /* step 4 */
-  h += '<section class="card"><h3><span class="stepnum">4</span>사케 라벨' +
+  h += '<section class="card"><h3><span class="stepnum">4</span>주류 라벨' +
     (rec.sakes.length ? '<span class="side">' + rec.sakes.length + '병</span>' : '') + '</h3>';
   h += '<div class="hint" style="margin:0 0 4px">' + (rec.photos.length
-    ? '위 사진 목록에서 사케 라벨을 누르면 그 사진이 사케 기록으로 연결돼요.'
-    : '사진을 먼저 고르면 라벨 사진을 사케 기록으로 연결할 수 있어요.') + '</div>';
+    ? '위 사진 목록에서 주류 라벨을 누르면 그 사진이 주류 기록으로 연결돼요.'
+    : '사진을 먼저 고르면 라벨 사진을 주류 기록으로 연결할 수 있어요.') + '</div>';
   h += aiLabelCard('rec');
   if (rec.sakes.length) h += sakeDraftList(rec);
-  h += '<button class="btn sm ghost block" data-act="rec-sake-add" style="margin-top:9px">+ 사케 직접 추가</button>';
+  h += '<button class="btn sm ghost block" data-act="rec-sake-add" style="margin-top:9px">+ 주류 직접 추가</button>';
   h += '</section>';
 
   h += '<button class="btn primary block" data-act="rec-save" style="padding:14px">기록 저장</button>';
@@ -2633,7 +3043,7 @@ function addSamplePhotos() {
   rec.sakes.push(newDraft(last));
   refreshRecSuggestions();
   render();
-  toast('샘플 사진 4장 · 라벨 1장이 사케 폼에 연결됐어요.');
+  toast('샘플 사진 4장 · 라벨 1장이 주류 폼에 연결됐어요.');
 }
 function toggleLabel(id) {
   var rec = ui.rec;
@@ -2653,7 +3063,7 @@ function saveRecord() {
   syncRecordForm();
   var rec = ui.rec;
   if (!rec) return;
-  if (!rec.photos.length && !rec.sakes.length) { toast('사진이나 사케를 먼저 추가해 주세요.'); return; }
+  if (!rec.photos.length && !rec.sakes.length) { toast('사진이나 주류를 먼저 추가해 주세요.'); return; }
   var name = (rec.venueName || '').trim();
   if (!name) { toast('업장 이름을 입력해 주세요.'); return; }
   var venue = rec.venueId ? venueById(rec.venueId) : null;
@@ -2692,7 +3102,8 @@ function saveRecord() {
     }
     state.sakes.push({
       id: uid('s'), visitId: visit.id, name: d.name.trim(), brewery: (d.brewery || '').trim(),
-      grade: d.grade || '', polish: num(d.polish), rice: (d.rice || '').trim(), hiire: d.hiire || '',
+      category: catIdOf(d), grade: d.grade || '', polish: num(d.polish), rice: (d.rice || '').trim(),
+      hiire: d.hiire || '', vintage: num(d.vintage), age: num(d.age), cask: (d.cask || '').trim(),
       abv: num(d.abv), rating: Number(d.rating) || 0, memo: (d.memo || '').trim(),
       photo: labelPhoto || ''
     });
@@ -2702,8 +3113,8 @@ function saveRecord() {
   if (saveState()) {
     ui.rec = null;
     setTab('venues');
-    toast(fmtDot(when) + ' ' + vname + ' · 사진 ' + nphotos + '장, 사케 ' + linked + '병 저장' +
-      (skipped ? ' (이름 없는 사케 ' + skipped + '병 제외)' : ''));
+    toast(fmtDot(when) + ' ' + vname + ' · 사진 ' + nphotos + '장, 주류 ' + linked + '병 저장' +
+      (skipped ? ' (이름 없는 주류 ' + skipped + '병 제외)' : ''));
   }
 }
 
@@ -2746,7 +3157,7 @@ async function aiRead(ctx, i) {
   }
   if (!d) return;
   if (!aiKey()) {
-    toast('설정 › AI 사케 라벨 인식에서 ' + aiProvider(state.settings.provider).name +
+    toast('설정 › AI 주류 라벨 인식에서 ' + aiProvider(state.settings.provider).name +
       ' API 키를 넣으면 라벨을 자동으로 읽어요. 지금은 데모 채우기를 써보세요.');
     return;
   }
@@ -2757,7 +3168,7 @@ async function aiRead(ctx, i) {
   toast('라벨을 읽는 중…');
   try {
     var r = await callVision(m[1], m[2]);
-    ['name', 'brewery', 'grade', 'polish', 'rice', 'hiire', 'abv', 'memo'].forEach(function (k) {
+    ['category', 'name', 'brewery', 'grade', 'polish', 'rice', 'hiire', 'vintage', 'age', 'cask', 'abv', 'memo'].forEach(function (k) {
       if (r[k] != null && r[k] !== '') d[k] = r[k];
     });
     if (r.rating) d.rating = r.rating;
@@ -2769,8 +3180,8 @@ async function aiRead(ctx, i) {
 }
 async function callVision(mediaType, b64) {
   var s = state.settings;
-  var prompt = '이 사진은 일본 사케 병의 라벨입니다. 읽을 수 있는 정보만 골라 JSON 하나로만 답하세요. 모르면 빈 문자열. ' +
-    '형식: {"name":"","brewery":"","grade":"준마이다이긴죠|준마이긴죠|준마이|혼조조|긴죠|다이긴죠|특별준마이|샴페인|기타","polish":"정미보합 숫자","rice":"주조미","hiire":"hiire|namachozo|nama|yamahai","abv":"도수 숫자","memo":"한 줄 메모"}';
+  var prompt = '이 사진은 주류(사케·와인·전통주·위스키) 병·라벨입니다. 어느 주종인지 먼저 판단하고, 읽을 수 있는 정보만 골라 JSON 하나로만 답하세요. 모르면 빈 문자열. ' +
+    '형식: {"category":"sake|wine|traditional|whisky","name":"","brewery":"생산자·양조장·증류소","grade":"사케 등급 또는 와인·전통주·위스키 종류","vintage":"와인 빈티지 연도","polish":"사케 정미보합 숫자","rice":"사케 주조미·와인 품종·전통주 원료","hiire":"hiire|namachozo|nama|yamahai","age":"위스키 숙성연수","cask":"위스키 캐스크","abv":"도수 숫자","memo":"한 줄 메모"}';
   var res, json, text;
   if (s.provider === 'gemini') {
     text = await callGemini(mediaType, b64, prompt, s);
@@ -2846,17 +3257,17 @@ function openVisit(id) {
   var metaBits = [venue.area, venue.address].filter(Boolean);
   if (metaBits.length) h += '<div class="tiny" style="margin-top:10px;line-height:1.5">' + metaBits.map(esc).join(' · ') + '</div>';
   h += visitOrdinalRow(v);
-  h += '<h4 class="dt">마신 사케 ' + sakes.length + '병</h4>';
+  h += '<h4 class="dt">마신 주류 ' + sakes.length + '병</h4>';
   if (sakes.length) {
     sakes.forEach(function (s) {
       h += '<button class="srow" data-act="open-sake" data-id="' + s.id + '">' +
-        '<span class="sn"><b>' + esc(s.name) + '</b><span>' + esc(sakeMeta(s)) + '</span></span>' +
+        '<span class="sn"><b>' + esc(s.name) + '</b>' + catBadge(s) + '<span>' + esc(sakeMeta(s)) + '</span></span>' +
         (s.rating ? '<span class="st">' + starsText(s.rating) + '</span>' : '') + '</button>';
     });
   } else {
-    h += '<p class="hint" style="margin-top:0">기록된 사케가 없어요.</p>';
+    h += '<p class="hint" style="margin-top:0">기록된 주류가 없어요.</p>';
   }
-  h += '<button class="btn sm ghost" data-act="add-sake-to-visit" data-id="' + v.id + '" style="margin:2px 0 4px">+ 이 방문에 사케 추가</button>';
+  h += '<button class="btn sm ghost" data-act="add-sake-to-visit" data-id="' + v.id + '" style="margin:2px 0 4px">+ 이 방문에 주류 추가</button>';
   if (photos.length) {
     h += '<h4>사진 ' + photos.length + '장</h4><div class="photoGrid">';
     photos.forEach(function (p, i) {
@@ -2911,14 +3322,14 @@ function openSake(id) {
   openSheet(h);
 }
 /* -------------------- 라벨 사진 한 장 → AI 자동 입력 --------------------
-   + 기록 화면의 사케 라벨 단계와 방문 상세의 '+ 이 방문에 사케 추가' 시트가
+   + 기록 화면의 주류 라벨 단계와 방문 상세의 '+ 이 방문에 주류 추가' 시트가
    같은 버튼을 쓴다. 사진을 고르면 곧바로 라벨을 읽어 입력칸을 채운다. */
 function aiLabelCard(ctx) {
   var h = '<div class="aiLabelCard">';
   h += '<label class="btn primary block aiPick" style="cursor:pointer">' +
     '<input type="file" accept="image/*" data-file="ai-label" data-ctx="' + ctx + '" style="display:none">' +
     ICON.camera + ' 라벨 사진으로 AI 자동 입력</label>';
-  h += '<p class="hint" style="margin:7px 2px 0">사케 병 라벨이 찍힌 사진 1장을 고르면 이름·등급·정미보합·양조장을 AI가 채워요. 키가 없으면 사진만 연결됩니다.</p>';
+  h += '<p class="hint" style="margin:7px 2px 0">주류 라벨이 찍힌 사진 1장을 고르면 사케·와인·전통주·위스키를 알아보고 이름·종류·생산자를 AI가 채워요. 키가 없으면 사진만 연결됩니다.</p>';
   h += '</div>';
   return h;
 }
@@ -2937,7 +3348,7 @@ function edLabelBlock() {
   h += '<label class="btn primary block aiPick" style="cursor:pointer">' +
     '<input type="file" accept="image/*" data-file="ai-label" data-ctx="ed" style="display:none">' +
     ICON.camera + ' 라벨 사진으로 AI 자동 입력</label>';
-  h += '<p class="hint" style="margin:7px 2px 0">사케 병 라벨이 찍힌 사진 1장을 고르면 이름·등급·정미보합·양조장을 AI가 채워요. 고르는 즉시 읽습니다.</p>';
+  h += '<p class="hint" style="margin:7px 2px 0">주류 라벨이 찍힌 사진 1장을 고르면 사케·와인·전통주·위스키를 알아보고 이름·종류·생산자를 AI가 채워요. 고르는 즉시 읽습니다.</p>';
   if (photos.length) {
     h += '<div class="tiny" style="margin:10px 2px 5px">이 방문 사진에서 고르기</div><div class="edPhotoGrid">';
     photos.slice(0, 18).forEach(function (p) {
@@ -2981,7 +3392,7 @@ async function addAiLabelPhoto(files, ctx) {
 function renderEditor() {
   var ed = _ed;
   if (!ed) return;
-  var h = sheetHead(ed.id ? '사케 수정' : '사케 추가');
+  var h = sheetHead(ed.id ? '주류 수정' : '주류 추가');
   h += '<div class="sheetbody">';
   h += edLabelBlock();
   h += draftHtml(ed.draft, 0, 'ed');
@@ -2991,7 +3402,7 @@ function renderEditor() {
       return '<option value="' + v.id + '"' + (ed.visitId === v.id ? ' selected' : '') + '>' + esc(visitLabel(v)) + '</option>';
     }).join('') + '</select></div>';
   h += '<button class="btn primary block" data-act="ed-save" style="margin-top:16px;padding:13px">저장</button>';
-  if (ed.id) h += '<button class="btn danger block" data-act="ask-delete-sake" data-id="' + ed.id + '" style="margin-top:8px">이 사케 삭제</button>';
+  if (ed.id) h += '<button class="btn danger block" data-act="ask-delete-sake" data-id="' + ed.id + '" style="margin-top:8px">이 주류 삭제</button>';
   h += '</div>';
   openSheet(h);
 }
@@ -3044,7 +3455,7 @@ function saveEditor() {
   toast('저장했어요.');
 }
 function askDeleteSake(id) {
-  confirmSheet('사케 기록 삭제', '이 사케 기록을 지웁니다. 방문 사진은 그대로 남아요.', '삭제', true, function () {
+  confirmSheet('주류 기록 삭제', '이 주류 기록을 지웁니다. 방문 사진은 그대로 남아요.', '삭제', true, function () {
     state.sakes = state.sakes.filter(function (s) { return s.id !== id; });
     saveState();
     _ed = null;
@@ -3054,7 +3465,7 @@ function askDeleteSake(id) {
   });
 }
 function askDeleteVisit(id) {
-  confirmSheet('방문 기록 삭제', '이 방문과 연결된 사케 기록도 함께 지워집니다. 되돌릴 수 없어요.', '삭제', true, function () {
+  confirmSheet('방문 기록 삭제', '이 방문과 연결된 주류 기록도 함께 지워집니다. 되돌릴 수 없어요.', '삭제', true, function () {
     var gonePhotos = (visitById(id) || {}).photos || [];
     state.visits = state.visits.filter(function (v) { return v.id !== id; });
     state.sakes = state.sakes.filter(function (s) { return s.visitId !== id; });
@@ -3436,7 +3847,7 @@ function openSettings() {
   var h = sheetHead('설정');
   h += '<div class="sheetbody">';
   h += langField();
-  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">AI 사케 라벨 인식</div>';
+  h += '<div class="tiny" style="letter-spacing:.12em;font-weight:700;margin:0 2px 8px">AI 주류 라벨 인식</div>';
   h += '<div class="card" style="margin-bottom:14px">';
   h += aiProviderField(s);
   h += aiKeyField(s);
@@ -3471,7 +3882,7 @@ function openSettings() {
   h += '<div class="row" style="gap:7px"><button class="btn ghost" style="flex:1" data-act="restore-seed">샘플 데이터로 되돌리기</button>' +
     '<button class="btn danger" data-act="wipe-all">전체 삭제</button></div>';
   var _ps = photoStats();
-  h += '<p class="hint">저장 용량 ' + storageKB() + 'KB · 방문 ' + state.visits.length + '건 · 사케 ' + state.sakes.length + '병<br>' +
+  h += '<p class="hint">저장 용량 ' + storageKB() + 'KB · 방문 ' + state.visits.length + '건 · 주류 ' + state.sakes.length + '병<br>' +
     '업로드 사진 ' + _ps.n + '장(' + photoSizeLabel(_ps) + ')은 이 브라우저의 IndexedDB에 따로 저장됩니다.<br>' +
     '브라우저 기록을 지우면 기록과 사진이 함께 사라지니 JSON 백업을 받아 두세요.</p>';
   h += '</div>';
@@ -3525,7 +3936,7 @@ async function importJson(file) {
       saveState();
       closeSheet();
       setTab('venues');
-      toast('가져왔어요 · 방문 ' + state.visits.length + '건, 사케 ' + state.sakes.length + '병');
+      toast('가져왔어요 · 방문 ' + state.visits.length + '건, 주류 ' + state.sakes.length + '병');
     });
   } catch (e) {
     toast('가져오기 실패: ' + (e.message || '파일을 읽지 못했어요'));
@@ -3542,7 +3953,7 @@ function askRestoreSeed() {
   });
 }
 function askWipe() {
-  confirmSheet('전체 삭제', '모든 방문·사진·사케 기록을 지웁니다. 되돌릴 수 없어요. 백업을 먼저 받아 두세요.', '모두 삭제', true, function () {
+  confirmSheet('전체 삭제', '모든 방문·사진·주류 기록을 지웁니다. 되돌릴 수 없어요. 백업을 먼저 받아 두세요.', '모두 삭제', true, function () {
     photoClear();
     state = { version: 1, settings: state.settings, venues: [], visits: [], sakes: [] };
     saveState();
@@ -3642,7 +4053,24 @@ function onClick(e) {
     case 'venue-filter': ui.venueFilter = id; render(); break;
     case 'grade-filter': ui.gradeFilter = v; render(); break;
     case 'note-sort': ui.noteSort = v; render(); break;
-    case 'note-view': ui.noteView = (v === 'all') ? 'all' : 'brand'; render(); break;
+    case 'note-view': ui.noteView = (v === 'all' || v === 'cat') ? v : 'brand'; render(); break;
+    case 'note-cat':
+      ui.noteCat = (ui.noteCat === id) ? 'all' : id;
+      ui.gradeFilter = 'all';
+      render();
+      break;
+    case 'cat-toggle':
+      ui.catClosed = ui.catClosed || {};
+      ui.catClosed[id] = !ui.catClosed[id];
+      render();
+      break;
+    case 'draft-cat': setDraftCat(ctx, i, v); break;
+    case 'open-venue': openVenue(id); break;
+    case 'venue-filter-close':
+      closeSheet();
+      ui.venueFilter = id;
+      render();
+      break;
     case 'brand-toggle':
       ui.brandClosed = ui.brandClosed || {};
       ui.brandClosed[id] = !ui.brandClosed[id];
@@ -5330,6 +5758,844 @@ if (typeof __TEST__ !== 'undefined') {
   __TEST__.brandRow = brandRow;
   __TEST__.brandListHtml = brandListHtml;
   __TEST__.noteViewChips = noteViewChips;
+}
+
+
+/* =====================================================================
+   주종 분류 — 사케 · 와인 · 전통주 · 위스키 (0.6.0)
+   ---------------------------------------------------------------------
+   · 데이터: 주류 레코드에 category('sake'|'wine'|'traditional'|'whisky')를
+     둔다. 값이 없는 예전 기록은 사케로 본다.
+   · 목록: 분류별(주종 섹션 → 브랜드 → 히스토리) · 브랜드별 · 최신순 전체.
+     주종 섹션과 브랜드 섹션 모두 접기/펼치기와 '총 N병(N회) · 최근 마신 날'
+     집계를 사케와 똑같이 쓴다.
+   · 폼: 주종 칩을 고르면 이름·생산자·종류·세부 항목의 라벨과 예시가 그 주종에
+     맞게 바뀐다(정미보합 대신 빈티지, 주조미 대신 품종·원료 등).
+   · 같은 이름의 브랜드라도 주종이 다르면 다른 묶음으로 센다.
+   원본 소스(sake-journal-src)는 건드리지 않고 build.py 가 이 파일을 덧붙인다.
+   ===================================================================== */
+
+/* ------------------------------ 주종 정의 ------------------------------ */
+var CAT_LIST = [
+  {
+    id: 'sake', ko: '사케', icon: '酒',
+    nameLabel: '사케 이름', namePh: '예) 신슈키레이 금거북이',
+    makerLabel: '양조장', makerPh: '예) 오카자키 슈조',
+    styleLabel: '등급',
+    styles: ['준마이다이긴죠', '준마이긴죠', '준마이', '혼조조', '긴죠', '다이긴죠', '특별준마이', '기타'],
+    fields: [
+      { key: 'polish', label: '정미보합 (%)', ph: '예) 45', mode: 'numeric' },
+      { key: 'rice', label: '주조미', ph: '예) 야마다니시키' },
+      { key: 'hiire', label: '화입 여부', select: 'hiire' }
+    ]
+  },
+  {
+    id: 'wine', ko: '와인', icon: '萄',
+    nameLabel: '와인 이름', namePh: '예) 부르고뉴 피노 누아',
+    makerLabel: '생산자', makerPh: '예) 도멘 루이 자도',
+    styleLabel: '종류',
+    styles: ['레드', '화이트', '로제', '스파클링', '샴페인', '디저트', '주정강화', '기타'],
+    fields: [
+      { key: 'vintage', label: '빈티지', ph: '예) 2020', mode: 'numeric' },
+      { key: 'rice', label: '품종', ph: '예) 피노 누아' }
+    ]
+  },
+  {
+    id: 'traditional', ko: '전통주', icon: '醪',
+    nameLabel: '전통주 이름', namePh: '예) 이강주',
+    makerLabel: '양조장', makerPh: '예) 전주 이강주',
+    styleLabel: '종류',
+    styles: ['탁주', '약주', '청주', '증류주', '과실주', '기타'],
+    fields: [
+      { key: 'rice', label: '원료', ph: '예) 찹쌀 · 누룩' }
+    ]
+  },
+  {
+    id: 'whisky', ko: '위스키', icon: '麥',
+    nameLabel: '위스키 이름', namePh: '예) 발베니 12년 더블우드',
+    makerLabel: '증류소', makerPh: '예) 발베니',
+    styleLabel: '종류',
+    styles: ['싱글몰트', '블렌디드', '블렌디드 몰트', '버번', '라이', '기타'],
+    fields: [
+      { key: 'age', label: '숙성연수', ph: '예) 12', mode: 'numeric' },
+      { key: 'cask', label: '캐스크', ph: '예) 셰리 캐스크' }
+    ]
+  }
+];
+var CAT_BY_ID = {};
+CAT_LIST.forEach(function (c) { CAT_BY_ID[c.id] = c; });
+
+function catDef(id) { return CAT_BY_ID[id] || CAT_LIST[0]; }
+function catIdOf(s) { var id = s && s.category; return CAT_BY_ID[id] ? id : 'sake'; }
+function catName(s) { return catDef(catIdOf(s)).ko; }
+function catStyleList(id) { return catDef(id).styles; }
+
+function catBadgeId(id) {
+  var cid = CAT_BY_ID[id] ? id : 'sake';
+  return '<span class="badge catb catb-' + cid + '">' + catDef(cid).ko + '</span>';
+}
+function catBadge(s) { return catBadgeId(catIdOf(s)); }
+
+/* 화면 상태: 목록은 분류별 보기가 기본, 접은 주종·브랜드는 따로 기억한다 */
+ui.noteView = 'cat';
+ui.noteCat = 'all';
+ui.catClosed = {};
+ui.brandClosed = ui.brandClosed || {};
+
+/* ------------------------------ 브랜드 ------------------------------ */
+/* 생산자 이름 앞에 붙는 말(도멘·샤또·증류소…)은 브랜드가 아니다 */
+BRAND_NOISE = BRAND_NOISE.concat(['도멘', '도멜', '샤또', '샤토', '와이너리', '증류소', '양조장',
+  '샹파뉴', '보르도', '부르고뉴', '스카치', '켄터키',
+  'domaine', 'chateau', 'château', 'winery', 'distillery', 'estate',
+  'champagne', 'bordeaux', 'burgundy', 'scotch']);
+/* 이름 앞에 와도 브랜드가 아닌 주종·스타일 낱말 */
+BRAND_SPEC = BRAND_SPEC.concat(['레드', '화이트', '로제', '스파클링', '디저트', '주정강화',
+  '탁주', '약주', '청주', '증류주', '과실주', '싱글몰트', '블렌디드', '몰트', '버번', '라이',
+  '빈티지', '리저브', 'vintage', 'reserve']);
+
+/* 생산자 이름의 앞·뒤 수식어(도멘·샤또·증류소·샹파뉴…)를 건너뛴 낱말 목록 */
+function _stripNoise(words) {
+  var a = 0, b = words.length;
+  while (a < b && (_isNoiseWord(words[a]) || _isNumeric(words[a]))) a++;
+  while (b > a && (_isNoiseWord(words[b - 1]) || _isNumeric(words[b - 1]))) b--;
+  return words.slice(a, b);
+}
+/* 이름 낱말 안에 이 낱말들이 그대로 이어서 나오는가 */
+function _wordsInside(list, hay) {
+  if (!list.length || list.length > hay.length) return false;
+  for (var i = 0; i + list.length <= hay.length; i++) {
+    var ok = true;
+    for (var j = 0; j < list.length; j++) {
+      if (_brandToken(hay[i + j]) !== _brandToken(list[j])) { ok = false; break; }
+    }
+    if (ok) return true;
+  }
+  return false;
+}
+
+/* 주류 하나의 브랜드(양조장·생산자·증류소) 이름 */
+function brandOfSake(s) {
+  var name = _cleanName(s && s.name);
+  if (!name) return '기타';
+  var nw = _brandWords(name);
+  var bw = _stripNoise(_brandWords(s && s.brewery));
+  /* 와인·전통주·위스키는 이름이 큐베·제품명이라 생산자(도멘·양조장·증류소)를
+     브랜드로 삼는다. 이름에 그대로 나오면 이름 쪽 표기를 따른다. */
+  if (catIdOf(s) !== 'sake' && bw.length) {
+    for (var t = bw.length; t >= 1; t--) {
+      var tail = bw.slice(bw.length - t);
+      if (_wordsInside(tail, nw)) return tail.join(' ');
+    }
+    return bw.join(' ');
+  }
+  /* 1) 이름과 생산자의 공통 앞부분 — '바라 마송 레 마르간' ↔ '바라 마송 · 샴페인' */
+  var best = 0;
+  for (var k = 1; k <= nw.length && k <= bw.length; k++) {
+    if (_brandToken(nw[k - 1]) !== _brandToken(bw[k - 1])) break;
+    best = k;
+  }
+  if (best) {
+    var head = nw.slice(0, best).filter(function (w) {
+      return !_isSpecWord(w) && !_isNoiseWord(w) && !_isNumeric(w);
+    }).join(' ');
+    if (head) return head;
+  }
+  /* 2) 이름 앞머리의 첫 브랜드 낱말 — 등급·스타일·숫자·빈티지는 건너뛴다 */
+  for (var i = 0; i < nw.length && i < 4; i++) {
+    var w = nw[i];
+    if (_isNumeric(w) || _isSpecWord(w) || _isNoiseWord(w)) continue;
+    return w;
+  }
+  /* 3) 생산자 이름 앞머리 */
+  for (var b = 0; b < bw.length; b++) {
+    if (_isNumeric(bw[b]) || _isNoiseWord(bw[b])) continue;
+    return bw[b];
+  }
+  return name;
+}
+
+/* 브랜드 묶음: 주종 + 브랜드가 같아야 같은 묶음 */
+function brandGroups(sakes) {
+  var map = {}, order = [];
+  (sakes || []).forEach(function (s) {
+    var cid = catIdOf(s);
+    var name = brandOfSake(s);
+    var key = cid + ':' + (_brandToken(name) || 'etc');
+    var g = map[key];
+    if (!g) {
+      g = map[key] = { key: key, name: name, cat: cid, sakes: [], count: 0, times: 0, last: '' };
+      order.push(key);
+    }
+    g.sakes.push(s);
+  });
+  var out = order.map(function (k) {
+    var g = map[k];
+    var occ = {}, dates = [];
+    g.sakes.forEach(function (s) {
+      var v = s.visitId ? visitById(s.visitId) : null;
+      occ[v ? ('v:' + v.id) : ('s:' + s.id)] = 1;
+      if (v && v.date) dates.push(v.date);
+    });
+    dates.sort();
+    g.count = g.sakes.length;
+    g.times = Object.keys(occ).length;
+    g.last = dates.length ? dates[dates.length - 1] : '';
+    g.sakes.sort(function (a, b) {
+      var ka = _sakeWhen(a), kb = _sakeWhen(b);
+      if (ka !== kb) return ka < kb ? 1 : -1;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+    });
+    return g;
+  });
+  return out.sort(function (a, b) {
+    var la = a.last || '', lb = b.last || '';
+    if (la !== lb) return la < lb ? 1 : -1;
+    if (a.count !== b.count) return b.count - a.count;
+    return String(a.name).localeCompare(String(b.name), 'ko');
+  });
+}
+
+function brandSectionHtml(g, shut, hideCat) {
+  var h = '<div class="bsec' + (shut ? ' closed' : '') + '">';
+  h += '<button class="bhead" data-act="brand-toggle" data-id="' + esc(g.key) + '" aria-expanded="' + (shut ? 'false' : 'true') + '">';
+  h += '<span class="bname">' + esc(g.name) + '</span>';
+  if (!hideCat) h += catBadgeId(g.cat);
+  h += '<span class="bmeta">총 ' + g.count + '병(' + g.times + '회)</span>';
+  if (g.last) h += '<span class="bmeta">최근 마신 날 ' + esc(fmtDot(g.last)) + '</span>';
+  h += '<span class="bchev">' + ICON.chev + '</span>';
+  h += '</button>';
+  if (!shut) h += '<div class="brows">' + g.sakes.map(brandRow).join('') + '</div>';
+  h += '</div>';
+  return h;
+}
+
+/* 주종 안의 브랜드 섹션 (hideCat 이면 주종 배지를 빼고 그린다) */
+function brandListHtml(sakes, hideCat) {
+  var groups = brandGroups(sakes);
+  var closed = ui.brandClosed || {};
+  return groups.map(function (g) {
+    return brandSectionHtml(g, !!closed[g.key], !!hideCat);
+  }).join('');
+}
+
+/* 등급·종류 · 정미보합/빈티지/숙성 등 주종별 세부 한 줄 */
+function catMetaBits(s) {
+  var cid = catIdOf(s);
+  if (cid === 'sake') return [s.grade, s.polish ? '정미보합 ' + s.polish + '%' : ''];
+  if (cid === 'wine') return [s.grade, s.vintage ? String(s.vintage) : '', s.rice];
+  if (cid === 'traditional') return [s.grade, s.rice];
+  return [s.grade, s.age ? s.age + '년' : '', s.cask];
+}
+
+/* 브랜드 히스토리 한 줄: 이름 · 주종별 세부 · 마신 업장(몇 번째 방문) · 날짜 · 메모 */
+function brandRow(s) {
+  var visit = s && s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var n = visit ? visitOrdinal(visit.id) : 0;
+  var h = '<div class="ncard brow" role="button" tabindex="0" data-act="open-sake" data-id="' + esc(s.id) + '">';
+  h += '<div class="nthumb">' + (src ? '<img src="' + src + '" alt="" loading="lazy">' : esc(String(s.name || '酒').slice(0, 1))) + '</div>';
+  h += '<div class="nbody"><div class="nname">' + esc(s.name || '이름 없는 주류') +
+    (s.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>';
+  var meta = catMetaBits(s).filter(Boolean).join(' · ');
+  if (meta) h += '<div class="nsub">' + esc(meta) + '</div>';
+  h += '<div class="bwhen">';
+  if (venue) {
+    h += '<span class="bvenue">' + ICON.pin + esc(venue.name) + '</span>';
+    if (n) h += '<span class="badge vord">' + n + '번째 방문</span>';
+    if (visit.date) h += '<span class="bdate">' + esc(fmtDot(visit.date)) + '</span>';
+  } else {
+    h += '<span class="bdate">업장 미연결</span>';
+  }
+  h += '</div>';
+  if (s.memo) h += '<div class="bmemo">' + esc(s.memo) + '</div>';
+  h += '</div></div>';
+  return h;
+}
+
+/* ------------------------------ 목록 화면 ------------------------------ */
+function catTotals() {
+  var map = {};
+  CAT_LIST.forEach(function (c) { map[c.id] = { id: c.id, ko: c.ko, count: 0, occ: {}, last: '' }; });
+  state.sakes.forEach(function (s) {
+    var g = map[catIdOf(s)];
+    if (!g) return;
+    g.count++;
+    var v = s.visitId ? visitById(s.visitId) : null;
+    if (v) {
+      g.occ[v.id] = 1;
+      if ((v.date || '') > g.last) g.last = v.date;
+    }
+  });
+  return CAT_LIST.map(function (c) {
+    var g = map[c.id];
+    g.times = Object.keys(g.occ).length;
+    return g;
+  });
+}
+
+/* 상단 주종별 요약 카드 — 누르면 그 주종만, 다시 누르면 전체 */
+function catCards() {
+  var h = '<div class="catcards">';
+  catTotals().forEach(function (g) {
+    var on = ui.noteCat === g.id;
+    h += '<button class="csum cat-' + g.id + (on ? ' on' : '') + (g.count ? '' : ' off') +
+      '" data-act="note-cat" data-id="' + g.id + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+      '<span class="csumName">' + g.ko + '</span>' +
+      '<span class="csumN">' + g.count + '병</span>' +
+      '</button>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function catStats(list) {
+  var occ = {}, last = '';
+  list.forEach(function (s) {
+    var v = s.visitId ? visitById(s.visitId) : null;
+    if (!v) return;
+    occ[v.id] = 1;
+    if ((v.date || '') > last) last = v.date;
+  });
+  return { count: list.length, times: Object.keys(occ).length, last: last };
+}
+
+/* 주종 섹션: 사케 · 와인 · 전통주 · 위스키 (안에 브랜드별 히스토리) */
+function catSectionHtml(cat, list) {
+  var st = catStats(list);
+  var shut = !!(ui.catClosed || {})[cat.id];
+  var h = '<div class="catsec catsec-' + cat.id + (shut ? ' closed' : '') + '">';
+  h += '<button class="cathead" data-act="cat-toggle" data-id="' + cat.id + '" aria-expanded="' + (shut ? 'false' : 'true') + '">';
+  h += '<span class="catname">' + cat.ko + '</span>';
+  h += '<span class="catmeta">총 ' + st.count + '병(' + st.times + '회)</span>';
+  if (st.last) h += '<span class="catmeta">최근 마신 날 ' + esc(fmtDot(st.last)) + '</span>';
+  h += '<span class="catchev">' + ICON.chev + '</span>';
+  h += '</button>';
+  if (!shut) h += '<div class="catbody">' + brandListHtml(list, true) + '</div>';
+  h += '</div>';
+  return h;
+}
+
+function catListHtml(sakes) {
+  var h = '';
+  CAT_LIST.forEach(function (c) {
+    var list = (sakes || []).filter(function (s) { return catIdOf(s) === c.id; });
+    if (!list.length) return;
+    h += catSectionHtml(c, list);
+  });
+  return h;
+}
+
+function noteViewChips() {
+  var opts = [['cat', '분류별'], ['brand', '브랜드별'], ['all', '최신순 전체']];
+  return opts.map(function (o) {
+    return '<button class="segbtn' + (ui.noteView === o[0] ? ' on' : '') + '" data-act="note-view" data-v="' + o[0] + '">' + o[1] + '</button>';
+  }).join('');
+}
+
+/* 등급·종류 칩 — 지금 고른 주종(과 검색어) 안에서 실제로 있는 값만 */
+function gradeChips() {
+  var base = state.sakes.filter(function (s) { return ui.noteCat === 'all' || catIdOf(s) === ui.noteCat; });
+  var present = {}, order = [];
+  base.forEach(function (s) {
+    var g = s.grade || '기타';
+    if (!present[g]) order.push(g);
+    present[g] = (present[g] || 0) + 1;
+  });
+  order.sort(function (a, b) {
+    var ra = state.sakes.length, rb = state.sakes.length;
+    CAT_LIST.forEach(function (c) {
+      var ia = c.styles.indexOf(a), ib = c.styles.indexOf(b);
+      if (ia >= 0 && ia < ra) ra = ia;
+      if (ib >= 0 && ib < rb) rb = ib;
+    });
+    if (ra !== rb) return ra - rb;
+    return a.localeCompare(b, 'ko');
+  });
+  var out = '<button class="chip' + (ui.gradeFilter === 'all' ? ' on' : '') + '" data-act="grade-filter" data-v="all">전체 ' + base.length + '</button>';
+  order.forEach(function (g) {
+    out += '<button class="chip' + (ui.gradeFilter === g ? ' on' : '') + '" data-act="grade-filter" data-v="' + esc(g) + '">' +
+      esc(g) + ' <span style="opacity:.5">' + present[g] + '</span></button>';
+  });
+  return out;
+}
+
+function filteredSakes() {
+  var q = (ui.noteQuery || '').trim().toLowerCase();
+  var arr = state.sakes.slice();
+  if (ui.noteCat && ui.noteCat !== 'all') {
+    arr = arr.filter(function (s) { return catIdOf(s) === ui.noteCat; });
+  }
+  if (ui.gradeFilter !== 'all') {
+    arr = arr.filter(function (s) { return (s.grade || '기타') === ui.gradeFilter; });
+  }
+  if (q) {
+    arr = arr.filter(function (s) {
+      var visit = s.visitId ? visitById(s.visitId) : null;
+      var venue = visit ? venueById(visit.venueId) : null;
+      var hay = [s.name, s.brewery, s.rice, s.memo, s.grade, s.vintage, s.age, s.cask,
+        catName(s), venue ? venue.name : ''].join(' ').toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+  }
+  if (ui.noteSort === 'rating') arr.sort(function (a, b) { return (b.rating || 0) - (a.rating || 0); });
+  else if (ui.noteSort === 'name') arr.sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), 'ko'); });
+  else arr.sort(function (a, b) {
+    var va = a.visitId ? visitById(a.visitId) : null, vb = b.visitId ? visitById(b.visitId) : null;
+    return ((vb ? vb.date : '') + (vb ? vb.time : '')).localeCompare((va ? va.date : '') + (va ? va.time : ''));
+  });
+  return arr;
+}
+
+function sakeMeta(s) {
+  return [s.brewery].concat(catMetaBits(s)).filter(Boolean).join(' · ') +
+    (catIdOf(s) === 'sake' ? (hiireLabel(s.hiire) ? ' · ' + hiireLabel(s.hiire) : '') : '');
+}
+
+function sakeCard(s) {
+  var visit = s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var h = '<div class="ncard" role="button" tabindex="0" data-act="open-sake" data-id="' + s.id + '">';
+  h += '<div class="nthumb">' + (src ? '<img src="' + src + '" alt="" loading="lazy">' : esc(String(s.name || '酒').slice(0, 1))) + '</div>';
+  h += '<div class="nbody"><div class="nname">' + esc(s.name || '이름 없는 주류') + catBadge(s) +
+    (s.sample ? '<span class="badge gold">샘플</span>' : '') + '</div>';
+  var meta = sakeMeta(s);
+  if (meta) h += '<div class="nsub">' + esc(meta) + '</div>';
+  if (s.rating) h += '<div>' + starsHtml(s.rating) + '</div>';
+  if (s.memo) h += '<div class="nmemo">' + esc(s.memo) + '</div>';
+  if (venue) {
+    h += '<span class="linkchip">' + ICON.pin + esc(venue.name) + ' · ' + fmtDot(visit.date) + '</span>';
+  } else {
+    h += '<span class="linkchip" style="background:#FBF3F2;color:#9C5B52">업장 미연결</span>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+function noteListHtml() {
+  var arr = filteredSakes();
+  if (!arr.length) return emptyBlock('해당하는 주류가 없어요', '검색어나 분류·등급 필터를 바꿔 보세요.');
+  if (ui.noteView === 'cat') return catListHtml(arr);
+  if (ui.noteView === 'brand') return brandListHtml(arr);
+  return arr.map(sakeCard).join('');
+}
+
+function viewNotes() {
+  var h = '<div class="view">';
+  h += '<div class="vh"><div><h2>주류 목록</h2><p>마신 술, 분류와 시음 메모</p></div>' +
+    '<button class="btn sm ghost" data-act="add-sake">+ 주류</button></div>';
+  h += '<div class="search">' + ICON.search +
+    '<input id="noteSearch" type="search" placeholder="이름 · 생산자 · 메모 검색" value="' + esc(ui.noteQuery) + '" data-input="note-search"></div>';
+  h += catCards();
+  h += '<div class="seg nseg" role="group">' + noteViewChips() + '</div>';
+  h += '<div class="chips">' + gradeChips() + '</div>';
+  h += '<div class="row" style="margin:0 2px 10px"><span class="tiny" id="noteCount">' + filteredSakes().length + '병</span>' +
+    '<span class="spacer"></span>' + (ui.noteView === 'all' ? sortChips() : '') + '</div>';
+  h += '<div id="noteList">' + noteListHtml() + '</div>';
+  h += '</div>';
+  return h;
+}
+
+/* ------------------------------ 폼(주종별 입력) ------------------------------ */
+function newDraft(photo) {
+  return {
+    category: 'sake', name: '', brewery: '', grade: '', polish: '', rice: '', hiire: '',
+    vintage: '', age: '', cask: '',
+    abv: '', rating: 0, memo: '', manual: !photo,
+    photo: photo ? photo.src : '', photoId: photo ? photo.id : ''
+  };
+}
+
+function catFieldOptions(cat, cur) {
+  var opts = ['<option value="">선택</option>'];
+  var list = cat.styles.slice();
+  if (cur && list.indexOf(cur) < 0) list.push(cur);
+  list.forEach(function (g) {
+    opts.push('<option value="' + esc(g) + '"' + (cur === g ? ' selected' : '') + '>' + esc(g) + '</option>');
+  });
+  return opts.join('');
+}
+
+function catFieldHtml(f, d) {
+  var v = d[f.key] == null ? '' : d[f.key];
+  var h = '<div class="field"><label>' + f.label + '</label>';
+  if (f.select === 'hiire') {
+    h += '<select class="input" data-f="hiire">' + HIIRE.map(function (o) {
+      return '<option value="' + o.v + '"' + (d.hiire === o.v ? ' selected' : '') + '>' + o.label + '</option>';
+    }).join('') + '</select>';
+  } else {
+    h += '<input class="input" data-f="' + f.key + '"' +
+      (f.mode === 'numeric' ? ' inputmode="numeric"' : (f.mode === 'decimal' ? ' inputmode="decimal"' : '')) +
+      ' value="' + esc(v) + '" placeholder="' + esc(f.ph || '') + '">';
+  }
+  return h + '</div>';
+}
+
+function catFormFields(cat) {
+  return (cat.fields || []).concat([{ key: 'abv', label: '도수 (ABV)', ph: '예) 15', mode: 'decimal' }]);
+}
+
+function draftHtml(d, i, ctx) {
+  ctx = ctx || 'rec';
+  var tools = ctx === 'rec' || ctx === 'ed';
+  var cid = catIdOf(d);
+  var cat = catDef(cid);
+  var src = photoSrc(d.photo);
+  var h = '<div class="sakeblock" data-draft="' + i + '" style="' +
+    (i > 0 ? 'border-top:1px solid var(--line2);padding-top:12px;margin-top:12px' : '') + '">';
+  /* 주종 칩 */
+  h += '<div class="catpick" role="group" aria-label="주류 분류">' + CAT_LIST.map(function (c) {
+    return '<button class="catbtn' + (c.id === cid ? ' on' : '') + '" data-act="draft-cat" data-ctx="' + ctx +
+      '" data-i="' + i + '" data-v="' + c.id + '">' + c.ko + '</button>';
+  }).join('') + '</div>';
+  h += '<input type="hidden" data-f="category" value="' + cid + '">';
+  /* 사진 · AI 도구 */
+  h += '<div class="row" style="margin-bottom:8px;gap:6px">' +
+    (src ? '<img class="pth" style="width:36px;height:36px;flex:0 0 36px;border-radius:8px" src="' + src + '" alt="">'
+      : '<span class="tiny" style="flex:1;white-space:nowrap">라벨 사진 없음</span>') +
+    '<span class="spacer"></span>' +
+    (tools ? '<button class="btn sm" data-act="ai-read" data-ctx="' + ctx + '" data-i="' + i + '">' + ICON.sparkle + 'AI로 읽기</button>' +
+      '<button class="btn sm ghost" data-act="demo-fill" data-ctx="' + ctx + '" data-i="' + i + '">데모 채우기</button>' : '') +
+    (tools && d.manual ? '<button class="btn sm danger" data-act="rec-sake-del" data-i="' + i + '" aria-label="삭제">' + ICON.trash + '</button>' : '') +
+    '</div>';
+  /* 이름 · 생산자 / 종류 */
+  h += '<div class="field"><label>' + cat.nameLabel + '</label><input class="input" data-f="name" value="' + esc(d.name) +
+    '" placeholder="' + esc(cat.namePh) + '"></div>';
+  h += '<div class="grid2"><div class="field"><label>' + cat.makerLabel + '</label><input class="input" data-f="brewery" value="' + esc(d.brewery) +
+    '" placeholder="' + esc(cat.makerPh) + '"></div>' +
+    '<div class="field"><label>' + cat.styleLabel + '</label><select class="input" data-f="grade">' +
+    catFieldOptions(cat, d.grade || '') + '</select></div></div>';
+  /* 주종별 세부 항목 (두 칸씩) */
+  var fs = catFormFields(cat);
+  for (var k = 0; k < fs.length; k += 2) {
+    h += '<div class="grid2">' + catFieldHtml(fs[k], d) + (fs[k + 1] ? catFieldHtml(fs[k + 1], d) : '') + '</div>';
+  }
+  /* 별점 · 메모 */
+  h += '<div class="field"><label>별점</label><div class="rateRow">';
+  for (var r = 1; r <= 5; r++) {
+    h += '<button data-act="rec-rate" data-ctx="' + ctx + '" data-i="' + i + '" data-v="' + r + '" class="' +
+      (Number(d.rating) >= r ? 'on' : '') + '" aria-label="' + r + '점">★</button>';
+  }
+  h += '<span class="tiny" style="margin-left:6px">' + (d.rating ? starsText(d.rating) + ' / 5' : '') + '</span></div></div>';
+  h += '<div class="field"><label>시음 메모</label><textarea class="input" data-f="memo" placeholder="향, 온도, 어울린 음식">' + esc(d.memo) + '</textarea></div>';
+  h += '</div>';
+  return h;
+}
+
+/* 주종 칩을 누르면 그 주종의 라벨·항목으로 바꾼다 */
+function setDraftCat(ctx, i, v) {
+  var d;
+  if (ctx === 'ed') { syncEditor(); d = _ed && _ed.draft; }
+  else { syncRecordForm(); d = ui.rec && ui.rec.sakes[i]; }
+  if (!d || !CAT_BY_ID[v]) return;
+  if (catIdOf(d) === v) { d.category = v; return; }
+  d.category = v;
+  /* 주종이 다르면 앞서 고른 등급·종류는 의미가 없으므로 지운다 */
+  if (d.grade && catStyleList(v).indexOf(d.grade) < 0) d.grade = '';
+  if (ctx === 'ed') renderEditor(); else render();
+}
+
+/* ------------------------------ 상세 ------------------------------ */
+function catDetailRows(s) {
+  var cid = catIdOf(s);
+  var visit = s.visitId ? visitById(s.visitId) : null;
+  var rows;
+  if (cid === 'sake') {
+    rows = [['등급', s.grade], ['정미보합', s.polish ? s.polish + '%' : ''], ['주조미', s.rice], ['화입', hiireLabel(s.hiire)]];
+  } else if (cid === 'wine') {
+    rows = [['종류', s.grade], ['빈티지', s.vintage ? String(s.vintage) : ''], ['품종', s.rice]];
+  } else if (cid === 'traditional') {
+    rows = [['종류', s.grade], ['원료', s.rice]];
+  } else {
+    rows = [['종류', s.grade], ['숙성연수', s.age ? s.age + '년' : ''], ['캐스크', s.cask]];
+  }
+  rows.push(['도수', s.abv ? s.abv + '도' : '']);
+  rows.push(['기록일', visit ? fmtDot(visit.date) : '']);
+  return rows.filter(function (r) { return r[1]; });
+}
+
+function openSake(id) {
+  var s = sakeById(id);
+  if (!s) return;
+  var visit = s.visitId ? visitById(s.visitId) : null;
+  var venue = visit ? venueById(visit.venueId) : null;
+  var src = photoSrc(s.photo);
+  var cat = catDef(catIdOf(s));
+  var h = sheetHead(s.name || cat.ko);
+  h += '<div class="sheetbody">';
+  h += '<div class="row" style="align-items:flex-start;gap:12px">';
+  if (src) h += '<img src="' + src + '" alt="" style="width:74px;height:74px;object-fit:cover;border-radius:12px;flex:0 0 74px">';
+  h += '<div style="flex:1;min-width:0"><div class="catline">' + catBadge(s) + '</div>' +
+    '<div style="font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1.3">' + esc(s.name || '이름 없는 주류') + '</div>';
+  if (s.brewery) h += '<div class="tiny" style="margin-top:3px">' + esc(s.brewery) + '</div>';
+  if (s.rating) h += '<div style="margin-top:6px">' + starsHtml(s.rating) + ' <span class="tiny">' + starsText(s.rating) + '</span></div>';
+  h += '</div></div>';
+  var rows = catDetailRows(s);
+  if (rows.length) {
+    h += '<div class="kv" style="margin-top:14px">';
+    rows.forEach(function (r) { h += '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; });
+    h += '</div>';
+  }
+  if (s.memo) h += '<h4 style="margin:16px 2px 8px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:700">시음 메모</h4><div class="noteBox">' + esc(s.memo) + '</div>';
+  if (venue) {
+    h += '<div class="sakelinks">';
+    h += '<button class="linkchip" style="font-size:11.5px;padding:7px 10px" data-act="open-visit" data-id="' + visit.id + '">' +
+      ICON.pin + ' 마신 곳 · ' + esc(venue.name) + ' ' + fmtDot(visit.date) + '</button>';
+    h += visitOrdinalBadge(visit, 'lg');
+    h += '</div>';
+  }
+  h += '<div class="row" style="margin-top:18px;gap:8px">' +
+    '<button class="btn" style="flex:1" data-act="edit-sake" data-id="' + s.id + '">수정</button>' +
+    '<button class="btn danger" data-act="ask-delete-sake" data-id="' + s.id + '">삭제</button></div>';
+  h += '</div>';
+  openSheet(h);
+}
+
+/* ------------------------------ 추가·수정 시트 ------------------------------ */
+function openSakeEditor(opts) {
+  opts = opts || {};
+  var sake = opts.sake || null;
+  var d;
+  if (sake) {
+    d = {
+      category: catIdOf(sake), name: sake.name || '', brewery: sake.brewery || '', grade: sake.grade || '',
+      polish: sake.polish == null ? '' : sake.polish, rice: sake.rice || '', hiire: sake.hiire || '',
+      vintage: sake.vintage == null ? '' : sake.vintage, age: sake.age == null ? '' : sake.age,
+      cask: sake.cask || '', abv: sake.abv == null ? '' : sake.abv,
+      rating: sake.rating || 0, memo: sake.memo || '', photo: sake.photo || ''
+    };
+  } else {
+    d = newDraft(null);
+    if (opts.category && CAT_BY_ID[opts.category]) d.category = opts.category;
+  }
+  _ed = { id: sake ? sake.id : null, draft: d, visitId: sake ? sake.visitId : (opts.visitId || '') };
+  renderEditor();
+}
+
+function saveEditor() {
+  syncEditor();
+  if (!_ed) return;
+  var d = _ed.draft;
+  if (!(d.name || '').trim()) { toast('이름을 입력해 주세요.'); return; }
+  var payload = {
+    category: catIdOf(d), name: d.name.trim(), brewery: (d.brewery || '').trim(), grade: d.grade || '',
+    polish: num(d.polish), rice: (d.rice || '').trim(), hiire: d.hiire || '',
+    vintage: num(d.vintage), age: num(d.age), cask: (d.cask || '').trim(),
+    abv: num(d.abv), rating: Number(d.rating) || 0, memo: (d.memo || '').trim(),
+    photo: d.photo || ''
+  };
+  if (_ed.id) {
+    var s = sakeById(_ed.id);
+    if (s) {
+      Object.keys(payload).forEach(function (k) { s[k] = payload[k]; });
+      s.visitId = _ed.visitId;
+    }
+  } else {
+    payload.id = uid('s');
+    payload.visitId = _ed.visitId;
+    state.sakes.push(payload);
+  }
+  _ed = null;
+  saveState();
+  closeSheet();
+  render();
+  toast('저장했어요.');
+}
+
+/* ------------------------------ 데모 채우기 ------------------------------ */
+var CAT_DEMO = {
+  sake: [
+    { name: '신슈키레이 금거북이', brewery: '오카자키 슈조', grade: '준마이다이긴죠', polish: '39', rice: '긴몬니시키', hiire: 'hiire', abv: '', rating: 5, memo: '화입 1회. 8~12℃에서 향이 가장 살아난다.' },
+    { name: '덴슈 욘와리코부 아키타사케코마치 45%', brewery: '텐주 슈조', grade: '준마이다이긴죠', polish: '45', rice: '아키타사케코마치', hiire: 'hiire', abv: '16', rating: 4, memo: '스시 전반부에. 차게 마시면 산뜻하다.' }
+  ],
+  wine: [
+    { name: '부르고뉴 피노 누아', brewery: '도멘 루이 자도', grade: '레드', vintage: '2020', rice: '피노 누아', abv: '13', rating: 4.5, memo: '체리·흙 향, 산미가 산뜻하다. 스시와도 잘 붙었다.' }
+  ],
+  traditional: [
+    { name: '이강주 25도', brewery: '전주 이강주', grade: '증류주', rice: '찹쌀 · 누룩', abv: '25', rating: 4, memo: '달콤한 배 향. 디저트처럼 천천히.' }
+  ],
+  whisky: [
+    { name: '발베니 12년 더블우드', brewery: '발베니', grade: '싱글몰트', age: '12', cask: '셰리 캐스크', abv: '40', rating: 4.5, memo: '꿀·바닐라에 긴 여운. 마무리 한 잔으로.' }
+  ]
+};
+function applyDemo(d, seed) {
+  var cat = catIdOf(d);
+  var pool = CAT_DEMO[cat] || CAT_DEMO.sake;
+  var src = pool[Math.abs(seed + (d.name ? d.name.length : 0)) % pool.length];
+  Object.keys(src).forEach(function (k) { d[k] = src[k]; });
+  d.category = cat;
+}
+
+/* ------------------------------ 테스트용 노출 (앱 동작과 무관) ------------------------------ */
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.catDef = catDef;
+  __TEST__.catIdOf = catIdOf;
+  __TEST__.catName = catName;
+  __TEST__.catBadge = catBadge;
+  __TEST__.catTotals = catTotals;
+  __TEST__.catCards = catCards;
+  __TEST__.catListHtml = catListHtml;
+  __TEST__.catSectionHtml = catSectionHtml;
+  __TEST__.catMetaBits = catMetaBits;
+  __TEST__.catDetailRows = catDetailRows;
+  __TEST__.brandGroups = brandGroups;
+  __TEST__.brandOfSake = brandOfSake;
+  __TEST__.brandListHtml = brandListHtml;
+  __TEST__.brandRow = brandRow;
+  __TEST__.noteViewChips = noteViewChips;
+  __TEST__.noteListHtml = noteListHtml;
+  __TEST__.viewNotes = viewNotes;
+  __TEST__.sakeMeta = sakeMeta;
+  __TEST__.sakeCard = sakeCard;
+  __TEST__.filteredSakes = filteredSakes;
+  __TEST__.gradeChips = gradeChips;
+  __TEST__.draftHtml = draftHtml;
+  __TEST__.newDraft = newDraft;
+  __TEST__.applyDemo = applyDemo;
+  __TEST__.setDraftCat = setDraftCat;
+  __TEST__.openSakeEditor = openSakeEditor;
+  __TEST__.saveEditor = saveEditor;
+  __TEST__.openSake = openSake;
+}
+
+
+/* =====================================================================
+   업장 상세 — 날짜별 방문 타임라인 (0.6.0)
+   ---------------------------------------------------------------------
+   · 업장별 화면의 업장 줄을 누르면 그 업장의 방문을 날짜(최신순)로 펼친다.
+   · 방문마다 그날 먹은 음식(사진·메모)과 마신 주류(주종 배지·이름·스타일·
+     별점)를 한 화면에 모아 보여 준다. 날짜 줄은 방문 상세로, 주류 줄은
+     주류 상세로 이어진다.
+   · 원본 소스(sake-journal-src)는 건드리지 않고 build.py 가 이 파일을 덧붙인다.
+   ===================================================================== */
+
+/* 이 업장의 방문 — 같은 이름 업장은 하나로 보고 최신순으로 */
+function venueVisits(venueId) {
+  var key = _venueKey({ venueId: venueId });
+  return state.visits.filter(function (v) {
+    if (key && _venueKey(v) === key) return true;
+    return v.venueId === venueId;
+  }).sort(function (a, b) {
+    var ka = (a.date || '') + ' ' + (a.time || '');
+    var kb = (b.date || '') + ' ' + (b.time || '');
+    return kb.localeCompare(ka);
+  });
+}
+
+/* 그날 먹은 음식: 사진 썸네일 + 방문 메모 */
+function venueFoodHtml(v) {
+  var photos = v.photos || [];
+  var h = '<div class="vsec">';
+  h += '<div class="vseclabel">그날 먹은 음식</div>';
+  if (photos.length) {
+    h += '<div class="strip vstrip" style="grid-template-columns:repeat(' + Math.min(photos.length, 5) + ',1fr)">';
+    photos.slice(0, 5).forEach(function (p, i) {
+      var extra = (photos.length > 5 && i === 4) ? '<span class="more">+' + (photos.length - 4) + '</span>' : '';
+      h += '<button class="th" style="border:0;padding:0;display:block" data-act="lb-open" data-visit="' + v.id + '" data-p="' + i + '">' +
+        '<img src="' + photoSrc(p) + '" alt="" loading="lazy">' + extra + '</button>';
+    });
+    h += '</div>';
+    h += '<div class="tiny" style="margin-top:5px">사진 ' + photos.length + '장 · 눌러서 크게 보기</div>';
+  } else {
+    h += '<div class="vempty">사진으로 남긴 음식이 없어요.</div>';
+  }
+  if (v.note) h += '<div class="vnote">' + esc(v.note) + '</div>';
+  h += '</div>';
+  return h;
+}
+
+/* 그날 마신 술: 주종 배지 · 이름 · 생산자/스타일 · 별점 */
+function venueDrinksHtml(v) {
+  var sakes = sakesOfVisit(v.id);
+  var h = '<div class="vsec">';
+  h += '<div class="vseclabel">마신 주류 ' + sakes.length + '병</div>';
+  if (sakes.length) {
+    h += '<div class="vdlist">';
+    sakes.forEach(function (s) {
+      h += '<button class="srow" data-act="open-sake" data-id="' + s.id + '">' +
+        '<span class="sn"><span class="sdline">' + catBadge(s) + '</span>' +
+        '<b>' + esc(s.name || '이름 없는 주류') + '</b>' +
+        '<span>' + esc(sakeMeta(s)) + '</span></span>' +
+        (s.rating ? '<span class="st">' + starsText(s.rating) + '</span>' : '') + '</button>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div class="vempty">이 방문에 남긴 주류가 없어요.</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* 방문 한 건 = 날짜 줄 + 그날의 음식·술 */
+function venueDayHtml(v) {
+  var h = '<div class="vday">';
+  h += '<button class="vdayhead" data-act="open-visit" data-id="' + v.id + '">' +
+    '<span class="vdaydate">' + esc(fmtKo(v.date)) + '</span>' +
+    (v.time ? '<span class="vdaytime">' + esc(v.time) + '</span>' : '') +
+    visitOrdinalBadge(v) +
+    '<span class="vdaychev">' + ICON.chev + '</span></button>';
+  h += '<div class="vdaybody">' + venueFoodHtml(v) + venueDrinksHtml(v) + '</div>';
+  h += '</div>';
+  return h;
+}
+
+function openVenue(venueId) {
+  var venue = venueById(venueId);
+  if (!venue) return;
+  var visits = venueVisits(venueId);
+  var h = sheetHead(venue.name);
+  h += '<div class="sheetbody tight">';
+  h += '<div style="padding:0 16px">';
+  var meta = [venue.area, venue.address].filter(Boolean);
+  if (meta.length) h += '<div class="tiny" style="margin-top:2px;line-height:1.5">' + meta.map(esc).join(' · ') + '</div>';
+  h += '<div class="vordrow">';
+  if (visits.length) h += '<span class="badge vord lg">총 ' + visits.length + '회 방문</span>';
+  if (visits.length && visits[0].date) h += '<span class="badge">최근 방문 ' + esc(fmtDot(visits[0].date)) + '</span>';
+  h += '</div>';
+  h += '<div class="vtlhead">날짜별 기록 · 최신순</div>';
+  if (visits.length) {
+    h += '<div class="vtl">' + visits.map(venueDayHtml).join('') + '</div>';
+  } else {
+    h += '<p class="hint">아직 방문 기록이 없어요.</p>';
+  }
+  h += '<div class="row" style="margin:16px 0 4px">' +
+    '<button class="btn sm ghost" data-act="venue-filter-close" data-id="' + venue.id + '">이 업장만 모아 보기</button>' +
+    '<span class="spacer"></span>' +
+    '<button class="btn sm ghost" data-act="go-record">+ 기록</button></div>';
+  h += '</div></div>';
+  openSheet(h);
+}
+
+/* 업장 요약 줄: 누르면 그 업장의 날짜별 기록을 연다 */
+function venueTotalsBlock() {
+  var list = venueTotals();
+  if (!list.length) return '';
+  var h = '<div class="vtot">';
+  list.forEach(function (g) {
+    var vid = g.ids.length === 1 ? g.ids[0] : '';
+    var inner = '<span class="vtname">' + esc(g.name) + '</span>' +
+      '<span class="vtmeta">총 ' + g.count + '회 방문</span>' +
+      (g.last ? '<span class="vtmeta">최근 방문 ' + esc(fmtDot(g.last)) + '</span>' : '');
+    if (vid) {
+      h += '<button class="vtrow" data-act="open-venue" data-id="' + esc(vid) + '">' +
+        inner + '<span class="vtchev">' + ICON.chev + '</span></button>';
+    } else {
+      h += '<div class="vtrow">' + inner + '</div>';
+    }
+  });
+  h += '</div>';
+  return h;
+}
+
+/* 테스트용 노출 (앱 동작과 무관) */
+if (typeof __TEST__ !== 'undefined') {
+  __TEST__.openVenue = openVenue;
+  __TEST__.venueVisits = venueVisits;
+  __TEST__.venueDayHtml = venueDayHtml;
+  __TEST__.venueFoodHtml = venueFoodHtml;
+  __TEST__.venueDrinksHtml = venueDrinksHtml;
+  __TEST__.venueTotalsBlock = venueTotalsBlock;
 }
 
 
