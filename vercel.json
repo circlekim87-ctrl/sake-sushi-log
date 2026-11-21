@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/ai.js": { "maxDuration": 60 },
+    "api/nearby.js": { "maxDuration": 15 }
+  }
+}

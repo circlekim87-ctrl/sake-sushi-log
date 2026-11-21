@@ -320,11 +320,46 @@ iOS Safari 에서 `input[type=date]` · `input[type=time]` 이 카드 오른쪽 
 · 새 문구(`날짜별 기록 · 최신순` · `그날 먹은 음식` · `마신 주류 {n}병` · `사진 {n}장 · 눌러서 크게 보기`
   · `이 업장만 모아 보기` 등)는 `i18n.json` 에 영어·일본어까지 넣어 `i18n_coverage.py` 미번역 0개를 유지한다.
 
+## 기본 서버 AI · 위치 검색 — `/api/ai` · `/api/nearby` (Vercel 서버리스)
+
+일반 사용자가 자기 API 키를 발급받지 않아도 라벨 인식과 주변 업장 찾기가 되도록,
+Vercel 서버리스 함수 두 개를 저장소에 함께 둔다. 키는 **Vercel 환경변수**에만 있고
+코드·저장소·브라우저에는 들어가지 않는다.
+
+| 함수 | 하는 일 | 환경변수 |
+|---|---|---|
+| `api/ai.js` | `POST /api/ai` — 라벨 사진을 받아 Gemini로 읽고 텍스트를 돌려준다 | `GEMINI_API_KEY` |
+| `api/nearby.js` | `GET /api/nearby?lat=..&lng=..&radius=..` — 카카오 로컬(FD6·CE7)과 동네명(coord2regioncode) | `KAKAO_REST_API_KEY` |
+
+- **설정 위치**: Vercel 대시보드 → 프로젝트 `sakenoteproject` → Settings → Environment Variables
+  에 두 변수를 추가하고(Production·Preview·Development) 한 번 Redeploy 한다.
+- **키가 없을 때**: 두 함수 모두 `503 {"error":"not_configured"}` 로 답하고, 앱은 예전 방식으로 돌아간다
+  (AI는 "설정에서 내 키를 넣으면…" 안내 + `예시 채우기`, 위치는 OpenStreetMap Overpass·Nominatim).
+- **정적 호스트**: GitHub Pages 처럼 `/api/*` 가 없는 곳은 `404` 가 오고 같은 폴백을 탄다.
+- **모델 체인**: `api/ai.js` 는 화면과 같은 무료 Gemini 모델을 순서대로 시도한다
+  (`gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-3.1-flash-lite` → `gemini-3.6-flash` → `gemini-4-hydrogen`),
+  `400·404·429·500·502·503·504` 는 다음 모델로 넘어간다. 전부 혼잡하면 `503 {"error":"busy"}`.
+- **남용 방지**: `/api/ai` 는 IP 기준 1분 12회 · 1시간 60회(서버리스 인스턴스 안의 경량 카운터),
+  본문 4MB · base64 사진 3.4M자 상한(Vercel 요청 본문 상한 4.5MB 아래). 넘으면 `413`·`429`.
+- **설정 화면**: 배포(https)에서는 키 입력칸을 접고 `기본 서버 AI · 위치 검색 사용` +
+  `[내 API 키 직접 쓰기]` 만 보여 준다. 토글을 열어 키를 넣으면 **내 키가 우선**이고,
+  키를 해제하면 다시 기본 서버로 돌아간다. `file://` 로 연 파일은 서버가 없으므로 예전처럼 펼쳐 둔다.
+- **프라이버시**: 서버로 나가는 값은 라벨 사진(과 지시문) 또는 좌표·반경뿐이다.
+  기록·업장명·사적 메모·계정 정보는 보내지 않는다.
+
+검증: `node verify_api.mjs` (함수 단위 — 모델 폴백·검증·레이트리밋·카카오 형식),
+`python3 verify_server_api.py` (https 로 띄운 화면에서 `/api/ai`·`/api/nearby` 를 모의해
+기본 서버 사용 · 접힌 설정 · 내 키 우선 · 503/404 폴백 · OSM 폴백을 확인).
+
 ## 배포 방법 (Vercel · GitHub Pages)
 
-1. 저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 브랜치 루트에 `index.html` 등 배포 파일을 올린다.
+1. `sh work/deploy-sake-sushi-log.sh` — `index.html`·아이콘·`robots.txt`·`README.md` 와 함께
+   `api/ai.js`·`api/nearby.js`·`vercel.json` 을 `work/gh-deploy-sake-sushi-log/` 로 복사해
+   저장소 `circlekim87-ctrl/sake-sushi-log` 의 `main` 에 커밋·푸시한다.
 2. Vercel 프로젝트 `sakenoteproject` 가 `main` 의 새 커밋을 자동으로 배포한다 → `https://sakenoteproject.vercel.app/`
+   (`api/*.js` 는 Vercel 기본 컨벤션으로 서버리스 함수가 된다. `vercel.json` 은 `maxDuration` 만 정한다.)
 3. 같은 커밋을 GitHub Pages 도 서비스한다 (Settings › Pages › Source: `Deploy from a branch` → `main` / `/ (root)`) → `https://circlekim87-ctrl.github.io/sake-sushi-log/`
+   — 이 주소에는 서버 함수가 없어 `/api/*` 가 404 이고, 앱은 개인 키·OpenStreetMap 폴백으로 동작한다.
 
 첫 실행은 **빈 상태**(업장·방문·주류 기록 0건, 헤더 `DEMO` 표기 없음)로 시작한다.
 저장된 기록이 있으면 그 기록을 그대로 불러온다. 화면 검증용 샘플 기록은 주소 뒤에
@@ -364,6 +399,9 @@ LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verif
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_i18n.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_stats_brands.py
 LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_categories.py
+node verify_api.mjs
+LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_server_api.py
+LD_LIBRARY_PATH=/workspace/work/debs/root/usr/lib/x86_64-linux-gnu python3 verify_live_deploy.py
 ```
 
 결과 스크린샷은 `screenshots/` 에 쌓인다(`01-venues.png` … `16-settings-nearby.png`).
