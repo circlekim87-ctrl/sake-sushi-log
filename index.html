@@ -2668,7 +2668,11 @@ function loadState() {
     var raw = localStorage.getItem(DB_KEY);
     if (raw) {
       var s = JSON.parse(raw);
-      if (s && s.venues && s.visits && s.sakes) return normalizeState(s);
+      if (s && s.venues && s.visits && s.sakes) {
+        var onlySample = s.venues.length > 0 && s.venues.every(function (v) { return !!v.sample; });
+        if (onlySample && !demoMode()) return normalizeState(emptyState());
+        return normalizeState(s);
+      }
     }
   } catch (e) { /* ignore */ }
   return normalizeState(demoMode() ? seedState() : emptyState());
