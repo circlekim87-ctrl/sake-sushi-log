@@ -7687,9 +7687,14 @@ async function cloudSync(silent) {
   var remote;
   try {
     remote = await cloudRemoteMeta(token);
-  } finally {
+  } catch (e) {
     _cloudBusy = false;
+    var lost = /failed to fetch|networkerror|load failed|abort/i.test((e && e.message) || '');
+    cloudSetStatus(lost ? 'offline' : 'error', (e && e.message) || '');
+    cloudRefreshSettings();
+    return false;
   }
+  _cloudBusy = false;
   if (!remote.ok) {
     if (remote.missing) { cloudSetStatus('setup'); cloudRefreshSettings(); return false; }
     cloudSetStatus('error', remote.error || '');
