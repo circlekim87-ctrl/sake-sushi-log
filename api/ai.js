@@ -36,9 +36,9 @@ var TOTAL_BUDGET_MS = 50000;                 // 함수 전체 상한(maxDuration
 var RATE_PER_MIN = 12;
 var RATE_PER_HOUR = 60;
 
-var DEFAULT_PROMPT = '이 사진은 일본 사케 병의 라벨입니다. 읽을 수 있는 정보만 골라 JSON 하나로만 답하세요. ' +
-  '모르면 빈 문자열. 형식: {"name":"","brewery":"","grade":"준마이다이긴죠|준마이긴죠|준마이|혼조조|긴죠|다이긴죠|특별준마이|샴페인|기타",' +
-  '"polish":"정미보합 숫자","rice":"주조미","hiire":"hiire|namachozo|nama|yamahai","abv":"도수 숫자","memo":"한 줄 메모"}';
+var DEFAULT_PROMPT = '이 사진은 주류(사케·와인·전통주·위스키) 병·라벨입니다. 사진에 병이 1병이면 1개, 여러 병이면 보이는 모든 병을 왼쪽부터 순서대로 빠짐없이 담아 JSON 하나로만 답하세요. ' +
+  '병마다 어느 주종인지 따로 판단하고(한 사진에 사케와 샴페인이 섞여 있어도 각각 맞게), 읽을 수 있는 정보만 골라 채우세요. 모르면 빈 문자열. ' +
+  '형식: {"items":[{"category":"sake|wine|traditional|whisky","name":"","brewery":"생산자·양조장·증류소","grade":"사케 등급 또는 와인·전통주·위스키 종류","vintage":"와인 빈티지 연도","polish":"사케 정미보합 숫자","rice":"사케 주조미·와인 품종·전통주 원료","hiire":"hiire|namachozo|nama|yamahai","age":"위스키 숙성연수","cask":"위스키 캐스크","abv":"도수 숫자","memo":"한 줄 메모"}]}';
 
 /* ------------------------------ 응답 도우미 ------------------------------ */
 function cors(res) {
@@ -133,7 +133,8 @@ function geminiBody(mime, b64, prompt) {
   if (b64) parts.push({ inlineData: { mimeType: mime, data: b64 } });
   return {
     contents: [{ role: 'user', parts: parts }],
-    generationConfig: { temperature: 0, responseMimeType: 'application/json' }
+    /* 여러 병(9~12병)의 JSON 이 잘리지 않게 넉넉히 — 응답은 JSON 이라 길어도 몇 KB 다 */
+    generationConfig: { temperature: 0, responseMimeType: 'application/json', maxOutputTokens: 2048 }
   };
 }
 
