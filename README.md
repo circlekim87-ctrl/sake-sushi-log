@@ -1,8 +1,9 @@
-# 사케 노트 — 공개 배포용(데모) 빌드
+# 사케 노트 v1.0.0 — 정식 배포 빌드
 
 `work/sake-journal-src/` 원본 소스로 만든 **단일 파일 데모**. GitHub Pages 같은 공개 웹에 올려도
 개인정보·실제 사진이 전혀 남지 않도록 비식별 처리한 버전이다.
 
+- 앱 버전: **v1.0.0** (정식 배포) — 설정 › 앱 정보에 `사케 노트 v1.0.0` / English `Sake Note v1.0.0` / 日本語 `酒ノート v1.0.0` 로 표시
 - 산출물: `index.html` (약 425KB) + 앱 아이콘 `icon-512.png` · `icon-180.png` · `icon-32.png`
 - 서버 설정(1회): `supabase-setup.sql` — Supabase SQL Editor 에 붙여 넣고 실행(테이블·RLS·사진 버킷)
 - 빌드: `python3 build.py`  (원본 소스는 읽기만 하며 수정하지 않는다)
